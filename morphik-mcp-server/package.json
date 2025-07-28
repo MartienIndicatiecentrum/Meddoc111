@@ -1,0 +1,36 @@
+{
+  "name": "morphik-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Morphik AI integration with MedDoc AI Flow",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "morphik",
+    "ai",
+    "document-management"
+  ],
+  "author": "MedDoc AI Flow",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.0",
+    "mime-types": "^2.1.35",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^20.14.10",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}

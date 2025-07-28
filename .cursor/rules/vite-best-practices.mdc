@@ -1,0 +1,7 @@
+---
+description: Best practices for Vite applications
+alwaysApply: false
+---
+- Use Vite's built-in features for fast development and hot module replacement.
+- Optimize build performance by leveraging code splitting and lazy loading.
+- Configure environment variables properly for different modes (development, production).

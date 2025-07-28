@@ -1,0 +1,7 @@
+---
+description: Best practices for React Hook Form
+alwaysApply: false
+---
+- Use the `useForm` hook to manage form state efficiently.
+- Implement validation using Zod or other resolvers for type safety.
+- Utilize controlled components for better integration with UI libraries.

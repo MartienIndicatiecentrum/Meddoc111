@@ -1,0 +1,7 @@
+---
+description: Best practices for Radix UI components
+alwaysApply: false
+---
+- Use Radix components for building accessible UI elements.
+- Customize components using the `styled` API for consistent styling.
+- Ensure proper keyboard navigation and focus management in interactive components.

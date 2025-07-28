@@ -1,0 +1,18 @@
+{
+  "envFile": true,
+  "envVars": {
+    "SUPABASE_URL": true,
+    "SUPABASE_SERVICE_ROLE_KEY": true
+  },
+  "ports": {
+    "3000": "available",
+    "5000": "available",
+    "8081": "in-use"
+  },
+  "services": {
+    "backend": false,
+    "rag": false,
+    "frontend": false
+  },
+  "database": false
+}

@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+- Use functional components and hooks for state management.
+- Implement error boundaries to catch JavaScript errors in components.
+- Use React's context API for global state management when necessary.

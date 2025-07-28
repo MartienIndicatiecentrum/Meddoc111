@@ -1,0 +1,132 @@
+---
+alwaysApply: true
+extends:
+  # Core Next.js & React best practices
+  - cursor-rules-nextjs-typescript-bestpractices.mdc
+  - cursor-rules-senior-frontend-react-nextjs.yaml
+  - react-best-practices.mdc
+  
+  # Database & Backend
+  - supabase-best-practices.mdc
+  
+  # UI/UX & Styling
+  - cursor-rules-ui-ux-design-principles.yaml
+  - tailwindcss-best-practices.mdc
+  - radix-ui-best-practices.mdc
+  
+  # Form handling (als je formulieren hebt)
+  - react-hook-form-best-practices.mdc
+  - zod-best-practices.mdc
+  
+  # State management & data fetching
+  - react-query-best-practices.mdc
+---
+
+# Cursor Project Rules – PGB Proces Flow App
+
+## 1. **Implementatie Workflow** 
+*(Overgenomen van originele rules + best practices)*
+   - **Planning vereist**: Maak altijd eerst een gedetailleerd plan bij wijzigingen van:
+     - Layout en UI/UX aanpassingen (volg UI/UX design principles)
+     - Nieuwe functionaliteiten of modules (volg React/Next.js patterns)
+     - Database koppelingen (volg Supabase best practices)
+     - API integraties (gebruik TypeScript strict typing)
+   
+   - **Code Quality Standards**:
+     - Gebruik TypeScript strict mode
+     - Implementeer proper error boundaries
+     - Volg React hooks rules of hooks
+     - Gebruik Zod voor schema validation
+     - Implementeer loading states en error handling
+   
+   - **Direct implementeren**: Na planning direct uitvoeren zonder wachten op goedkeuring
+   - **Veiligheidscheck**: Bij kritieke wijzigingen (data verwijdering, beveiligingsinstellingen, productie database changes) alsnog toestemming vragen
+
+## 2. **Procesflow UI** 
+*(Enhanced met UI/UX best practices)*
+   - Volg Radix UI accessibility guidelines voor interactieve elementen
+   - Gebruik Tailwind CSS utility classes voor consistent styling
+   - Implementeer proper focus management en keyboard navigation
+   - De procesflow bestaat uit horizontale, gecentreerde stappen (grijze blokken)
+   - Zorg voor responsive design op alle schermformaten
+   - Gebruik loading skeletons tijdens data fetching
+   - Implementeer smooth transitions tussen states
+
+## 3. **Database & API Management**
+*(Enhanced met Supabase best practices)*
+   - Gebruik Supabase TypeScript types voor type safety
+   - Implementeer proper RLS (Row Level Security) policies
+   - Cache queries met React Query voor betere performance
+   - Gebruik optimistic updates waar mogelijk
+   - Handle connection errors gracefully
+   - Volg database naming conventions (snake_case)
+   - Gebruik prepared statements voor veiligheid
+
+## 4. **Component Architecture** 
+*(Nieuwe sectie gebaseerd op React best practices)*
+   - Gebruik React Server Components waar mogelijk (Next.js 13+)
+   - Implementeer proper component composition patterns
+   - Gebruik custom hooks voor shared logic
+   - Implementeer proper memo() voor performance optimization
+   - Gebruik React.Suspense voor data fetching
+   - Volg single responsibility principle per component
+
+## 5. **Form Handling & Validation**
+*(Nieuwe sectie gebaseerd op form best practices)*
+   - Gebruik React Hook Form voor form state management
+   - Implementeer Zod schemas voor validation
+   - Gebruik controlled components pattern
+   - Implementeer proper error messaging
+   - Handle form submission loading states
+   - Gebruik proper accessibility labels
+
+## 6. **State Management**
+*(Nieuwe sectie gebaseerd op state best practices)*
+   - Gebruik React Query voor server state
+   - Gebruik Zustand of Context voor client state
+   - Avoid prop drilling met proper context design
+   - Implementeer proper state normalization
+   - Use reducer pattern voor complex state logic
+
+## 7. **Performance & SEO**
+*(Nieuwe sectie gebaseerd op Next.js best practices)*
+   - Gebruik Next.js Image component voor optimized images
+   - Implementeer proper metadata voor SEO
+   - Use dynamic imports voor code splitting
+   - Implementeer proper caching strategies
+   - Monitor Core Web Vitals
+
+## 8. **Security & Best Practices**
+*(Enhanced security sectie)*
+   - Sanitize user inputs
+   - Gebruik environment variables voor sensitive data
+   - Implementeer proper CORS settings
+   - Use HTTPS in production
+   - Validate data op zowel client als server side
+   - Implementeer rate limiting waar nodig
+
+## 9. **Testing & Quality Assurance**
+*(Nieuwe sectie)*
+   - Schrijf unit tests voor utility functions
+   - Implementeer integration tests voor critical flows
+   - Use TypeScript strict mode voor compile-time checks
+   - Implementeer proper error logging
+   - Use ESLint en Prettier voor code consistency
+
+## 10. **Deployment & Monitoring**
+*(Nieuwe sectie)*
+   - Use Vercel voor Next.js deployment
+   - Implementeer proper environment management
+   - Set up error monitoring (Sentry)
+   - Monitor performance metrics
+   - Use proper CI/CD pipelines
+
+---
+
+**KRITIEKE WIJZIGINGEN DIE TOESTEMMING VEREISEN:**
+- Database schema wijzigingen die data kunnen verliezen
+- Beveiligingsinstellingen aanpassen  
+- Productie database direct bewerken
+- API keys of authenticatie wijzigen
+- Bestaande data verwijderen of overschrijven
+- RLS policy wijzigingen in productie  

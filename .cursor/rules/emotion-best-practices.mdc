@@ -1,0 +1,7 @@
+---
+description: Best practices for Emotion styling
+alwaysApply: false
+---
+- Use the `css` prop for styling components directly.
+- Leverage Emotion's theming capabilities for consistent design.
+- Optimize performance by using the `@emotion/react` package for server-side rendering.

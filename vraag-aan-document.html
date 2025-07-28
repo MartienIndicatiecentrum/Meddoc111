@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vraag het aan de AI</title>
+</head>
+<body style="font-family: Arial; padding: 30px; max-width: 600px; margin: auto;">
+  <h2>🧠 Vraag het aan je document</h2>
+
+  <form id="queryForm">
+    <label for="docId"><b>🗂️ Document ID</b></label><br>
+    <input type="text" id="docId" name="document_id" value="aanvullende vragen Seropjan 412612239 PGB.pdf"
+           style="width: 100%; padding: 8px;" required><br><br>
+
+    <label for="opdrachtgever"><b>🏢 Filter op Opdrachtgever</b></label><br>
+    <select id="opdrachtgever" name="opdrachtgever" style="width: 100%; padding: 8px; margin-bottom: 16px;">
+      <option value="">Alle opdrachtgevers</option>
+      <option value="Particulier">Particulier</option>
+      <option value="ICN">ICN</option>
+      <option value="IBN">IBN</option>
+      <option value="IN">IN</option>
+      <option value="MMS">MMS</option>
+    </select><br>
+
+    <label for="vraag"><b>❓ Vraag</b></label><br>
+    <input type="text" id="vraag" name="question" placeholder="Wat wil je weten?"
+           style="width: 100%; padding: 8px;" required><br><br>
+
+    <button type="submit" style="padding: 10px 20px;">📨 Vraag</button>
+  </form>
+
+  <h3>📋 Antwoord</h3>
+  <pre id="antwoord" style="background-color: #f3f3f3; padding: 10px;"></pre>
+
+  <script>
+    document.getElementById('queryForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const document_id = document.getElementById('docId').value;
+      const question = document.getElementById('vraag').value;
+      const opdrachtgever = document.getElementById('opdrachtgever').value;
+
+      // Show loading state
+      document.getElementById('antwoord').textContent = '⏳ Bezig met zoeken...';
+
+      try {
+        const requestBody = {
+          question,
+          document_id,
+          ...(opdrachtgever && { opdrachtgever }) // Only include if not empty
+        };
+
+        console.log('🚀 Sending request:', requestBody);
+
+        const res = await fetch('http://localhost:5000/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        document.getElementById('antwoord').textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById('antwoord').textContent = `❌ Fout: ${error.message}`;
+      }
+    });
+
+    // Add change handler for opdrachtgever dropdown to show current selection
+    document.getElementById('opdrachtgever').addEventListener('change', function(e) {
+      const selected = e.target.value;
+      console.log('📋 Opdrachtgever filter gewijzigd:', selected || 'Alle opdrachtgevers');
+    });
+  </script>
+</body>
+</html>

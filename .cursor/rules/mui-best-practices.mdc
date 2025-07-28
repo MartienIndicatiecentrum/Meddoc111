@@ -1,0 +1,7 @@
+---
+description: Best practices for Material-UI (MUI) components
+alwaysApply: false
+---
+- Use the MUI theme provider to maintain consistent styling across components.
+- Leverage MUI's built-in accessibility features for better user experience.
+- Prefer using MUI's Grid system for responsive layouts.

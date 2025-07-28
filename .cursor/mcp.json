@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "supabase-medicflow": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-supabase"],
+      "env": {
+        "SUPABASE_URL": "https://ltasjbgamoljvqoclgkf.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0YXNqYmdhbW9sanZxb2NsZ2tmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0MDg1NTMsImV4cCI6MjA2Nzk4NDU1M30.Nt9l38xlQw3IP1Q6IHFkoynlsuNqXC-eP1mqtCZVP8c",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0YXNqYmdhbW9sanZxb2NsZ2tmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjQwODU1MywiZXhwIjoyMDY3OTg0NTUzfQ.placeholder_service_role_key",
+        "ENABLE_WRITE_OPERATIONS": "true",
+        "ENABLE_SCHEMA_INTROSPECTION": "true",
+        "ENABLE_REALTIME": "true",
+        "ENABLE_FULL_TEXT_SEARCH": "true",
+        "DEFAULT_SCHEMA": "public"
+      }
+    },
+    "postgres-medicflow": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "postgresql://postgres:[jouw_database_password]@db.ltasjbgamoljvqoclgkf.supabase.co:5432/postgres",
+        "ENABLE_WRITE_OPERATIONS": "true",
+        "ENABLE_SCHEMA_INTROSPECTION": "true",
+        "QUERY_TIMEOUT": "30000",
+        "DEFAULT_SCHEMA": "public",
+        "ENABLE_FULL_TEXT_SEARCH": "true"
+      }
+    },
+    "filesystem-medicflow": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem"],
+      "env": {
+        "ALLOWED_DIRECTORIES": "C:\\Users\\marti\\OneDrive\\Bureaublad\\medicflowdocuments\\meddoc-ai-flow,C:\\Users\\marti\\OneDrive\\Bureaublad\\Clienten\\aCLIENTENTHUISZORG"
+      }
+    },
+    "morphik": {
+      "command": "node",
+      "args": ["morphik-mcp-server/dist/index.js"],
+      "env": {
+        "MORPHIK_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNDhkNTAzZmQtZTYwOC00MGNkLWE4MGMtMjY3Mzc0YzczNTRmIiwiYXBwX2lkIjoiamo3ZDJmcDEzZ2oiLCJuYW1lIjoibWVkZG9jIiwicGVybWlzc2lvbnMiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTc4NTA4Nzk2NSwidHlwZSI6ImRldmVsb3BlciIsImVudGl0eV9pZCI6IjQ4ZDUwM2ZkLWU2MDgtNDBjZC1hODBjLTI2NzM3NGM3MzU0ZiJ9.SWBo0qlugSZaIgqPC6O1CXR65kqwwgbNjVRtMxlJylA",
+        "MORPHIK_API_URL": "https://api.morphik.ai",
+        "MORPHIK_DEFAULT_FOLDER": "meddoc-documents",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

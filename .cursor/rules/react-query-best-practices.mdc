@@ -1,0 +1,7 @@
+---
+description: Best practices for React Query
+alwaysApply: false
+---
+- Use query keys effectively to manage and cache data.
+- Implement background refetching to keep data fresh.
+- Use mutation hooks for creating, updating, and deleting data with optimistic updates.

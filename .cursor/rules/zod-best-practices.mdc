@@ -1,0 +1,7 @@
+---
+description: Best practices for Zod validation
+alwaysApply: false
+---
+- Define schemas for data validation to ensure type safety.
+- Use Zod's built-in methods for complex validations (e.g., `.refine()`).
+- Integrate Zod with React Hook Form for seamless form validation.

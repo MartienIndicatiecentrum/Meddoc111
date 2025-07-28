@@ -1,0 +1,61 @@
+# Exclude heavy files and directories from Vercel deployment
+node_modules/
+.git/
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+
+# Exclude heavy ML libraries and data
+LightRAG/
+SuperClaude/
+serena/
+*.egg-info/
+dist/
+build/
+
+# Exclude development files
+*.md
+*.txt
+!requirements.txt
+!runtime.txt
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Exclude test files
+test_*.py
+*_test.py
+tests/
+__tests__/
+
+# Exclude documentation
+docs/
+*.md
+README*
+
+# Exclude backup files
+*.backup
+*.bak
+*.tmp 

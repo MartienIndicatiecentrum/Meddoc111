@@ -1,0 +1,7 @@
+---
+description: Best practices for Supabase integration
+alwaysApply: false
+---
+- Use Supabase's client library for seamless database interactions.
+- Implement authentication and authorization properly for secure access.
+- Utilize real-time subscriptions for dynamic data updates in your application.

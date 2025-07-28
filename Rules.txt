@@ -1,0 +1,101 @@
+Please adapt the globs depending on your project structure.
+
+---
+name: vite-best-practices.mdc
+description: Best practices for Vite applications
+globs: **/*.{ts,tsx,js,jsx}
+---
+
+- Use Vite's built-in features for fast development and hot module replacement.
+- Optimize build performance by leveraging code splitting and lazy loading.
+- Configure environment variables properly for different modes (development, production).
+
+---
+name: react-best-practices.mdc
+description: Best practices for React applications
+globs: **/*.{ts,tsx,js,jsx}
+---
+
+- Use functional components and hooks for state management.
+- Implement error boundaries to catch JavaScript errors in components.
+- Use React's context API for global state management when necessary.
+
+---
+name: mui-best-practices.mdc
+description: Best practices for Material-UI (MUI) components
+globs: **/*.{ts,tsx}
+---
+
+- Use the MUI theme provider to maintain consistent styling across components.
+- Leverage MUI's built-in accessibility features for better user experience.
+- Prefer using MUI's Grid system for responsive layouts.
+
+---
+name: react-query-best-practices.mdc
+description: Best practices for React Query
+globs: **/*.{ts,tsx}
+---
+
+- Use query keys effectively to manage and cache data.
+- Implement background refetching to keep data fresh.
+- Use mutation hooks for creating, updating, and deleting data with optimistic updates.
+
+---
+name: react-hook-form-best-practices.mdc
+description: Best practices for React Hook Form
+globs: **/*.{ts,tsx}
+---
+
+- Use the `useForm` hook to manage form state efficiently.
+- Implement validation using Zod or other resolvers for type safety.
+- Utilize controlled components for better integration with UI libraries.
+
+---
+name: tailwindcss-best-practices.mdc
+description: Best practices for Tailwind CSS styling
+globs: **/*.{ts,tsx,css}
+---
+
+- Use utility-first classes for rapid UI development.
+- Create custom components with Tailwind's `@apply` directive for reusability.
+- Leverage Tailwind's responsive design features for mobile-first development.
+
+---
+name: zod-best-practices.mdc
+description: Best practices for Zod validation
+globs: **/*.{ts,tsx}
+---
+
+- Define schemas for data validation to ensure type safety.
+- Use Zod's built-in methods for complex validations (e.g., `.refine()`).
+- Integrate Zod with React Hook Form for seamless form validation.
+
+---
+name: radix-ui-best-practices.mdc
+description: Best practices for Radix UI components
+globs: **/*.{ts,tsx}
+---
+
+- Use Radix components for building accessible UI elements.
+- Customize components using the `styled` API for consistent styling.
+- Ensure proper keyboard navigation and focus management in interactive components.
+
+---
+name: emotion-best-practices.mdc
+description: Best practices for Emotion styling
+globs: **/*.{ts,tsx}
+---
+
+- Use the `css` prop for styling components directly.
+- Leverage Emotion's theming capabilities for consistent design.
+- Optimize performance by using the `@emotion/react` package for server-side rendering.
+
+---
+name: supabase-best-practices.mdc
+description: Best practices for Supabase integration
+globs: **/*.{ts,tsx}
+---
+
+- Use Supabase's client library for seamless database interactions.
+- Implement authentication and authorization properly for secure access.
+- Utilize real-time subscriptions for dynamic data updates in your application.

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude --dangerously-skip-permissions)",
+      "Bash(claude)",
+      "Bash(claude --version)",
+      "Bash(claude chat)",
+      "Bash(claude code)",
+      "Bash(node server.js)",
+      "Bash(npm run dev:*)"
+    ],
+    "deny": []
+  }
+}

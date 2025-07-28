@@ -1,0 +1,7 @@
+---
+description: Best practices for Tailwind CSS styling
+alwaysApply: false
+---
+- Use utility-first classes for rapid UI development.
+- Create custom components with Tailwind's `@apply` directive for reusability.
+- Leverage Tailwind's responsive design features for mobile-first development.

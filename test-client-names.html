@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Client Names Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .client-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .client-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .client-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Client Names Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Environment Check</h2>
+        <button onclick="checkEnvironment()">Check Environment Variables</button>
+        <div id="env-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Supabase Connection Test</h2>
+        <button onclick="testSupabaseConnection()">Test Database Connection</button>
+        <div id="connection-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Fetch Client Names</h2>
+        <button onclick="fetchClientNames()">Fetch Client Names from Database</button>
+        <div id="client-status"></div>
+        <div id="client-list" class="client-list" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test Smart Prompts</h2>
+        <button onclick="testSmartPrompts()">Generate Smart Prompts with Client Names</button>
+        <div id="prompt-status"></div>
+        <div id="prompt-list"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Test Autocomplete</h2>
+        <input type="text" id="test-input" placeholder="Type 'client ' to test autocomplete" style="width: 100%; padding: 10px; margin: 10px 0;">
+        <div id="autocomplete-suggestions"></div>
+    </div>
+
+    <script>
+        // Load environment variables
+        const SUPABASE_URL = localStorage.getItem('SUPABASE_URL') || '';
+        const SUPABASE_ANON_KEY = localStorage.getItem('SUPABASE_ANON_KEY') || '';
+        
+        let clientNames = [];
+        
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+        
+        function checkEnvironment() {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                showStatus('env-status', 'Error: Supabase credentials not found. Please set SUPABASE_URL and SUPABASE_ANON_KEY in localStorage.', 'error');
+                
+                // Provide instructions
+                const instructions = document.createElement('pre');
+                instructions.textContent = `To set credentials, run in console:
+localStorage.setItem('SUPABASE_URL', 'your-supabase-url');
+localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
+                document.getElementById('env-status').appendChild(instructions);
+            } else {
+                showStatus('env-status', 'Environment variables found!', 'success');
+            }
+        }
+        
+        async function testSupabaseConnection() {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                showStatus('connection-status', 'Please set environment variables first.', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showStatus('connection-status', 'Successfully connected to Supabase!', 'success');
+                } else {
+                    showStatus('connection-status', `Connection failed: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                showStatus('connection-status', `Connection error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function fetchClientNames() {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                showStatus('client-status', 'Please set environment variables first.', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('client-status', 'Fetching client names...', 'info');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=full_name,first_name,last_name&deleted_at=is.null&order=full_name.asc&limit=50`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    // Extract unique client names
+                    const names = data.map(client => client.full_name || `${client.first_name} ${client.last_name}`);
+                    clientNames = [...new Set(names)].filter(name => name && name.trim());
+                    
+                    showStatus('client-status', `Successfully fetched ${clientNames.length} client names!`, 'success');
+                    
+                    // Display client list
+                    const listDiv = document.getElementById('client-list');
+                    listDiv.style.display = 'block';
+                    listDiv.innerHTML = '<h3>Client Names:</h3>' + 
+                        clientNames.map(name => `<div class="client-item">${name}</div>`).join('');
+                } else {
+                    showStatus('client-status', 'No clients found in database.', 'info');
+                    clientNames = [];
+                }
+            } catch (error) {
+                showStatus('client-status', `Error fetching clients: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+        
+        function testSmartPrompts() {
+            if (clientNames.length === 0) {
+                showStatus('prompt-status', 'No client names available. Please fetch client names first.', 'error');
+                return;
+            }
+            
+            // Simulate smart prompt generation
+            const templates = [
+                "Toon alle documenten van cliënt [naam]",
+                "Wat zijn de medicijnen van [naam]?",
+                "Wanneer moet de indicatie van [naam] verlengd worden?"
+            ];
+            
+            const prompts = templates.map(template => {
+                const randomClient = clientNames[Math.floor(Math.random() * clientNames.length)];
+                return template.replace('[naam]', randomClient);
+            });
+            
+            showStatus('prompt-status', 'Generated smart prompts with real client names:', 'success');
+            
+            const listDiv = document.getElementById('prompt-list');
+            listDiv.innerHTML = '<h3>Example Prompts:</h3>' + 
+                prompts.map(prompt => `<div class="client-item">• ${prompt}</div>`).join('');
+        }
+        
+        // Autocomplete test
+        const testInput = document.getElementById('test-input');
+        const suggestionsDiv = document.getElementById('autocomplete-suggestions');
+        
+        testInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const clientMatch = value.match(/(?:client|cliënt)\s+([^,\s]*)$/i);
+            
+            if (clientMatch && clientNames.length > 0) {
+                const searchTerm = clientMatch[1].toLowerCase();
+                const filtered = clientNames.filter(name => 
+                    name.toLowerCase().includes(searchTerm)
+                ).slice(0, 5);
+                
+                if (filtered.length > 0) {
+                    suggestionsDiv.innerHTML = '<div class="status info">Suggestions:</div>' +
+                        filtered.map(name => `<div class="client-item" onclick="selectClient('${name}')">${name}</div>`).join('');
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+        
+        function selectClient(name) {
+            const currentValue = testInput.value;
+            const lastSpaceIndex = currentValue.lastIndexOf(' ') + 1;
+            testInput.value = currentValue.substring(0, lastSpaceIndex) + name;
+            suggestionsDiv.style.display = 'none';
+            testInput.focus();
+        }
+        
+        // Initialize
+        checkEnvironment();
+    </script>
+</body>
+</html>

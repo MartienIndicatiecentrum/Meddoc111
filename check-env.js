@@ -1,5 +1,8 @@
 // check-env.js - Environment Variable Validation Script
-require('dotenv').config();
+import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
+
+dotenv.config();
 
 const requiredVars = {
   'SUPABASE_URL': {
@@ -91,7 +94,6 @@ if (hasErrors) {
 if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.log('🔗 Testing Supabase connection...');
   
-  const { createClient } = require('@supabase/supabase-js');
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY

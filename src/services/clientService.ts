@@ -1,311 +1,571 @@
+/**
+ * Client Service - Handles all client-related database operations
+ * Provides a clean API for client, task, and log entry management
+ */
+
 import { supabase } from '@/integrations/supabase/client';
+import type { 
+  Client, 
+  Task, 
+  LogEntry, 
+  LogEntryDocument, 
+  ApiResponse,
+  LogEntryFilters,
+  PaginationParams 
+} from '@/types/database';
 
-export interface Client {
-  id: string;
-  name: string;
-  naam?: string; // Dutch column name
-  email?: string;
-  phone?: string;
-  telefoon?: string; // Dutch column name
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  date_of_birth?: string;
-  bsn_number?: string;
-  insurance_number?: string;
-  insurance_company?: string;
-  contact_person_name?: string;
-  contact_person_phone?: string;
-  contact_person_email?: string;
-  contact_person_relation?: string;
-  status: 'active' | 'inactive' | 'archived';
-  notes?: string;
-  created_at: string;
-  updated_at: string;
+/**
+ * Custom error class for service operations
+ */
+export class ServiceError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'ServiceError';
+  }
 }
 
-export interface Task {
-  id: string;
-  client_id: string;
-  title: string;
-  description?: string;
-  type: 'Hulpmiddel Aanvraag' | 'PGB Aanvraag' | 'WMO Herindicatie' | 'Indicatie' | 'Vraagstelling' | 'Update' | 'Notitie';
-  status: 'Niet gestart' | 'In behandeling' | 'Wachten op info' | 'Opvolging' | 'Afgerond';
-  priority: 'Laag' | 'Medium' | 'Hoog' | 'Urgent';
-  progress: number;
-  deadline?: string;
-  created_at: string;
-  updated_at: string;
-  insurer?: string;
-  external_party?: string;
-  is_urgent: boolean;
-  is_expired: boolean;
-  needs_response: boolean;
-}
+/**
+ * Utility function to handle Supabase errors
+ */
+const handleSupabaseError = (error: any, operation: string): never => {
+  console.error(`Error in ${operation}:`, error);
+  throw new ServiceError(
+    `Failed to ${operation}: ${error.message || 'Unknown error'}`,
+    error.code || 'UNKNOWN_ERROR',
+    error
+  );
+};
 
-export interface LogEntry {
-  id: string;
-  client_id: string;
-  date: string;
-  from_name: string;
-  from_type: 'client' | 'employee' | 'insurer' | 'family' | 'verzekeraar';
-  from_color: string;
-  type: 'Notitie' | 'Vraag Verzekeraar' | 'Vraag Client' | 'Indicatie' | 'Taak' | 'Documenten afronden en opsturen' | 'Reactie client' | 'Reactie verzekeraar' | 'Reactie Opdrachtgever' | 'Mijn reactie' | 'Vervolgreactie client' | 'Vervolgreactie verzekeraar' | 'Vervolgreactie Opdrachtgever' | 'Algemene response' | 'Anders' | string; // Allow custom types
-  action: string;
-  description: string;
-  status: 'Geen urgentie' | 'Licht urgent' | 'Urgent' | 'Reactie nodig' | 'Afgehandeld' | 'In behandeling';
-  is_urgent: boolean;
-  needs_response: boolean;
-  created_at: string;
-  updated_at: string;
-}
+/**
+ * Transform database client to frontend client format
+ */
+const transformClient = (client: any): Client => ({
+  ...client,
+  name: client.naam || client.name || 'Onbekende cliënt',
+  phone: client.telefoon || client.phone || '',
+});
+
+/**
+ * Transform database log entry to frontend format
+ */
+const transformLogEntry = (entry: any): LogEntry => ({
+  ...entry,
+  from_type: entry.from_type as any,
+  type: entry.type as any,
+  status: entry.status as any,
+});
 
 export const clientService = {
-  // Get all clients
-  async getClients(): Promise<Client[]> {
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .order('naam');
-    
-    if (error) {
-      console.error('Error fetching clients:', error);
-      return [];
+  /**
+   * Get all clients with optional filtering and pagination
+   */
+  async getClients(params?: PaginationParams): Promise<Client[]> {
+    try {
+      let query = supabase
+        .from('clients')
+        .select('*')
+        .order('naam');
+
+      if (params) {
+        query = query.range(params.offset, params.offset + params.limit - 1);
+      }
+
+      const { data, error } = await query;
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch clients');
+      }
+      
+      return (data || []).map(transformClient);
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch clients');
     }
-    
-    // Transform the data to match the Client interface
-    const transformedData = (data || []).map(client => ({
-      ...client,
-      name: client.naam || client.name || 'Onbekende cliënt', // Use naam if available, fallback to name
-      phone: client.telefoon || client.phone || '', // Use telefoon if available, fallback to phone
-    }));
-    
-    return transformedData;
   },
 
-  // Get a single client by ID
+  /**
+   * Get a single client by ID
+   */
   async getClient(id: string): Promise<Client | null> {
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching client:', error);
-      return null;
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return null; // Not found
+        }
+        handleSupabaseError(error, 'fetch client');
+      }
+      
+      return data ? transformClient(data) : null;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch client');
     }
-    
-    if (!data) return null;
-    
-    // Transform the data to match the Client interface
-    return {
-      ...data,
-      name: data.naam || data.name || 'Onbekende cliënt',
-      phone: data.telefoon || data.phone || '',
-    };
   },
 
-  // Get tasks for a specific client
+  /**
+   * Get tasks for a specific client
+   */
   async getClientTasks(clientId: string): Promise<Task[]> {
-    const { data, error } = await supabase
-      .from('taken')
-      .select('*')
-      .eq('client_id', clientId)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching client tasks:', error);
-      return [];
+    try {
+      const { data, error } = await supabase
+        .from('taken')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch client tasks');
+      }
+      
+      return data || [];
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch client tasks');
     }
-    
-    return data || [];
   },
 
-  // Get all tasks
+  /**
+   * Get all tasks with optional filtering
+   */
   async getAllTasks(): Promise<Task[]> {
-    const { data, error } = await supabase
-      .from('taken')
-      .select(`
-        *,
-        clients (
-          id,
-          name,
-          insurance_company
-        )
-      `)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching tasks:', error);
-      return [];
+    try {
+      const { data, error } = await supabase
+        .from('taken')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch all tasks');
+      }
+      
+      return data || [];
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch all tasks');
     }
-    
-    return data || [];
   },
 
-  // Get log entries for a specific client
+  /**
+   * Get log entries for a specific client
+   */
   async getClientLogEntries(clientId: string): Promise<LogEntry[]> {
-    const { data, error } = await supabase
-      .from('logboek')
-      .select('*')
-      .eq('client_id', clientId)
-      .order('date', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching client log entries:', error);
-      return [];
+    try {
+      const { data, error } = await supabase
+        .from('logboek')
+        .select(`
+          *,
+          clients!logboek_client_id_fkey (
+            id,
+            naam
+          )
+        `)
+        .eq('client_id', clientId)
+        .order('date', { ascending: false });
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch client log entries');
+      }
+      
+      return (data || []).map(entry => ({
+        ...transformLogEntry(entry),
+        client_name: entry.clients?.naam || 'Onbekende cliënt'
+      }));
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch client log entries');
     }
-    
-    return data || [];
   },
 
-  // Get all log entries
-  async getAllLogEntries(): Promise<LogEntry[]> {
-    const { data, error } = await supabase
-      .from('logboek')
-      .select(`
-        *,
-        clients (
-          id,
-          name
-        )
-      `)
-      .order('date', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching log entries:', error);
-      return [];
+  /**
+   * Get all log entries with optional filtering
+   */
+  async getAllLogEntries(filters?: LogEntryFilters): Promise<LogEntry[]> {
+    try {
+      let query = supabase
+        .from('logboek')
+        .select(`
+          *,
+          clients!logboek_client_id_fkey (
+            id,
+            naam
+          )
+        `)
+        .order('date', { ascending: false });
+
+      if (filters) {
+        if (filters.from) {
+          query = query.ilike('from_name', `%${filters.from}%`);
+        }
+        if (filters.type && filters.type !== 'all') {
+          query = query.eq('type', filters.type);
+        }
+        if (filters.status && filters.status !== 'all') {
+          query = query.eq('status', filters.status);
+        }
+        if (filters.description) {
+          query = query.ilike('description', `%${filters.description}%`);
+        }
+      }
+
+      const { data, error } = await query;
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch all log entries');
+      }
+      
+      return (data || []).map(entry => ({
+        ...transformLogEntry(entry),
+        client_name: entry.clients?.naam || 'Onbekende cliënt'
+      }));
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch all log entries');
     }
-    
-    return data || [];
   },
 
-  // Get recent log entries
+  /**
+   * Get recent log entries with limit
+   */
   async getRecentLogEntries(limit: number = 5): Promise<LogEntry[]> {
-    console.log('getRecentLogEntries called with limit:', limit);
-    const { data, error } = await supabase
-      .from('logboek')
-      .select(`
-        *,
-        clients (
-          id,
-          name
-        )
-      `)
-      .order('date', { ascending: false })
-      .limit(limit);
-    
-    console.log('Supabase response - data:', data);
-    console.log('Supabase response - error:', error);
-    
-    if (error) {
-      console.error('Error fetching recent log entries:', error);
-      return [];
+    try {
+      const { data, error } = await supabase
+        .from('logboek')
+        .select(`
+          *,
+          clients!logboek_client_id_fkey (
+            id,
+            naam
+          )
+        `)
+        .order('date', { ascending: false })
+        .limit(limit);
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch recent log entries');
+      }
+      
+      return (data || []).map(entry => ({
+        ...transformLogEntry(entry),
+        client_name: entry.clients?.naam || 'Onbekende cliënt'
+      }));
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch recent log entries');
     }
-    
-    return data || [];
   },
 
-  // Create a new task
+  /**
+   * Create a new task
+   */
   async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task | null> {
-    const { data, error } = await supabase
-      .from('taken')
-      .insert(task)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error creating task:', error);
-      return null;
+    try {
+      const { data, error } = await supabase
+        .from('taken')
+        .insert(task)
+        .select()
+        .single();
+      
+      if (error) {
+        handleSupabaseError(error, 'create task');
+      }
+      
+      return data;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'create task');
     }
-    
-    return data;
   },
 
-  // Create a new log entry
+  /**
+   * Create a new log entry
+   */
   async createLogEntry(entry: Omit<LogEntry, 'id' | 'created_at' | 'updated_at'>): Promise<LogEntry | null> {
-    console.log('createLogEntry called with:', entry);
-    
-    const { data, error } = await supabase
-      .from('logboek')
-      .insert(entry)
-      .select()
-      .single();
-    
-    console.log('Supabase response - data:', data);
-    console.log('Supabase response - error:', error);
-    
-    if (error) {
-      console.error('Error creating log entry:', error);
-      return null;
+    try {
+      console.log('Creating log entry with data:', entry);
+      
+      const { data, error } = await supabase
+        .from('logboek')
+        .insert(entry)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Supabase error creating log entry:', error);
+        handleSupabaseError(error, 'create log entry');
+      }
+      
+      console.log('Log entry created successfully:', data);
+      return data ? transformLogEntry(data) : null;
+    } catch (error) {
+      console.error('Error in createLogEntry:', error);
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'create log entry');
     }
-    
-    console.log('Log entry created successfully:', data);
-    return data;
   },
 
-  // Update a task
+  /**
+   * Update an existing task
+   */
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | null> {
-    const { data, error } = await supabase
-      .from('taken')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating task:', error);
-      return null;
+    try {
+      const { data, error } = await supabase
+        .from('taken')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        handleSupabaseError(error, 'update task');
+      }
+      
+      return data;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'update task');
     }
-    
-    return data;
   },
 
-  // Update a log entry
+  /**
+   * Update an existing log entry
+   */
   async updateLogEntry(id: string, updates: Partial<LogEntry>): Promise<LogEntry | null> {
-    const { data, error } = await supabase
-      .from('logboek')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating log entry:', error);
+    try {
+      const { data, error } = await supabase
+        .from('logboek')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        handleSupabaseError(error, 'update log entry');
+      }
+      
+      return data ? transformLogEntry(data) : null;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'update log entry');
+    }
+  },
+
+  /**
+   * Delete a task
+   */
+  async deleteTask(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('taken')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        handleSupabaseError(error, 'delete task');
+      }
+      
+      return true;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'delete task');
+    }
+  },
+
+  /**
+   * Delete a log entry
+   */
+  async deleteLogEntry(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('logboek')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        handleSupabaseError(error, 'delete log entry');
+      }
+      
+      return true;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'delete log entry');
+    }
+  },
+
+  /**
+   * Upload document to Supabase Storage and save to database
+   */
+  async uploadDocument(file: File, clientId: string, logEntryId?: string): Promise<LogEntryDocument | null> {
+    try {
+      console.log('Uploading document:', file.name, 'for client:', clientId, 'logEntryId:', logEntryId);
+      
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = `logboek-documents/${clientId}/${fileName}`;
+      
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        handleSupabaseError(uploadError, 'upload document to storage');
+      }
+      
+      console.log('File uploaded to storage successfully');
+      
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+      
+      // Save document info to database
+      const documentData = {
+        log_entry_id: logEntryId,
+        client_id: clientId,
+        file_name: file.name,
+        file_path: filePath,
+        file_size: file.size,
+        file_type: file.type,
+        public_url: urlData.publicUrl
+      };
+      
+      console.log('Saving document to database:', documentData);
+      
+      const { data: dbData, error: dbError } = await supabase
+        .from('log_entry_documents')
+        .insert(documentData)
+        .select()
+        .single();
+      
+      if (dbError) {
+        console.error('Database save error:', dbError);
+        // Try to delete the uploaded file if database save fails
+        await supabase.storage.from('documents').remove([filePath]);
+        handleSupabaseError(dbError, 'save document to database');
+      }
+      
+      console.log('Document saved to database successfully:', dbData);
+      return dbData;
+    } catch (error) {
+      console.error('Error in uploadDocument:', error);
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'upload document');
+    }
+  },
+
+  /**
+   * Get documents for a log entry
+   */
+  async getLogEntryDocuments(logEntryId: string): Promise<LogEntryDocument[]> {
+    try {
+      const { data, error } = await supabase
+        .from('log_entry_documents')
+        .select('*')
+        .eq('log_entry_id', logEntryId)
+        .order('created_at', { ascending: true });
+      
+      if (error) {
+        handleSupabaseError(error, 'fetch documents');
+      }
+      
+      return data || [];
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'fetch documents');
+    }
+  },
+
+  /**
+   * Delete document from storage and database
+   */
+  async deleteDocument(documentId: string): Promise<boolean> {
+    try {
+      // First get the document info
+      const { data: document, error: fetchError } = await supabase
+        .from('log_entry_documents')
+        .select('*')
+        .eq('id', documentId)
+        .single();
+      
+      if (fetchError) {
+        handleSupabaseError(fetchError, 'fetch document for deletion');
+      }
+      
+      if (!document) {
+        throw new ServiceError('Document not found', 'NOT_FOUND');
+      }
+      
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('documents')
+        .remove([document.file_path]);
+      
+      if (storageError) {
+        console.error('Error deleting from storage:', storageError);
+        // Continue with database deletion even if storage deletion fails
+      }
+      
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('log_entry_documents')
+        .delete()
+        .eq('id', documentId);
+      
+      if (dbError) {
+        handleSupabaseError(dbError, 'delete document from database');
+      }
+      
+      return true;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'delete document');
+    }
+  },
+
+  /**
+   * Get document count for a log entry
+   */
+  async getLogEntryDocumentCount(logEntryId: string): Promise<number> {
+    try {
+      const { count, error } = await supabase
+        .from('log_entry_documents')
+        .select('*', { count: 'exact', head: true })
+        .eq('log_entry_id', logEntryId);
+      
+      if (error) {
+        handleSupabaseError(error, 'count documents');
+      }
+      
+      return count || 0;
+    } catch (error) {
+      if (error instanceof ServiceError) throw error;
+      handleSupabaseError(error, 'count documents');
+    }
+  },
+
+  /**
+   * Get document URL from Supabase Storage
+   */
+  async getDocumentUrl(filePath: string): Promise<string | null> {
+    try {
+      const { data } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+      
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error getting document URL:', error);
       return null;
     }
-    
-    return data;
-  },
-
-  // Delete a task
-  async deleteTask(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('taken')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error deleting task:', error);
-      return false;
-    }
-    
-    return true;
-  },
-
-  // Delete a log entry
-  async deleteLogEntry(id: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('logboek')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error deleting log entry:', error);
-      return false;
-    }
-    
-    return true;
   }
 };

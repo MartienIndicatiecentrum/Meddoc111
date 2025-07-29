@@ -1,22 +1,32 @@
-// server.js - CommonJS versie voor Node.js
-const express = require('express');
-const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
+// server.js - ES module versie voor Node.js
+import express from 'express';
+import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Optional dependencies for file upload
 let multer, FormData;
 try {
-  multer = require('multer');
-  FormData = require('form-data');
+  const multerModule = await import('multer');
+  const formDataModule = await import('form-data');
+  multer = multerModule.default;
+  FormData = formDataModule.default;
   console.log('✅ File upload dependencies loaded (multer, form-data)');
 } catch (error) {
   console.warn('⚠️  multer or form-data not installed. File upload features will be disabled.');
   console.warn('   Run: npm install multer form-data');
 }
-
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
 
 // Configure multer for memory storage (temporary) - only if available
 const upload = multer ? multer({ 

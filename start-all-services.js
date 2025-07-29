@@ -1,9 +1,18 @@
 #!/usr/bin/env node
 
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-require('dotenv').config();
+import { spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Color codes for console output
 const colors = {
@@ -32,7 +41,7 @@ const services = [
   },
   {
     name: 'RAG Server',
-    command: 'python',
+    command: 'C:\\Users\\shadow\\AppData\\Local\\Programs\\Python\\Python311\\python.exe',
     args: ['advanced_rag_server.py'],
     cwd: __dirname,
     color: colors.yellow,
@@ -59,23 +68,24 @@ let isShuttingDown = false;
 // Utility function to check if a port is in use
 function checkPort(port) {
   return new Promise((resolve) => {
-    const net = require('net');
-    const server = net.createServer();
-    
-    server.once('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        resolve(true); // Port is in use
-      } else {
-        resolve(false);
-      }
+    import('net').then(({ default: net }) => {
+      const server = net.createServer();
+      
+      server.once('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          resolve(true); // Port is in use
+        } else {
+          resolve(false);
+        }
+      });
+      
+      server.once('listening', () => {
+        server.close();
+        resolve(false); // Port is free
+      });
+      
+      server.listen(port);
     });
-    
-    server.once('listening', () => {
-      server.close();
-      resolve(false); // Port is free
-    });
-    
-    server.listen(port);
   });
 }
 
@@ -231,13 +241,15 @@ process.on('exit', shutdown);
 
 // Windows specific handling
 if (process.platform === 'win32') {
-  const readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  
-  readline.on('SIGINT', () => {
-    process.emit('SIGINT');
+  import('readline').then(({ default: readline }) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+    
+    rl.on('SIGINT', () => {
+      process.emit('SIGINT');
+    });
   });
 }
 

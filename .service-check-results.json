@@ -5,14 +5,14 @@
     "SUPABASE_SERVICE_ROLE_KEY": true
   },
   "ports": {
-    "3000": "available",
+    "3000": "in-use",
     "5000": "available",
     "8081": "in-use"
   },
   "services": {
-    "backend": false,
-    "rag": false,
-    "frontend": false
+    "backend": true,
+    "rag": true,
+    "frontend": true
   },
-  "database": false
+  "database": true
 }

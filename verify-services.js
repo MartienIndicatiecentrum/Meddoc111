@@ -1,9 +1,18 @@
 // verify-services.js - Service Verification and Diagnostic Script
-const { spawn } = require('child_process');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
+import { spawn } from 'child_process';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -85,8 +94,9 @@ function checkEnvFile() {
 
 // Step 2: Check port availability
 async function checkPort(port, service) {
-  return new Promise((resolve) => {
-    const server = require('net').createServer();
+  return new Promise(async (resolve) => {
+    const net = await import('net');
+    const server = net.default.createServer();
     
     server.once('error', (err) => {
       if (err.code === 'EADDRINUSE') {
@@ -207,7 +217,9 @@ async function checkPython() {
   console.log(`\n${colors.cyan}4. Checking Python installation...${colors.reset}`);
   
   return new Promise((resolve) => {
-    const python = spawn('python', ['--version']);
+    // Try the specific Python path first
+    const pythonPath = 'C:\\Users\\shadow\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
+    const python = spawn(pythonPath, ['--version']);
     
     python.stdout.on('data', (data) => {
       console.log(`  ${colors.green}✅ Python installed:${colors.reset} ${data.toString().trim()}`);
@@ -226,8 +238,29 @@ async function checkPython() {
     });
     
     python.on('error', (err) => {
-      console.log(`  ${colors.red}❌ Python not found${colors.reset} - Please install Python 3.x`);
-      resolve(false);
+      // Fallback to system python
+      const fallbackPython = spawn('python', ['--version']);
+      
+      fallbackPython.stdout.on('data', (data) => {
+        console.log(`  ${colors.green}✅ Python installed:${colors.reset} ${data.toString().trim()}`);
+        resolve(true);
+      });
+      
+      fallbackPython.stderr.on('data', (data) => {
+        const version = data.toString().trim();
+        if (version.includes('Python')) {
+          console.log(`  ${colors.green}✅ Python installed:${colors.reset} ${version}`);
+          resolve(true);
+        } else {
+          console.log(`  ${colors.red}❌ Python error:${colors.reset} ${version}`);
+          resolve(false);
+        }
+      });
+      
+      fallbackPython.on('error', (err) => {
+        console.log(`  ${colors.red}❌ Python not found${colors.reset} - Please install Python 3.x`);
+        resolve(false);
+      });
     });
   });
 }

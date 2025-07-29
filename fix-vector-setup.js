@@ -10,7 +10,10 @@ envContent.split('\n').forEach(line => {
   }
 });
 
-const supabase = createClient(envVars.VITE_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(
+  envVars.VITE_SUPABASE_URL,
+  envVars.SUPABASE_SERVICE_ROLE_KEY
+);
 
 async function fixVectorSetup() {
   console.log('🔧 Fixing vector setup for documents table...\n');
@@ -18,11 +21,14 @@ async function fixVectorSetup() {
   // 1. Enable pgvector extension
   console.log('1. Enabling pgvector extension...');
   try {
-    const { error: extError } = await supabase.rpc('enable_vector_extension', {});
+    const { error: extError } = await supabase.rpc(
+      'enable_vector_extension',
+      {}
+    );
     if (!extError) {
       console.log('✅ pgvector extension enabled');
     }
-  } catch (e) {
+  } catch (_e) {
     // Try raw SQL
     console.log('   Trying alternative approach...');
   }
@@ -36,12 +42,18 @@ async function fixVectorSetup() {
     .single();
 
   if (colCheck && typeof colCheck.vector_embedding === 'string') {
-    console.log('⚠️  Column is currently TEXT type, needs to be converted to vector');
+    console.log(
+      '⚠️  Column is currently TEXT type, needs to be converted to vector'
+    );
 
     // 3. Create temporary column
     console.log('\n3. Creating migration strategy...');
-    console.log('   This requires manual database migration to convert TEXT to vector type.');
-    console.log('   The current embeddings are stored as strings and need to be converted.');
+    console.log(
+      '   This requires manual database migration to convert TEXT to vector type.'
+    );
+    console.log(
+      '   The current embeddings are stored as strings and need to be converted.'
+    );
 
     // Generate SQL migration script
     const migrationSQL = `
@@ -82,7 +94,9 @@ WHERE table_name = 'documents'
     // Save migration file
     writeFileSync('fix-vector-column.sql', migrationSQL);
     console.log('\n✅ Migration saved to: fix-vector-column.sql');
-    console.log('\n⚠️  IMPORTANT: This migration needs to be run directly in Supabase:');
+    console.log(
+      '\n⚠️  IMPORTANT: This migration needs to be run directly in Supabase:'
+    );
     console.log('   1. Go to your Supabase dashboard');
     console.log('   2. Navigate to SQL Editor');
     console.log('   3. Copy and run the SQL from fix-vector-column.sql');
@@ -105,17 +119,21 @@ $$;
 `;
 
   try {
-    const { error: funcError } = await supabase.rpc('query', { sql: testFunctionSQL });
+    const { error: funcError } = await supabase.rpc('query', {
+      sql: testFunctionSQL,
+    });
     if (!funcError) {
       console.log('✅ Function creation successful');
     }
-  } catch (e) {
+  } catch (_e) {
     console.log('❌ Cannot create functions via client');
   }
 
   console.log('\n🎯 Next steps:');
   console.log('1. Run the migration SQL in Supabase SQL Editor');
-  console.log('2. Re-run generate-embeddings.js to create proper vector embeddings');
+  console.log(
+    '2. Re-run generate-embeddings.js to create proper vector embeddings'
+  );
   console.log('3. Test the search functionality again');
 }
 

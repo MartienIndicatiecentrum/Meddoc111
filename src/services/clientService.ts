@@ -410,23 +410,14 @@ export const clientService = {
       
       // Validate inputs
       if (!clientId) {
-        throw new ServiceError('Client ID is required for document upload');
+        throw new ServiceError('Client ID is vereist voor document upload', 'MISSING_CLIENT_ID');
       }
       
-      // If logEntryId is provided, verify it exists
-      if (logEntryId) {
-        const { data: logEntry, error: logEntryError } = await supabase
-          .from('logboek')
-          .select('id')
-          .eq('id', logEntryId)
-          .single();
-        
-        if (logEntryError || !logEntry) {
-          throw new ServiceError(`Log entry with ID ${logEntryId} does not exist. Please save the log entry first before uploading documents.`);
-        }
+      if (!file) {
+        throw new ServiceError('Bestand is vereist voor upload', 'MISSING_FILE');
       }
       
-      // Verify client exists
+      // Verify client exists first
       const { data: client, error: clientError } = await supabase
         .from('clients')
         .select('id')
@@ -434,11 +425,44 @@ export const clientService = {
         .single();
       
       if (clientError || !client) {
-        throw new ServiceError(`Client with ID ${clientId} does not exist`);
+        throw new ServiceError(`Cliënt met ID ${clientId} bestaat niet`, 'CLIENT_NOT_FOUND');
+      }
+      
+      // If logEntryId is provided, verify it exists with double-check
+      if (logEntryId) {
+        console.log('Verifying log entry exists:', logEntryId);
+        
+        // First check
+        const { data: logEntry, error: logEntryError } = await supabase
+          .from('logboek')
+          .select('id, client_id')
+          .eq('id', logEntryId)
+          .single();
+        
+        if (logEntryError) {
+          console.error('Log entry verification error:', logEntryError);
+          if (logEntryError.code === 'PGRST116') {
+            throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+          }
+          throw new ServiceError(`Fout bij het controleren van logboek bericht: ${logEntryError.message}`, 'LOG_ENTRY_VERIFICATION_ERROR');
+        }
+        
+        if (!logEntry) {
+          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+        }
+        
+        // Verify the log entry belongs to the correct client
+        if (logEntry.client_id !== clientId) {
+          throw new ServiceError('Het logboek bericht hoort niet bij deze cliënt', 'LOG_ENTRY_CLIENT_MISMATCH');
+        }
+        
+        console.log('Log entry verified successfully');
       }
       
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `logboek-documents/${clientId}/${fileName}`;
+      
+      console.log('Uploading to storage path:', filePath);
       
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -447,7 +471,7 @@ export const clientService = {
       
       if (uploadError) {
         console.error('Storage upload error:', uploadError);
-        handleSupabaseError(uploadError, 'upload document to storage');
+        throw new ServiceError(`Fout bij het uploaden naar opslag: ${uploadError.message}`, 'STORAGE_UPLOAD_ERROR');
       }
       
       console.log('File uploaded to storage successfully');
@@ -457,23 +481,14 @@ export const clientService = {
         .from('documents')
         .getPublicUrl(filePath);
       
-      // Save document info to database using the safe function
-      const documentData = {
-        log_entry_id: logEntryId,
-        client_id: clientId,
-        file_name: file.name,
-        file_path: filePath,
-        file_size: file.size,
-        file_type: file.type,
-        public_url: urlData.publicUrl
-      };
-      
-      console.log('Saving document to database:', documentData);
+      console.log('Saving document to database...');
       
       // Use the safe function if logEntryId is provided, otherwise use direct insert
       let dbData, dbError;
       
       if (logEntryId) {
+        console.log('Using safe_insert_log_entry_document function');
+        
         // Use the safe function for better error handling
         const { data, error } = await supabase.rpc('safe_insert_log_entry_document', {
           p_log_entry_id: logEntryId,
@@ -486,8 +501,11 @@ export const clientService = {
         });
         
         if (error) {
+          console.error('Safe insert function error:', error);
           dbError = error;
-        } else {
+        } else if (data) {
+          console.log('Safe insert returned document ID:', data);
+          
           // Fetch the created document
           const { data: fetchedDoc, error: fetchError } = await supabase
             .from('log_entry_documents')
@@ -496,16 +514,31 @@ export const clientService = {
             .single();
           
           if (fetchError) {
+            console.error('Error fetching created document:', fetchError);
             dbError = fetchError;
           } else {
+            console.log('Document fetched successfully:', fetchedDoc);
             dbData = fetchedDoc;
           }
+        } else {
+          console.error('Safe insert returned no data');
+          dbError = { message: 'Geen document ID geretourneerd van database functie' };
         }
       } else {
+        console.log('Using direct insert for standalone document');
+        
         // Direct insert without log entry (for standalone documents)
         const { data, error } = await supabase
           .from('log_entry_documents')
-          .insert(documentData)
+          .insert({
+            log_entry_id: null,
+            client_id: clientId,
+            file_name: file.name,
+            file_path: filePath,
+            file_size: file.size,
+            file_type: file.type,
+            public_url: urlData.publicUrl
+          })
           .select()
           .single();
         
@@ -515,9 +548,25 @@ export const clientService = {
       
       if (dbError) {
         console.error('Database save error:', dbError);
+        
         // Try to delete the uploaded file if database save fails
-        await supabase.storage.from('documents').remove([filePath]);
-        handleSupabaseError(dbError, 'save document to database');
+        try {
+          await supabase.storage.from('documents').remove([filePath]);
+          console.log('Cleaned up uploaded file after database error');
+        } catch (cleanupError) {
+          console.error('Error cleaning up uploaded file:', cleanupError);
+        }
+        
+        // Handle specific database errors with Dutch messages
+        if (dbError.message && dbError.message.includes('logboek bericht bestaat niet meer')) {
+          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+        } else if (dbError.code === '23503') {
+          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'FOREIGN_KEY_VIOLATION');
+        } else if (dbError.message && dbError.message.includes('foreign key constraint')) {
+          throw new ServiceError('Database probleem: Het logboek bericht is niet meer beschikbaar. Probeer het bericht opnieuw op te slaan.', 'FOREIGN_KEY_CONSTRAINT');
+        } else {
+          throw new ServiceError(`Fout bij het opslaan in database: ${dbError.message || 'Onbekende fout'}`, 'DATABASE_SAVE_ERROR');
+        }
       }
       
       console.log('Document saved to database successfully:', dbData);
@@ -525,7 +574,10 @@ export const clientService = {
     } catch (error) {
       console.error('Error in uploadDocument:', error);
       if (error instanceof ServiceError) throw error;
-      handleSupabaseError(error, 'upload document');
+      
+      // Handle any unexpected errors with Dutch message
+      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
+      throw new ServiceError(`Fout bij document upload: ${errorMessage}`, 'UPLOAD_ERROR');
     }
   },
 

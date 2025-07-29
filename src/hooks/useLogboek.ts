@@ -3,7 +3,8 @@
  * Provides centralized state management for log entries with proper error handling
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { clientService, ServiceError } from '@/services/clientService';
 import type { 
   LogboekEntry, 
@@ -13,6 +14,7 @@ import type {
   UploadedDocument,
   LoadingState 
 } from '@/types/database';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface UseLogboekOptions {
   clientId?: string;
@@ -52,6 +54,122 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
   const [loading, setLoading] = useState<LoadingState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [filters, setFiltersState] = useState<LogEntryFilters>(initialFilters);
+  
+  // Realtime subscription ref
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  // Set up real-time subscription for logboek changes
+  useEffect(() => {
+    if (!clientId) return;
+
+    console.log('Setting up real-time subscription for client:', clientId);
+
+    // Create channel for logboek changes
+    const channel = supabase
+      .channel(`logboek-changes-${clientId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'logboek',
+          filter: `client_id=eq.${clientId}`
+        },
+        (payload) => {
+          console.log('Real-time logboek change received:', payload);
+          
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          
+          switch (eventType) {
+            case 'INSERT':
+              if (newRecord) {
+                const newEntry: LogboekEntry = {
+                  id: newRecord.id,
+                  date: newRecord.date,
+                  client_id: newRecord.client_id,
+                  from: {
+                    name: newRecord.from_name,
+                    type: newRecord.from_type,
+                    color: newRecord.from_color,
+                  },
+                  type: newRecord.type,
+                  action: newRecord.action,
+                  description: newRecord.description,
+                  status: newRecord.status,
+                  isUrgent: newRecord.is_urgent,
+                  needsResponse: newRecord.needs_response,
+                };
+                
+                setEntries(prev => {
+                  // Check if entry already exists to avoid duplicates
+                  const exists = prev.some(entry => entry.id === newEntry.id);
+                  if (exists) return prev;
+                  
+                  // Add new entry at the beginning (most recent first)
+                  return [newEntry, ...prev];
+                });
+              }
+              break;
+              
+            case 'UPDATE':
+              if (newRecord) {
+                setEntries(prev => prev.map(entry => 
+                  entry.id === newRecord.id 
+                    ? {
+                        ...entry,
+                        from: {
+                          name: newRecord.from_name,
+                          type: newRecord.from_type,
+                          color: newRecord.from_color,
+                        },
+                        type: newRecord.type,
+                        action: newRecord.action,
+                        description: newRecord.description,
+                        status: newRecord.status,
+                        isUrgent: newRecord.is_urgent,
+                        needsResponse: newRecord.needs_response,
+                      }
+                    : entry
+                ));
+              }
+              break;
+              
+            case 'DELETE':
+              if (oldRecord) {
+                console.log('Log entry deleted via real-time:', oldRecord.id);
+                setEntries(prev => prev.filter(entry => entry.id !== oldRecord.id));
+                
+                // Show a user-friendly notification when an entry is deleted
+                // This helps users understand why their document upload might fail
+                if (entries.length > 0) {
+                  console.warn('Een logboek bericht is verwijderd. Document uploads naar dit bericht zullen falen.');
+                }
+              }
+              break;
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to logboek changes');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Error with real-time subscription');
+          setError('Real-time synchronisatie fout. Ververs de pagina om de laatste gegevens te zien.');
+        }
+      });
+
+    channelRef.current = channel;
+
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
+  }, [clientId, entries.length]); // Include entries.length to update notifications
 
   // Clear error utility
   const clearError = useCallback(() => {

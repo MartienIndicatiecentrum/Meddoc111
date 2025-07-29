@@ -38,16 +38,16 @@ export function createQueryTools(client: MorphikClient): Tool[] {
       handler: async (args: any) => {
         try {
           const { query, folder, chatId, temperature, maxTokens } = args;
-          
+
           logger.info(`Agent query: ${query}`);
-          
+
           const response = await client.agentQuery(query, {
             folder,
             chatId,
             temperature,
             maxTokens
           });
-          
+
           return {
             success: true,
             response: response.response,
@@ -68,7 +68,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
         }
       }
     },
-    
+
     {
       name: 'morphik_retrieve_documents',
       description: 'Retrieve documents from Morphik based on search criteria',
@@ -107,17 +107,17 @@ export function createQueryTools(client: MorphikClient): Tool[] {
       },
       handler: async (args: any) => {
         try {
-          const { 
-            query, 
-            folder, 
-            limit = 10, 
-            offset = 0, 
+          const {
+            query,
+            folder,
+            limit = 10,
+            offset = 0,
             filters,
-            includeContent = false 
+            includeContent = false
           } = args;
-          
+
           logger.info(`Retrieving documents: ${query || 'all'}`);
-          
+
           const documents = await client.retrieveDocuments({
             query,
             folder,
@@ -126,7 +126,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             filters,
             includeContent
           });
-          
+
           return {
             success: true,
             documentCount: documents.length,
@@ -150,7 +150,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
         }
       }
     },
-    
+
     {
       name: 'morphik_sync_status',
       description: 'Check the processing status of uploaded documents',
@@ -167,11 +167,11 @@ export function createQueryTools(client: MorphikClient): Tool[] {
       handler: async (args: any) => {
         try {
           const { documentId } = args;
-          
+
           logger.info(`Checking status for document: ${documentId}`);
-          
+
           const status = await client.getProcessingStatus(documentId);
-          
+
           return {
             success: true,
             documentId: status.documentId,

@@ -44,4 +44,4 @@ export const useClientDocumentCount = (clientId: string) => {
   }, [clientId]);
 
   return { documentCount, loading, error };
-}; 
+};

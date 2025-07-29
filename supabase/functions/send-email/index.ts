@@ -22,7 +22,7 @@ serve(async (req) => {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const requestBody = await req.json();
-    
+
     // Handle different email types
     if (requestBody.type === 'appointment_reminder') {
       return await handleAppointmentReminder(requestBody);
@@ -33,9 +33,9 @@ serve(async (req) => {
     console.error('Error in send-email function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
@@ -64,17 +64,17 @@ async function handleAppointmentReminder(requestBody: any) {
       console.error('Resend error:', emailResponse.error);
       return new Response(
         JSON.stringify({ error: 'Failed to send email', details: emailResponse.error }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
     console.log('Appointment reminder sent successfully:', emailResponse.data);
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         messageId: emailResponse.data?.id,
         appointmentId: appointmentId
       }),
@@ -84,9 +84,9 @@ async function handleAppointmentReminder(requestBody: any) {
     console.error('Error sending appointment reminder:', error);
     return new Response(
       JSON.stringify({ error: 'Failed to send appointment reminder' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }

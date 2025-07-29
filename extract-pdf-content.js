@@ -70,7 +70,7 @@ async function processDocuments() {
     }
 
     console.log(`📑 Processing: ${doc.title}`);
-    
+
     // Construct full URL if needed
     let fileUrl = doc.file_path;
     if (!fileUrl.startsWith('http')) {
@@ -79,7 +79,7 @@ async function processDocuments() {
 
     // Extract content
     const content = await extractPDFContent(fileUrl);
-    
+
     if (content) {
       // Update document with content
       const { error: updateError } = await supabase

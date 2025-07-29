@@ -33,10 +33,10 @@ interface TodoListProps {
   onTaskTypeChange?: (taskId: string, newTaskType: string) => void;
 }
 
-const TodoList: React.FC<TodoListProps> = ({ 
-  tasks, 
-  clientMap, 
-  onEditTask, 
+const TodoList: React.FC<TodoListProps> = ({
+  tasks,
+  clientMap,
+  onEditTask,
   onStatusChange,
   onUrgencyChange,
   onTaskTypeChange
@@ -91,11 +91,11 @@ const TodoList: React.FC<TodoListProps> = ({
 
   const getDeadlineStatus = (deadline?: string) => {
     if (!deadline) return { status: 'no-deadline', color: 'text-gray-500', icon: null };
-    
+
     const deadlineDate = new Date(deadline);
     const today = new Date();
     const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) {
       return { status: 'overdue', color: 'text-red-600', icon: <AlertTriangle className="w-4 h-4 text-red-600" /> };
     } else if (diffDays === 0) {
@@ -121,17 +121,17 @@ const TodoList: React.FC<TodoListProps> = ({
     return tasks.filter(task => {
       const clientName = clientMap[task.client_id] || 'Onbekende cliënt';
       const deadlineStatus = getDeadlineStatus(task.deadline);
-      
+
       // Client filter
       if (clientFilter && clientFilter !== 'all' && clientName !== clientFilter) {
         return false;
       }
-      
+
       // Status filter
       if (statusFilter && statusFilter !== 'all' && task.status !== statusFilter) {
         return false;
       }
-      
+
       // Deadline filter
       if (deadlineFilter && deadlineFilter !== 'all') {
         switch (deadlineFilter) {
@@ -149,7 +149,7 @@ const TodoList: React.FC<TodoListProps> = ({
             break;
         }
       }
-      
+
       return true;
     });
   }, [tasks, clientFilter, statusFilter, deadlineFilter, clientMap]);
@@ -241,14 +241,14 @@ const TodoList: React.FC<TodoListProps> = ({
             </Badge>
           </CardTitle>
         </div>
-        
+
         {/* Simplified Filters */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1">
             <Filter className="w-3 h-3 text-gray-500" />
             <span className="text-xs text-gray-600">Filters:</span>
           </div>
-          
+
           {/* Client Filter */}
           <Select value={clientFilter} onValueChange={setClientFilter}>
             <SelectTrigger className="w-32 h-7 text-xs">
@@ -267,7 +267,7 @@ const TodoList: React.FC<TodoListProps> = ({
                 ))}
             </SelectContent>
           </Select>
-          
+
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-28 h-7 text-xs">
@@ -282,7 +282,7 @@ const TodoList: React.FC<TodoListProps> = ({
               <SelectItem value="afgehandeld">Afgerond</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {/* Clear Filters */}
           {(clientFilter !== 'all' || statusFilter !== 'all') && (
             <Button
@@ -311,7 +311,7 @@ const TodoList: React.FC<TodoListProps> = ({
             sortedTasks.map((task) => {
               const deadlineStatus = getDeadlineStatus(task.deadline);
               const clientName = clientMap[task.client_id] || 'Onbekende cliënt';
-              
+
               return (
                 <div
                   key={task.id}
@@ -338,7 +338,7 @@ const TodoList: React.FC<TodoListProps> = ({
                       <div className="mt-0.5 flex-shrink-0">
                         {getStatusIcon(task.status)}
                       </div>
-                      
+
                       {/* Task Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
@@ -359,25 +359,25 @@ const TodoList: React.FC<TodoListProps> = ({
                             </Button>
                           )}
                         </div>
-                        
+
                         <p className="text-xs mb-1">
                           <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 border border-purple-500 font-medium text-xs">
                             Cliënt: {clientName}
                           </span>
                         </p>
-                        
+
                         {/* Tags */}
                         <div className="flex flex-wrap gap-1 mb-1">
                           {/* Status Dropdown */}
-                          <Select 
-                            value={task.status} 
+                          <Select
+                            value={task.status}
                             onValueChange={(newStatus) => {
                               if (onStatusChange) {
                                 onStatusChange(task.id, newStatus);
                               }
                             }}
                           >
-                            <SelectTrigger 
+                            <SelectTrigger
                               className={`h-5 px-1 text-xs border-0 w-24 ${statusBgColor[task.status] || 'bg-white'}`}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -397,17 +397,17 @@ const TodoList: React.FC<TodoListProps> = ({
                               <SelectItem value="afgehandeld">Afgerond</SelectItem>
                             </SelectContent>
                           </Select>
-                          
+
                           {/* Urgency Dropdown */}
-                          <Select 
-                            value={task.urgentie_status} 
+                          <Select
+                            value={task.urgentie_status}
                             onValueChange={(newUrgency) => {
                               if (onUrgencyChange) {
                                 onUrgencyChange(task.id, newUrgency);
                               }
                             }}
                           >
-                            <SelectTrigger 
+                            <SelectTrigger
                               className={`h-5 px-1 text-xs border-0 w-20 ${urgencyBgColor[task.urgentie_status] || 'bg-white'}`}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -425,17 +425,17 @@ const TodoList: React.FC<TodoListProps> = ({
                               <SelectItem value="urgent">Urgent</SelectItem>
                             </SelectContent>
                           </Select>
-                          
+
                           {/* Task Type Dropdown */}
-                          <Select 
-                            value={task.taaktype || 'no-type'} 
+                          <Select
+                            value={task.taaktype || 'no-type'}
                             onValueChange={(newTaskType) => {
                               if (onTaskTypeChange) {
                                 onTaskTypeChange(task.id, newTaskType === 'no-type' ? '' : newTaskType);
                               }
                             }}
                           >
-                            <SelectTrigger 
+                            <SelectTrigger
                               className="h-5 px-1 text-xs border-0 w-20 bg-purple-100 text-purple-800 border-purple-200"
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -454,7 +454,7 @@ const TodoList: React.FC<TodoListProps> = ({
                             </SelectContent>
                           </Select>
                         </div>
-                        
+
                         {/* Deadline */}
                         {task.deadline && (
                           <div className={`flex items-center gap-1 text-xs ${deadlineStatus.color}`}>

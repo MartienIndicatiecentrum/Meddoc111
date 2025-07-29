@@ -27,7 +27,7 @@ This single command will automatically start:
 ### 📊 Service Monitoring
 Each service output is prefixed with its name and color:
 - `[Backend]` - Green
-- `[RAG Server]` - Yellow  
+- `[RAG Server]` - Yellow
 - `[Frontend]` - Cyan
 
 ### 🔗 Service URLs

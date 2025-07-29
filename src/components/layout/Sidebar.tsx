@@ -50,7 +50,7 @@ const Sidebar: React.FC = () => {
               </a>
             );
           }
-          
+
           // Special handling for Documenten to show count
           if (item.label === 'Documenten') {
             return (
@@ -73,7 +73,7 @@ const Sidebar: React.FC = () => {
               </NavLink>
             );
           }
-          
+
           return (
             <NavLink
               key={item.to}

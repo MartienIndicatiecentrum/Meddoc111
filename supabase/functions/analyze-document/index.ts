@@ -58,7 +58,7 @@ serve(async (req) => {
 
     const analysisData = await analysisResponse.json();
     let insights;
-    
+
     try {
       insights = JSON.parse(analysisData.choices[0].message.content);
     } catch (parseError) {

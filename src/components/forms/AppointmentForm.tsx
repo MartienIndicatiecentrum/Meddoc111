@@ -85,10 +85,10 @@ const executeMCPQuery = async (query: string) => {
     // Dit zou de echte MCP server aanroep zijn
     // Voor nu gebruiken we een fallback naar directe Supabase
     console.log('Executing MCP Query:', query);
-    
+
     // In een echte MCP implementatie zou dit een fetch naar de MCP server zijn
     // fetch('/api/mcp/query', { method: 'POST', body: JSON.stringify({ query }) })
-    
+
     return null; // Placeholder - MCP server integratie komt later
   } catch (error) {
     console.error('MCP Query execution failed:', error);
@@ -98,7 +98,7 @@ const executeMCPQuery = async (query: string) => {
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onSuccess, editAppointment }) => {
   const queryClient = useQueryClient();
-  
+
 
   // Fetch caregivers
   const { data: caregivers = [], isLoading: loadingCaregivers } = useQuery<Caregiver[]>({
@@ -119,7 +119,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
     staleTime: 60000,
     retry: 3,
   });
-  
+
   const [formData, setFormData] = useState<AppointmentFormData>({
     client_id: editAppointment?.client_id || '',
     caregiver_id: editAppointment?.caregiver_id || '',
@@ -137,7 +137,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
     client_phone: '',
     client_number: '',
   });
-  
+
   // Track if location was auto-populated
   const [isLocationAutoPopulated, setIsLocationAutoPopulated] = useState(false);
   const [isEmailAutoPopulated, setIsEmailAutoPopulated] = useState(false);
@@ -263,7 +263,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
       if (formData.reminder_email && !/\S+@\S+\.\S+/.test(formData.reminder_email)) {
         newErrors.reminder_email = 'Ongeldig email adres';
       }
-      
+
       if (!formData.reminder_value || formData.reminder_value < 1) {
         newErrors.reminder_value = 'Voer een geldige waarde in';
       }
@@ -275,7 +275,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       saveAppointmentMutation.mutate(formData);
     }
@@ -284,17 +284,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
   const handleInputChange = (field: keyof AppointmentFormData, value: string | boolean | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: field === 'reminder_enabled' ? value === 'true' || value === true : 
+      [field]: field === 'reminder_enabled' ? value === 'true' || value === true :
                field === 'reminder_value' ? Number(value) : value
     }));
-    
+
     // Clear auto-populated flags when user manually changes values
     if (field === 'location') {
       setIsLocationAutoPopulated(false);
     } else if (field === 'reminder_email') {
       setIsEmailAutoPopulated(false);
     }
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -345,9 +345,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
                   try {
                     // MCP query structuur voor comprehensive client data
                     const mcpQuery = `
-                      SELECT 
+                      SELECT
                         id, naam, adres, telefoon, email, verzekeraar, polisnummer, clientnummer
-                      FROM clients 
+                      FROM clients
                       WHERE id = '${clientId}'
                       LIMIT 1;
                     `;
@@ -386,8 +386,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
                           ...prev,
                           client_id: clientId,
                           location: !prev.location && clientAddress ? clientAddress : prev.location,
-                          reminder_email: prev.reminder_enabled && !prev.reminder_email && client.email 
-                            ? client.email 
+                          reminder_email: prev.reminder_enabled && !prev.reminder_email && client.email
+                            ? client.email
                             : prev.reminder_email,
                           client_phone: client.telefoon || '',
                           client_number: client.clientnummer || '',
@@ -671,7 +671,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ clients, onClose, onS
               <Bell className="w-5 h-5 text-blue-600" />
               <h3 className="text-lg font-medium text-gray-900">Email Herinnering</h3>
             </div>
-            
+
             {/* Enable Reminder Checkbox */}
             <div className="flex items-center mb-4">
               <input

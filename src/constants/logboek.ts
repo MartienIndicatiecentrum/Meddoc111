@@ -123,4 +123,4 @@ export const VALIDATION_RULES = {
   MIN_ACTION_LENGTH: 5,
   MAX_ACTION_LENGTH: 500,
   MAX_CUSTOM_TYPE_LENGTH: 100
-} as const; 
+} as const;

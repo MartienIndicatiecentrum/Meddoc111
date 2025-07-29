@@ -8,13 +8,13 @@ async function sleep(ms) {
 
 async function retryWithBackoff(fn, maxRetries = 3, initialDelay = 1000) {
   let lastError;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error;
-      
+
       if (i < maxRetries - 1) {
         const delay = initialDelay * Math.pow(2, i);
         console.warn(`Retry ${i + 1}/${maxRetries} after ${delay}ms`, error.message);
@@ -22,7 +22,7 @@ async function retryWithBackoff(fn, maxRetries = 3, initialDelay = 1000) {
       }
     }
   }
-  
+
   throw lastError;
 }
 const FormData = require('form-data');
@@ -80,7 +80,7 @@ router.post('/api/morphik/agent', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED',
         message: 'De Morphik API key is niet ingesteld op de server'
@@ -101,24 +101,24 @@ router.post('/api/morphik/agent', async (req, res) => {
           body: JSON.stringify(req.body),
           signal: controller.signal
         });
-        
+
         // Don't retry on client errors (4xx)
         if (res.status >= 400 && res.status < 500 && res.status !== 429) {
           return res;
         }
-        
+
         // Retry on server errors, network errors, and rate limiting
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         }
-        
+
         return res;
       });
 
       clearTimeout(timeout);
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         return res.status(response.status).json({
           error: data.error || 'Morphik API error',
@@ -130,7 +130,7 @@ router.post('/api/morphik/agent', async (req, res) => {
       res.json(data);
     } catch (fetchError) {
       clearTimeout(timeout);
-      
+
       if (fetchError.name === 'AbortError') {
         return res.status(504).json({
           error: 'Request timeout',
@@ -157,7 +157,7 @@ router.get('/api/morphik/folders/:name', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED'
       });
@@ -175,7 +175,7 @@ router.get('/api/morphik/folders/:name', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error || 'Morphik API error',
@@ -200,7 +200,7 @@ router.post('/api/morphik/folders', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED'
       });
@@ -216,7 +216,7 @@ router.post('/api/morphik/folders', async (req, res) => {
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error || 'Morphik API error',
@@ -242,7 +242,7 @@ router.post('/api/morphik/ingest/file', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED'
       });
@@ -251,9 +251,9 @@ router.post('/api/morphik/ingest/file', async (req, res) => {
     // Note: This is a simplified version. In production, you'd use multer
     // to properly handle multipart/form-data uploads
     // For now, we expect the frontend to send base64 or similar
-    
+
     const formData = new FormData();
-    
+
     // Handle file upload - expecting file data in request
     if (req.body.file) {
       // Convert base64 or buffer to proper file format
@@ -263,11 +263,11 @@ router.post('/api/morphik/ingest/file', async (req, res) => {
         contentType: 'application/pdf'
       });
     }
-    
+
     if (req.body.folder_name) {
       formData.append('folder_name', req.body.folder_name);
     }
-    
+
     if (req.body.metadata) {
       formData.append('metadata', JSON.stringify(req.body.metadata));
     }
@@ -282,22 +282,22 @@ router.post('/api/morphik/ingest/file', async (req, res) => {
         body: formData,
         signal: AbortSignal.timeout(120000) // 2 minute timeout for file uploads
       });
-      
+
       // Don't retry on client errors (4xx) except rate limiting
       if (res.status >= 400 && res.status < 500 && res.status !== 429) {
         return res;
       }
-      
+
       // Retry on server errors, network errors, and rate limiting
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
-      
+
       return res;
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error || 'Upload failed',
@@ -323,7 +323,7 @@ router.get('/api/morphik/documents/:id/status', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED'
       });
@@ -337,7 +337,7 @@ router.get('/api/morphik/documents/:id/status', async (req, res) => {
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error || 'Morphik API error',
@@ -362,7 +362,7 @@ router.get('/api/morphik/retrieve/docs', async (req, res) => {
     const apiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
 
     if (!apiKey) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         error: 'Morphik service niet geconfigureerd',
         code: 'MORPHIK_NOT_CONFIGURED'
       });
@@ -377,7 +377,7 @@ router.get('/api/morphik/retrieve/docs', async (req, res) => {
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error || 'Morphik API error',

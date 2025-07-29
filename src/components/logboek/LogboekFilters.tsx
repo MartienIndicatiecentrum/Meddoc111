@@ -80,10 +80,10 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
 
   // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
-    return filterFrom || 
-           filterType !== 'all' || 
-           filterStatus !== 'all' || 
-           filterDate || 
+    return filterFrom ||
+           filterType !== 'all' ||
+           filterStatus !== 'all' ||
+           filterDate ||
            filterDescription;
   }, [filterFrom, filterType, filterStatus, filterDate, filterDescription]);
 
@@ -102,7 +102,7 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           <Filter className="h-5 w-5" />
           <span>Filters</span>
         </h3>
-        
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -207,8 +207,8 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           {filterFrom && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <span>Van: {filterFrom}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => handleInputChange('filterFrom', '')}
               />
             </Badge>
@@ -216,8 +216,8 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           {filterType !== 'all' && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <span>Type: {filterType}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => handleInputChange('filterType', 'all')}
               />
             </Badge>
@@ -225,8 +225,8 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           {filterStatus !== 'all' && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <span>Status: {filterStatus}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => handleInputChange('filterStatus', 'all')}
               />
             </Badge>
@@ -234,8 +234,8 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           {filterDate && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <span>Datum: {format(filterDate, 'dd/MM/yyyy', { locale: nl })}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => handleDateChange(undefined)}
               />
             </Badge>
@@ -243,8 +243,8 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
           {filterDescription && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <span>Zoek: {filterDescription}</span>
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => handleInputChange('filterDescription', '')}
               />
             </Badge>
@@ -253,4 +253,4 @@ export const LogboekFilters: React.FC<LogboekFiltersProps> = ({
       )}
     </div>
   );
-}; 
+};

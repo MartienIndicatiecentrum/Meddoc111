@@ -39,19 +39,19 @@ async function testDocumentSearch() {
   } else {
     console.log('✅ Documents table has content column');
     console.log(`   Found ${docs?.length || 0} documents`);
-    
+
     // Check how many have content
     const docsWithContent = docs?.filter(d => d.content) || [];
     const docsWithEmbeddings = docs?.filter(d => d.vector_embedding) || [];
-    
+
     console.log(`   - ${docsWithContent.length} have content`);
     console.log(`   - ${docsWithEmbeddings.length} have embeddings`);
-    
+
     if (docsWithContent.length === 0) {
       console.log('\n⚠️  No documents have content extracted!');
       console.log('   → Run: python scripts/pdf_parse_to_supabase.py');
     }
-    
+
     if (docsWithContent.length > 0 && docsWithEmbeddings.length === 0) {
       console.log('\n⚠️  Documents have content but no embeddings!');
       console.log('   → Run: python scripts/generate_embeddings.py');
@@ -63,7 +63,7 @@ async function testDocumentSearch() {
   try {
     // Generate a dummy embedding (1536 dimensions of 0s)
     const dummyEmbedding = new Array(1536).fill(0);
-    
+
     const { data, error } = await supabase.rpc('match_documents', {
       query_embedding: dummyEmbedding,
       match_threshold: 0.5,
@@ -91,20 +91,20 @@ async function testDocumentSearch() {
 
   if (!allDocsError && allDocs) {
     console.log(`\nTotal documents: ${allDocs.length}`);
-    
+
     allDocs.forEach((doc, i) => {
       if (i < 10) { // Show first 10
         const hasContent = !!doc.content;
         const hasEmbedding = !!doc.vector_embedding;
         const contentPreview = doc.content ? doc.content.substring(0, 50) + '...' : 'No content';
-        
+
         console.log(`\n${i + 1}. ${doc.title}`);
         console.log(`   File: ${doc.file_path}`);
         console.log(`   Content: ${hasContent ? '✅' : '❌'} (${contentPreview})`);
         console.log(`   Embedding: ${hasEmbedding ? '✅' : '❌'}`);
       }
     });
-    
+
     if (allDocs.length > 10) {
       console.log(`\n... and ${allDocs.length - 10} more documents`);
     }
@@ -114,10 +114,10 @@ async function testDocumentSearch() {
   const docsWithBothContentAndEmbeddings = allDocs?.filter(d => d.content && d.vector_embedding) || [];
   if (docsWithBothContentAndEmbeddings.length > 0) {
     console.log('\n4. Testing real document search...');
-    
+
     // Use OpenAI to generate a real embedding for a test query
     const openAIKey = envVars.VITE_OPENAI_API_KEY || envVars.OPENAI_API_KEY;
-    
+
     if (openAIKey) {
       try {
         const response = await fetch('https://api.openai.com/v1/embeddings', {
@@ -135,7 +135,7 @@ async function testDocumentSearch() {
         if (response.ok) {
           const data = await response.json();
           const embedding = data.data[0].embedding;
-          
+
           const { data: searchResults, error: searchError } = await supabase.rpc('match_documents', {
             query_embedding: embedding,
             match_threshold: 0.5,
@@ -172,12 +172,12 @@ async function testDocumentSearch() {
     console.log('\n🔧 Fix: Run database migration');
     console.log('   npx supabase db push');
   }
-  
+
   if (hasDocuments && !hasContent) {
     console.log('\n🔧 Fix: Extract content from PDFs');
     console.log('   python scripts/pdf_parse_to_supabase.py');
   }
-  
+
   if (hasContent && !hasEmbeddings) {
     console.log('\n🔧 Fix: Generate embeddings');
     console.log('   python scripts/generate_embeddings.py');

@@ -129,4 +129,4 @@ const Kalender: React.FC = () => {
   );
 };
 
-export default Kalender; 
+export default Kalender;

@@ -117,7 +117,7 @@ export const useDocumentManager = (options: UseDocumentManagerOptions = {}) => {
         const newDocuments: Document[] = validFiles.map((file, index) => {
           const objectUrl = URL.createObjectURL(file);
           setObjectUrls(prev => new Set([...prev, objectUrl]));
-          
+
           return {
             id: `temp-${Date.now()}-${index}`,
             name: sanitizeFilename(file.name),
@@ -171,11 +171,11 @@ export const useDocumentManager = (options: UseDocumentManagerOptions = {}) => {
         link.download = sanitizeFilename(document.name);
         link.target = '_blank';
         link.rel = 'noopener noreferrer'; // Security: prevent opener hijacking
-        
+
         // Add to DOM temporarily
         window.document.body.appendChild(link);
         link.click();
-        
+
         // Clean up
         window.document.body.removeChild(link);
       }
@@ -209,8 +209,8 @@ export const useDocumentManager = (options: UseDocumentManagerOptions = {}) => {
   }, []);
 
   const updateDocument = useCallback((documentId: string, updates: Partial<Document>) => {
-    setDocuments(prev => 
-      prev.map(doc => 
+    setDocuments(prev =>
+      prev.map(doc =>
         doc.id === documentId ? { ...doc, ...updates } : doc
       )
     );
@@ -232,4 +232,4 @@ export const useDocumentManager = (options: UseDocumentManagerOptions = {}) => {
     sanitizeFilename,
     sanitizeInput
   };
-}; 
+};

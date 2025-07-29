@@ -25,15 +25,15 @@ interface ClientFilterState {
 // Helper functie voor address parsing
 const parseAddress = (addressString: string) => {
   if (!addressString) return null;
-  
+
   // Simpele parsing van database adres formaat
   const parts = addressString.split(',').map(part => part.trim());
   const streetPart = parts[0] || '';
   const city = parts[1] || '';
-  
+
   // Probeer straat en huisnummer te scheiden
   const streetMatch = streetPart.match(/^(.+?)\s+(\d+[a-zA-Z]*)$/);
-  
+
   return {
     street: streetMatch ? streetMatch[1] : streetPart,
     houseNumber: streetMatch ? streetMatch[2] : '',
@@ -47,7 +47,7 @@ const mockCoordinators = ['Geen informatie beschikbaar'];
 // Helper functie om database client om te zetten naar Client type
 const transformDbClientToClient = (dbClient: any): Client => {
   const parsedAddress = parseAddress(dbClient.adres);
-  
+
   return {
     id: dbClient.id,
     bsn: dbClient.bsn || "Geen informatie beschikbaar",
@@ -249,9 +249,9 @@ const Clienten = () => {
 
   // Count active filters
   const activeFiltersCount = useMemo(() => {
-    return filters.status.length + 
-           filters.careLevel.length + 
-           filters.assignedTo.length + 
+    return filters.status.length +
+           filters.careLevel.length +
+           filters.assignedTo.length +
            filters.client.length +
            (filters.hasActiveTasks !== null ? 1 : 0);
   }, [filters]);
@@ -282,7 +282,7 @@ const Clienten = () => {
     try {
       // Update the fullName based on firstName and lastName
       const fullName = `${updatedClient.firstName} ${updatedClient.lastName}`.trim();
-      
+
       // Prepare the data for Supabase update
       const updateData = {
         naam: fullName,
@@ -307,8 +307,8 @@ const Clienten = () => {
       if (error) throw error;
 
       // Update local state
-      setClients(prev => prev.map(client => 
-        client.id === updatedClient.id 
+      setClients(prev => prev.map(client =>
+        client.id === updatedClient.id
           ? { ...updatedClient, fullName, updatedAt: new Date() }
           : client
       ));
@@ -341,7 +341,7 @@ const Clienten = () => {
   const handleQuickAction = (action: string, clientId: string) => {
     const client = clients.find(c => c.id === clientId);
     if (!client) return;
-    
+
     switch (action) {
       case 'call':
         if (client.contact.phone) {
@@ -364,9 +364,9 @@ const Clienten = () => {
         .from('clients')
         .delete()
         .eq('id', clientId);
-      
+
       if (error) throw error;
-      
+
       // Remove from local state
       setClients(prev => prev.filter(c => c.id !== clientId));
     } catch (error) {
@@ -375,8 +375,8 @@ const Clienten = () => {
   };
 
   const handleSelectClient = (clientId: string) => {
-    setSelectedClients(prev => 
-      prev.includes(clientId) 
+    setSelectedClients(prev =>
+      prev.includes(clientId)
         ? prev.filter(id => id !== clientId)
         : [...prev, clientId]
     );
@@ -420,8 +420,8 @@ const Clienten = () => {
           </div>
           <div className="flex gap-2">
             <div className="relative" data-filter-dropdown>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`${activeFiltersCount > 0 ? 'bg-purple-100 border-purple-300 text-purple-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
@@ -434,7 +434,7 @@ const Clienten = () => {
                   </Badge>
                 )}
               </Button>
-              
+
               {isFilterOpen && (
                 <ClientFilters
                   filters={filters}
@@ -484,13 +484,13 @@ const Clienten = () => {
         {activeFiltersCount > 0 && (
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <span className="text-sm text-gray-500">Actieve filters:</span>
-            
+
             {/* Status filters */}
             {filters.status.map(status => (
               <Badge key={status} variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-300">
                 Status: {status.replace('_', ' ')}
-                <X 
-                  className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                <X
+                  className="w-3 h-3 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     setFilters(prev => ({
                       ...prev,
@@ -505,8 +505,8 @@ const Clienten = () => {
             {filters.careLevel.map(careLevel => (
               <Badge key={careLevel} variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-300">
                 Zorgniveau: {careLevel.toUpperCase()}
-                <X 
-                  className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                <X
+                  className="w-3 h-3 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     setFilters(prev => ({
                       ...prev,
@@ -521,8 +521,8 @@ const Clienten = () => {
             {filters.assignedTo.map(coordinator => (
               <Badge key={coordinator} variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-300">
                 Coördinator: {coordinator}
-                <X 
-                  className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                <X
+                  className="w-3 h-3 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     setFilters(prev => ({
                       ...prev,
@@ -537,8 +537,8 @@ const Clienten = () => {
             {filters.client.map(client => (
               <Badge key={client} variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-300">
                 Opdrachtgever: {client}
-                <X 
-                  className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                <X
+                  className="w-3 h-3 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     setFilters(prev => ({
                       ...prev,
@@ -553,8 +553,8 @@ const Clienten = () => {
             {filters.hasActiveTasks !== null && (
               <Badge variant="secondary" className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-300">
                 {filters.hasActiveTasks ? 'Heeft actieve taken' : 'Geen actieve taken'}
-                <X 
-                  className="w-3 h-3 cursor-pointer hover:text-red-600" 
+                <X
+                  className="w-3 h-3 cursor-pointer hover:text-red-600"
                   onClick={() => {
                     setFilters(prev => ({
                       ...prev,
@@ -566,9 +566,9 @@ const Clienten = () => {
             )}
 
             {/* Clear all button */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={clearAllFilters}
               className="text-xs text-gray-500 hover:text-gray-700"
             >
@@ -597,7 +597,7 @@ const Clienten = () => {
               {searchTerm ? 'Geen resultaten gevonden' : 'Geen cliënten gevonden'}
             </h3>
             <p className="text-gray-500 mb-4">
-              {searchTerm 
+              {searchTerm
                 ? `Geen cliënten gevonden voor "${searchTerm}". Probeer een andere zoekopdracht.`
                 : 'Er zijn nog geen cliënten toegevoegd aan het systeem.'
               }

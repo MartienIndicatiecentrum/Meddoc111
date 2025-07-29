@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/api/extract-pdf', cors(), async (req, res) => {
   try {
     const { fileUrl } = req.body;
-    
+
     if (!fileUrl) {
       return res.status(400).json({ error: 'File URL is required' });
     }
@@ -20,12 +20,12 @@ router.post('/api/extract-pdf', cors(), async (req, res) => {
     }
 
     const pdfBuffer = await pdfResponse.buffer();
-    
+
     // Extract text from PDF
     const data = await pdf(pdfBuffer);
-    
+
     // Return extracted content
-    res.json({ 
+    res.json({
       content: data.text,
       pages: data.numpages,
       info: data.info

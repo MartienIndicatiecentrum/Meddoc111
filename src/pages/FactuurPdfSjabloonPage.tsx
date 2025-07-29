@@ -10,12 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  ArrowLeft, 
-  Download, 
-  Printer, 
-  FileText, 
-  User, 
+import {
+  ArrowLeft,
+  Download,
+  Printer,
+  FileText,
+  User,
   Building,
   Calendar,
   Euro,
@@ -26,7 +26,7 @@ import {
 const UZOVI_CODES = {
   // Basis verzekeraars
   'De Friesland': '3358',
-  'FBTO': '3351', 
+  'FBTO': '3351',
   'Interpolis': '3313',
   'De Christelijke Zorgverzekeraar': '3311',
   'ZieZo': '3311',
@@ -38,7 +38,7 @@ const UZOVI_CODES = {
   'ASR': '9018',
   'OHRA': '7053',
   'Stad Holland': '7037',
-  
+
   // Uitgebreide mapping uit Excel sheets
   'Avéro Achmea Zorgverzekeringen NV': '3329',
   'Menzis Zorgverzekeraar N.V.': '3332',
@@ -65,7 +65,7 @@ const UZOVI_CODES = {
   'Centrale Verw. eenheid CZ: CZ, Nationale-Nederlanden': '9644',
   'Regeling Wlz financiering instellingen': '9994',
   'Regeling VOZD': '9995',
-  
+
   // Alternatieve namen en afkortingen
   'Achmea': '3329',
   'Zilveren Kruis': '9018',
@@ -98,20 +98,20 @@ interface InvoiceData {
   factuurnummer: string;
   factuurdatum: string;
   vervaldatum: string;
-  
+
   // Verzekeraar gegevens
   verzekeraar: string;
   verzekeraarAdres: string;
   verzekeraarPostcode: string;
   verzekeraarPlaats: string;
   uzoviCode: string;
-  
+
   // Cliëntgegevens
   clientNaam: string;
   clientGeboortedatum: string;
   clientBSN: string;
   clientPolisnummer: string;
-  
+
   // Factuurregels
   factuurregels: Array<{
     id: string;
@@ -120,7 +120,7 @@ interface InvoiceData {
     eenheidsprijs: number;
     totaal: number;
   }>;
-  
+
   // Extra informatie
   notities: string;
 }
@@ -128,7 +128,7 @@ interface InvoiceData {
 export default function FactuurPdfSjabloonPage() {
   const [searchParams] = useSearchParams();
   const clientId = searchParams.get('clientId');
-  
+
   const [clientData, setClientData] = useState<any>(null);
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
     factuurnummer: '',
@@ -159,23 +159,23 @@ export default function FactuurPdfSjabloonPage() {
         .select('*')
         .eq('id', clientId)
         .single();
-      
+
       if (!error && data) {
         setClientData(data);
-        
+
         // Genereer factuurnummer en datums
         const today = new Date();
         const dueDate = new Date(today);
         dueDate.setDate(today.getDate() + 14);
-        
+
         const year = today.getFullYear();
         const randomNum = Math.floor(Math.random() * 999) + 1;
         const factuurnummer = `${year}-${randomNum.toString().padStart(3, '0')}`;
-        
+
         // Haal verzekeraar adres op
         const verzekeraarAdres = VERZEKERAAR_ADRESSEN[data.verzekeraar] || { adres: '-', postcode: '', plaats: '' };
         const uzoviCode = UZOVI_CODES[data.verzekeraar] || '0000';
-        
+
         // Zorg ervoor dat datum correct wordt geformatteerd voor HTML date input
         let formattedDate = '';
         if (data.geboortedatum) {
@@ -189,7 +189,7 @@ export default function FactuurPdfSjabloonPage() {
             console.error('Error formatting geboortedatum:', error);
           }
         }
-        
+
         setInvoiceData(prev => ({
           ...prev,
           factuurnummer,
@@ -218,7 +218,7 @@ export default function FactuurPdfSjabloonPage() {
   // Functie om datum correct te formatteren
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '';
-    
+
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '';
@@ -233,7 +233,7 @@ export default function FactuurPdfSjabloonPage() {
   const handleVerzekeraarSelect = async (selectedVerzekeraar: string) => {
     const verzekeraarAdres = VERZEKERAAR_ADRESSEN[selectedVerzekeraar] || { adres: '', postcode: '', plaats: '' };
     const uzoviCode = UZOVI_CODES[selectedVerzekeraar] || '0000';
-    
+
     setInvoiceData(prev => ({
       ...prev,
       verzekeraar: selectedVerzekeraar,
@@ -248,7 +248,7 @@ export default function FactuurPdfSjabloonPage() {
       try {
         const { error } = await supabase
           .from('clients')
-          .update({ 
+          .update({
             verzekeraar: selectedVerzekeraar,
             verzekeraar_adres: verzekeraarAdres.adres,
             verzekeraar_postcode: verzekeraarAdres.postcode,
@@ -271,12 +271,12 @@ export default function FactuurPdfSjabloonPage() {
   const updateFactuurregel = (index: number, field: string, value: any) => {
     const newRegels = [...invoiceData.factuurregels];
     newRegels[index] = { ...newRegels[index], [field]: value };
-    
+
     // Bereken totaal
     if (field === 'aantal' || field === 'eenheidsprijs') {
       newRegels[index].totaal = newRegels[index].aantal * newRegels[index].eenheidsprijs;
     }
-    
+
     setInvoiceData(prev => ({ ...prev, factuurregels: newRegels }));
   };
 
@@ -685,4 +685,4 @@ export default function FactuurPdfSjabloonPage() {
       </div>
     </AppLayout>
   );
-} 
+}

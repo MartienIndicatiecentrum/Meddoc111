@@ -33,7 +33,7 @@ export class AIDocumentProcessor {
 
     // Simuleer API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     return mockResult;
   }
 
@@ -41,17 +41,17 @@ export class AIDocumentProcessor {
     // Mock embedding generation - in productie zou dit OpenAI embeddings API gebruiken
     // Genereer een mock 1536-dimensional vector (OpenAI embedding size)
     const embedding = Array.from({ length: 1536 }, () => Math.random() - 0.5);
-    
+
     // Simuleer API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     return embedding;
   }
 
   static async semanticSearch(query: string, documents: Document[]): Promise<SearchResult[]> {
     // Mock semantische zoekfunctionaliteit
     const queryEmbedding = await this.generateEmbedding(query);
-    
+
     const results: SearchResult[] = documents.map(doc => ({
       document: doc,
       relevance: Math.random() * 100, // Mock relevance score
@@ -68,11 +68,11 @@ export class AIDocumentProcessor {
     if (file.type === 'application/pdf') {
       return `Geëxtraheerde tekst uit PDF: ${file.name}\n\nPatiënt: Jan de Vries\nGeboortedatum: 15-03-1975\nDiagnose: Hypertensie\nMedicatie: Lisinopril 10mg\nControle: 6 weken`;
     }
-    
+
     if (file.type.startsWith('image/')) {
       return `OCR tekst uit afbeelding: ${file.name}\n\nMedisch rapport met handgeschreven notities over patiënt behandeling.`;
     }
-    
+
     // Voor tekst bestanden
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -83,40 +83,40 @@ export class AIDocumentProcessor {
 
   static detectDocumentType(filename: string, mimeType: string): string {
     const lowercaseFilename = filename.toLowerCase();
-    
+
     if (lowercaseFilename.includes('verzekering') || lowercaseFilename.includes('insurance')) {
       return 'insurance_letter';
     }
-    
+
     if (lowercaseFilename.includes('lab') || lowercaseFilename.includes('uitslag')) {
       return 'lab_result';
     }
-    
+
     if (lowercaseFilename.includes('recept') || lowercaseFilename.includes('medicijn')) {
       return 'prescription';
     }
-    
+
     if (lowercaseFilename.includes('rapport') || lowercaseFilename.includes('medical')) {
       return 'medical_report';
     }
-    
+
     if (mimeType.startsWith('image/')) {
       return 'medical_image';
     }
-    
+
     return 'general_document';
   }
 
   static async detectDeadlines(text: string): Promise<Date[]> {
     // Mock deadline detectie - in productie zou dit NLP gebruiken
     const deadlines: Date[] = [];
-    
+
     // Zoek naar datum patronen
     const datePatterns = [
       /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/g,
       /(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/gi
     ];
-    
+
     datePatterns.forEach(pattern => {
       const matches = text.matchAll(pattern);
       for (const match of matches) {
@@ -127,7 +127,7 @@ export class AIDocumentProcessor {
         }
       }
     });
-    
+
     return deadlines;
   }
 }
@@ -141,16 +141,16 @@ export class NotificationManager {
   ): Promise<void> {
     // Mock notificatie verzending
     console.log(`Notificatie verzonden:`, { type, title, message, channels });
-    
+
     // In productie zou dit WhatsApp, Email, SMS APIs aanroepen
     if (channels.includes('whatsapp')) {
       await this.sendWhatsApp(message);
     }
-    
+
     if (channels.includes('email')) {
       await this.sendEmail(title, message);
     }
-    
+
     if (channels.includes('sms')) {
       await this.sendSMS(message);
     }

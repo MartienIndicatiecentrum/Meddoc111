@@ -63,13 +63,13 @@ ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_from_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_status_check;
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check
     CHECK (from_type IN ('client', 'employee', 'insurer', 'family', 'verzekeraar'));
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check
     CHECK (type IS NOT NULL AND length(trim(type)) > 0);
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check
     CHECK (status IN ('Geen urgentie', 'Licht urgent', 'Urgent', 'Reactie nodig', 'Afgehandeld', 'In behandeling'));
 
 -- Update defaults
@@ -86,4 +86,4 @@ ALTER TABLE public.logboek ALTER COLUMN from_color SET DEFAULT 'bg-gray-500';
 - De key moet beginnen met `eyJ...`
 - Voeg geen quotes toe rond de key in het .env bestand
 
-**Na deze stappen zou het automatisch opslaan moeten werken!** 🚀 
+**Na deze stappen zou het automatisch opslaan moeten werken!** 🚀

@@ -91,7 +91,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
     setSearch(inputValue);
     setIsOpen(true);
     setHighlightedIndex(-1);
-    
+
     // If input is cleared, clear selection
     if (!inputValue) {
       onSelect("");
@@ -123,7 +123,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < filteredClients.length ? prev + 1 : prev
         );
         break;
@@ -193,7 +193,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
           disabled={loading}
           autoComplete="off"
         />
-        
+
         {/* Right side icons */}
         <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
           {selectedClient && (
@@ -205,8 +205,8 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
               <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
             </button>
           )}
-          <ChevronDown 
-            className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+          <ChevronDown
+            className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           />
         </div>
       </div>
@@ -242,7 +242,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
                   <span className="font-medium text-blue-600">Alle cliënten</span>
                 </div>
               </div>
-              
+
               {/* Client list */}
               {filteredClients.length === 0 ? (
                 <div className="px-3 py-2 text-gray-500">
@@ -286,4 +286,4 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
   );
 };
 
-export default KiesClientDropdown; 
+export default KiesClientDropdown;

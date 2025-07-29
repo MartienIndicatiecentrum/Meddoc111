@@ -65,7 +65,7 @@ serve(async (req) => {
         match_count: 3,
         client_id_filter: null
       });
-      
+
       if (allDocs && allDocs.length > 0) {
         documentContext += '\n\n## Andere relevante documenten:\n\n' + allDocs.map((doc: any) => {
           const preview = doc.content ? doc.content.substring(0, 300) + '...' : 'Geen inhoud beschikbaar';

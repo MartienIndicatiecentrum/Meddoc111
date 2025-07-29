@@ -10,33 +10,33 @@ import AppLayout from '@/components/layout/AppLayout';
 
 // Progress stages for general workflow
 const PROGRESS_STAGES = [
-  { 
-    key: "planning", 
-    label: "Planning", 
+  {
+    key: "planning",
+    label: "Planning",
     color: "border-blue-400",
     bgColor: "bg-blue-50"
   },
-  { 
-    key: "in_progress", 
-    label: "In Uitvoering", 
+  {
+    key: "in_progress",
+    label: "In Uitvoering",
     color: "border-yellow-400",
     bgColor: "bg-yellow-50"
   },
-  { 
-    key: "review", 
-    label: "Review", 
+  {
+    key: "review",
+    label: "Review",
     color: "border-purple-400",
     bgColor: "bg-purple-50"
   },
-  { 
-    key: "completed", 
-    label: "Voltooid", 
+  {
+    key: "completed",
+    label: "Voltooid",
     color: "border-green-400",
     bgColor: "bg-green-50"
   },
-  { 
-    key: "on_hold", 
-    label: "On Hold", 
+  {
+    key: "on_hold",
+    label: "On Hold",
     color: "border-orange-400",
     bgColor: "bg-orange-50"
   }
@@ -101,8 +101,8 @@ const ProgressItemCard = ({ item, index }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`
-            bg-white rounded-lg shadow-sm p-4 border-l-4 
-            ${isHighPriority ? "border-red-500" : "border-blue-200"} 
+            bg-white rounded-lg shadow-sm p-4 border-l-4
+            ${isHighPriority ? "border-red-500" : "border-blue-200"}
             flex flex-col gap-3 hover:shadow-md transition-all duration-200
             ${snapshot.isDragging ? "ring-2 ring-blue-400 shadow-lg rotate-2" : ""}
             cursor-grab active:cursor-grabbing
@@ -116,32 +116,32 @@ const ProgressItemCard = ({ item, index }) => {
               {item.priority}
             </span>
           </div>
-          
+
           <p className="text-sm text-gray-600 line-clamp-2">
             {item.description}
           </p>
-          
+
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${item.progress}%` }}
             ></div>
           </div>
           <div className="text-xs text-gray-500">{item.progress}% voltooid</div>
-          
+
           <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center">
               <span className="text-gray-500">Toegewezen aan:</span>
               <span className="font-medium text-gray-700">{item.assignee}</span>
             </div>
-            
+
             {item.deadline && (
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Deadline:</span>
                 <span className={`font-medium ${
-                  isOverdue 
-                    ? "text-red-700" 
+                  isOverdue
+                    ? "text-red-700"
                     : "text-gray-700"
                 }`}>
                   {new Date(item.deadline).toLocaleDateString("nl-NL")}
@@ -164,7 +164,7 @@ const ProgressColumn = ({ stage, items, onAddItem }) => {
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={`
-            flex-1 min-w-0 max-w-full ${stage.bgColor} rounded-lg border-t-4 ${stage.color} 
+            flex-1 min-w-0 max-w-full ${stage.bgColor} rounded-lg border-t-4 ${stage.color}
             shadow-sm p-4 flex flex-col transition-all duration-200
             ${snapshot.isDraggingOver ? "bg-blue-100 shadow-md scale-[1.02]" : ""}
           `}
@@ -175,7 +175,7 @@ const ProgressColumn = ({ stage, items, onAddItem }) => {
               {items.length}
             </span>
           </div>
-          
+
           <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto">
             {items.length === 0 ? (
               <div className="text-gray-400 text-sm text-center mt-8 italic">
@@ -192,8 +192,8 @@ const ProgressColumn = ({ stage, items, onAddItem }) => {
             )}
             {provided.placeholder}
           </div>
-          
-          <button 
+
+          <button
             className="mt-4 bg-white hover:bg-gray-50 text-gray-700 text-sm px-3 py-2 rounded-md transition-colors border border-gray-200 shadow-sm"
             onClick={() => onAddItem?.(stage.key)}
           >
@@ -210,14 +210,14 @@ const ProgressFlowPage = () => {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedFilter, setSelectedFilter] = useState('all');
-  
+
   // Mock query for progress items
-  const { 
-    data: progressItems = [], 
-    isLoading, 
-    error 
-  } = useQuery({ 
-    queryKey: ["progressItems"], 
+  const {
+    data: progressItems = [],
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ["progressItems"],
     queryFn: fetchProgressItems,
     staleTime: 30000,
   });
@@ -228,7 +228,7 @@ const ProgressFlowPage = () => {
     PROGRESS_STAGES.forEach(stage => {
       grouped[stage.key] = [];
     });
-    
+
     progressItems.forEach((item) => {
       if (grouped[item.stage]) {
         grouped[item.stage].push(item);
@@ -236,7 +236,7 @@ const ProgressFlowPage = () => {
         grouped['planning'].push(item);
       }
     });
-    
+
     return grouped;
   }, [progressItems]);
 
@@ -246,17 +246,17 @@ const ProgressFlowPage = () => {
     const completedItems = progressItems.filter(item => item.stage === 'completed').length;
     const inProgressItems = progressItems.filter(item => item.stage === 'in_progress').length;
     const onHoldItems = progressItems.filter(item => item.stage === 'on_hold').length;
-    
+
     return { totalItems, completedItems, inProgressItems, onHoldItems };
   }, [progressItems]);
 
   // Drag and drop handler
   const onDragEnd = useCallback((result) => {
     if (!result.destination) return;
-    
+
     const { draggableId, destination } = result;
     const newStage = destination.droppableId;
-    
+
     // Here you would update the item's stage in your database
     console.log(`Moving item ${draggableId} to stage ${newStage}`);
     toast.success(`Item verplaatst naar ${PROGRESS_STAGES.find(s => s.key === newStage)?.label}`);
@@ -305,7 +305,7 @@ const ProgressFlowPage = () => {
                 Volg de voortgang van projecten en processen via een visueel kanban bord
               </p>
             </div>
-            
+
             {/* Statistics Cards */}
             <div className="flex gap-4">
               <div className="bg-white rounded-lg shadow-sm p-4 text-center border">
@@ -326,7 +326,7 @@ const ProgressFlowPage = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Navigation */}
           <div className="flex flex-wrap gap-4 items-center mb-6">
             <Link to="/taken">
@@ -369,12 +369,12 @@ const ProgressFlowPage = () => {
               </div>
             ))}
           </div>
-          
+
           {progressItems.length === 0 && (
             <div className="text-center mt-6 py-8">
               <div className="text-gray-400 text-lg mb-2">📊</div>
               <p className="text-gray-500">Geen progress items gevonden</p>
-              <button 
+              <button
                 onClick={() => handleAddItem('planning')}
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >

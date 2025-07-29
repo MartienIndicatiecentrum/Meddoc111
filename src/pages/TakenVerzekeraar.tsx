@@ -824,4 +824,4 @@ const TakenVerzekeraar: React.FC = () => {
   );
 };
 
-export default TakenVerzekeraar; 
+export default TakenVerzekeraar;

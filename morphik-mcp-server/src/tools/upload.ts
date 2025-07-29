@@ -1,12 +1,12 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { MorphikClient } from '../morphik-client.js';
 import { FileUpload } from '../types.js';
-import { 
-  readFileAsBuffer, 
-  getFilesInDirectory, 
-  getMimeType, 
+import {
+  readFileAsBuffer,
+  getFilesInDirectory,
+  getMimeType,
   extractMetadataFromPath,
-  logger 
+  logger
 } from '../utils.js';
 import path from 'path';
 
@@ -37,22 +37,22 @@ export function createUploadTools(client: MorphikClient): Tool[] {
       handler: async (args: any) => {
         try {
           const { filePath, folder, metadata = {} } = args;
-          
+
           logger.info(`Uploading file: ${filePath}`);
-          
+
           const fileBuffer = await readFileAsBuffer(filePath);
           const mimeType = getMimeType(filePath);
           const pathMetadata = extractMetadataFromPath(filePath);
-          
+
           const fileUpload: FileUpload = {
             path: filePath,
             content: fileBuffer,
             mimeType,
             metadata: { ...pathMetadata, ...metadata }
           };
-          
+
           const result = await client.uploadFile(fileUpload, folder);
-          
+
           if (result.success) {
             logger.info(`File uploaded successfully: ${result.documentId}`);
             return {
@@ -72,7 +72,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
         }
       }
     },
-    
+
     {
       name: 'morphik_upload_folder',
       description: 'Upload all files in a folder to Morphik AI',
@@ -107,17 +107,17 @@ export function createUploadTools(client: MorphikClient): Tool[] {
       },
       handler: async (args: any) => {
         try {
-          const { 
-            folderPath, 
-            targetFolder, 
+          const {
+            folderPath,
+            targetFolder,
             fileExtensions = [],
             metadata = {}
           } = args;
-          
+
           logger.info(`Uploading folder: ${folderPath} to ${targetFolder}`);
-          
+
           let files = await getFilesInDirectory(folderPath);
-          
+
           // Filter by extensions if specified
           if (fileExtensions.length > 0) {
             files = files.filter(file => {
@@ -125,7 +125,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
               return fileExtensions.includes(ext);
             });
           }
-          
+
           if (files.length === 0) {
             return {
               success: true,
@@ -134,7 +134,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
               failedCount: 0
             };
           }
-          
+
           // Prepare file uploads
           const fileUploads: FileUpload[] = await Promise.all(
             files.map(async (filePath) => {
@@ -142,7 +142,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
               const mimeType = getMimeType(filePath);
               const pathMetadata = extractMetadataFromPath(filePath);
               const relativePath = path.relative(folderPath, filePath);
-              
+
               return {
                 path: filePath,
                 content: fileBuffer,
@@ -156,22 +156,22 @@ export function createUploadTools(client: MorphikClient): Tool[] {
               };
             })
           );
-          
+
           // Upload in batches of 10
           const batchSize = 10;
           let totalUploaded = 0;
           let totalFailed = 0;
-          
+
           for (let i = 0; i < fileUploads.length; i += batchSize) {
             const batch = fileUploads.slice(i, i + batchSize);
             const result = await client.uploadFiles(batch, targetFolder);
-            
+
             totalUploaded += result.uploadedCount;
             totalFailed += result.failedCount;
-            
+
             logger.info(`Batch ${Math.floor(i / batchSize) + 1} complete: ${result.uploadedCount} uploaded, ${result.failedCount} failed`);
           }
-          
+
           return {
             success: totalFailed === 0,
             message: `Uploaded ${totalUploaded} files, ${totalFailed} failed`,

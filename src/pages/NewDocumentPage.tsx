@@ -83,7 +83,7 @@ const NewDocumentPage: React.FC = () => {
       setFile(e.target.files[0]);
       setShowPreview(false);
     }
-  } 
+  }
 
   const handleSubmit = async () => {
     setIsSubmitting(true);

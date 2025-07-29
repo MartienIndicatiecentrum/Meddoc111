@@ -3,9 +3,9 @@ import AppLayout from '@/components/layout/AppLayout';
 import DocumentFilters, { Client, Folder as FolderType } from '@/components/documents/DocumentFilters';
 import DocumentDetailModal from '@/components/documents/DocumentDetailModal';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Upload, Download, Eye, Grid, List, MoreVertical, 
-  FileText, Trash2, Share2, Star, Filter, 
+import {
+  Upload, Download, Eye, Grid, List, MoreVertical,
+  FileText, Trash2, Share2, Star, Filter,
   SortAsc, SortDesc, RefreshCw, Plus, FolderPlus,
   Loader2, AlertCircle, Folder, Home as HomeIcon, ArrowLeft
 } from 'lucide-react';
@@ -152,11 +152,11 @@ const Documenten: React.FC = () => {
   };
 
   // Fetch documents using React Query
-  const { 
-    data: documents = [], 
-    isLoading: documentsLoading, 
+  const {
+    data: documents = [],
+    isLoading: documentsLoading,
     error: documentsError,
-    refetch: refetchDocuments 
+    refetch: refetchDocuments
   } = useQuery({
     queryKey: ['documents'],
     queryFn: fetchDocuments,
@@ -164,9 +164,9 @@ const Documenten: React.FC = () => {
   });
 
   // Fetch categories
-  const { 
-    data: allCategories = [], 
-    isLoading: categoriesLoading 
+  const {
+    data: allCategories = [],
+    isLoading: categoriesLoading
   } = useQuery({
     queryKey: ['document-categories'],
     queryFn: fetchCategories,
@@ -174,10 +174,10 @@ const Documenten: React.FC = () => {
   });
 
   // Fetch clients
-  const { 
-    data: clients = [], 
+  const {
+    data: clients = [],
     isLoading: clientsLoading,
-    error: clientsError 
+    error: clientsError
   } = useQuery({
     queryKey: ['clients'],
     queryFn: fetchClients,
@@ -185,8 +185,8 @@ const Documenten: React.FC = () => {
   });
 
   // Fetch folders
-  const { 
-    data: folders = [], 
+  const {
+    data: folders = [],
     isLoading: foldersLoading,
     refetch: refetchFolders
   } = useQuery({
@@ -197,7 +197,7 @@ const Documenten: React.FC = () => {
 
   const filteredDocuments = useMemo(() => {
     if (!documents) return [];
-    
+
     // Handle folder filtering
     if (selectedFolder) {
       if (selectedFolder === 'ALL') {
@@ -207,50 +207,50 @@ const Documenten: React.FC = () => {
                               (doc.description && doc.description.toLowerCase().includes(search.toLowerCase()));
           const matchesCategory = !category || doc.category === category;
           const matchesClient = !selectedClient || String(doc.client_id) === String(selectedClient);
-          
+
           return matchesSearch && matchesCategory && matchesClient;
         });
-        
+
         // Sort and return
         return sortDocuments(filtered);
       }
-      
+
       if (selectedFolder === 'UNKNOWN') {
         // Show documents that don't belong to any folder (no category or category not matching any folder)
         const folderNames = folders.map(f => f.title);
         const filtered = documents.filter(doc => {
           if (doc.type === 'folder') return false; // Don't show folder items themselves
-          
+
           const isUnknownFolder = !doc.category || !folderNames.includes(doc.category);
           const matchesSearch = doc.title.toLowerCase().includes(search.toLowerCase()) ||
                               (doc.description && doc.description.toLowerCase().includes(search.toLowerCase()));
           const matchesCategory = !category || doc.category === category;
           const matchesClient = !selectedClient || String(doc.client_id) === String(selectedClient);
-          
+
           return isUnknownFolder && matchesSearch && matchesCategory && matchesClient;
         });
-        
+
         return sortDocuments(filtered);
       }
-      
+
       // Specific folder selected
       const selectedFolderData = folders.find(f => String(f.id) === String(selectedFolder));
       if (selectedFolderData) {
         // Show documents that belong to the selected folder
-        const filtered = documents.filter(doc => 
+        const filtered = documents.filter(doc =>
           doc.type !== 'folder' && doc.category === selectedFolderData.title
         );
         return sortDocuments(filtered);
       }
     }
-    
+
     // Normal filtering when no folder is selected
     const filtered = documents.filter(doc => {
       const matchesSearch = doc.title.toLowerCase().includes(search.toLowerCase()) ||
                           (doc.description && doc.description.toLowerCase().includes(search.toLowerCase()));
       const matchesCategory = !category || doc.category === category;
       const matchesClient = !selectedClient || String(doc.client_id) === String(selectedClient);
-      
+
       return matchesSearch && matchesCategory && matchesClient;
     });
 
@@ -267,7 +267,7 @@ const Documenten: React.FC = () => {
       try {
         console.log('Starting upload for file:', file.name, 'Size:', file.size, 'Type:', file.type);
         toastId = toast.loading(`Document "${file.name}" wordt geüpload...`);
-        
+
         // Validate file size (max 50MB)
         if (file.size > 50 * 1024 * 1024) {
           throw new Error('Bestand is te groot (max 50MB)');
@@ -278,9 +278,9 @@ const Documenten: React.FC = () => {
         const randomString = Math.random().toString(36).substring(2, 8);
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'bin';
         const safeFileName = `${timestamp}-${randomString}.${fileExt}`;
-        
+
         console.log('Uploading to Supabase Storage with filename:', safeFileName);
-        
+
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('documents')
           .upload(safeFileName, file, {
@@ -303,7 +303,7 @@ const Documenten: React.FC = () => {
         console.log('Public URL obtained:', publicUrl);
 
         // Find client name if client is selected
-        const clientName = selectedClient ? 
+        const clientName = selectedClient ?
           clients.find(c => String(c.id) === String(selectedClient))?.naam || 'Onbekende cliënt' : null;
 
         // Prepare document data with proper types
@@ -338,23 +338,23 @@ const Documenten: React.FC = () => {
         console.log('Document metadata saved successfully:', insertedDoc);
         toast.dismiss(toastId);
         toast.success(`Document "${file.name}" succesvol geüpload!`);
-        
+
         // Refresh documents list
         refetchDocuments();
-        
+
       } catch (error) {
         console.error('Upload error for file', file.name, ':', error);
         if (toastId) toast.dismiss(toastId);
-        
+
         let errorMessage = 'Onbekende fout';
         if (error instanceof Error) {
           errorMessage = error.message;
         }
-        
+
         toast.error(`Fout bij uploaden van "${file.name}": ${errorMessage}`);
       }
     }
-    
+
     // Reset file input
     if (event.target) {
       event.target.value = '';
@@ -388,11 +388,11 @@ const Documenten: React.FC = () => {
       // Get the selected documents/folders
       const itemsToDelete = documents.filter(doc => selectedDocuments.includes(doc.id));
       console.log('Items found to delete:', itemsToDelete);
-      
+
       // Separate documents and folders
       const documentsToDelete = itemsToDelete.filter(item => item.type !== 'folder');
       const foldersToDelete = itemsToDelete.filter(item => item.type === 'folder');
-      
+
       // Delete files from storage for regular documents
       for (const doc of documentsToDelete) {
         if (doc.file_path) {
@@ -434,12 +434,12 @@ const Documenten: React.FC = () => {
       }
 
       toast.success(`${selectedDocuments.length} item(s) verwijderd`);
-      
+
       // Clear selection and refresh
       setSelectedDocuments([]);
       refetchDocuments();
       refetchFolders();
-      
+
     } catch (error) {
       console.error('Error in bulk delete:', error);
       toast.error(error instanceof Error ? error.message : 'Kon items niet verwijderen');
@@ -448,8 +448,8 @@ const Documenten: React.FC = () => {
 
   // Toggle document selection
   const toggleDocumentSelection = (docId: number) => {
-    setSelectedDocuments(prev => 
-      prev.includes(docId) 
+    setSelectedDocuments(prev =>
+      prev.includes(docId)
         ? prev.filter(id => id !== docId)
         : [...prev, docId]
     );
@@ -472,12 +472,12 @@ const Documenten: React.FC = () => {
     }
 
     const folderName = newFolderName.trim();
-    
+
     // Check if folder already exists
-    const existingFolder = folders.find(folder => 
+    const existingFolder = folders.find(folder =>
       folder.title.toLowerCase() === folderName.toLowerCase()
     );
-    
+
     if (existingFolder) {
       toast.error(`Map "${folderName}" bestaat al`);
       return;
@@ -486,7 +486,7 @@ const Documenten: React.FC = () => {
     setIsCreatingFolder(true);
     try {
       console.log('Creating folder in documents table:', folderName);
-      
+
       // Create folder entry in the documents table with type='folder'
       const folderData = {
         title: folderName,
@@ -527,14 +527,14 @@ const Documenten: React.FC = () => {
       setSelectedClientForFolder('');
       setMoveClientDocuments(false);
       setShowUploadModal(false);
-      
+
       // Refresh both documents and folders
       await refetchDocuments();
       await refetchFolders();
-      
+
     } catch (error) {
       console.error('Error creating folder:', error);
-      
+
       let errorMessage = 'Kon map niet aanmaken';
       if (error instanceof Error) {
         if (error.message.includes('already exists') || error.message.includes('duplicate')) {
@@ -543,7 +543,7 @@ const Documenten: React.FC = () => {
           errorMessage = `Fout: ${error.message}`;
         }
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setIsCreatingFolder(false);
@@ -555,7 +555,7 @@ const Documenten: React.FC = () => {
     try {
       // Get documents that belong to the selected client
       const documentsToMove = documents.filter(doc => String(doc.client_id) === String(clientId) && doc.type !== 'folder');
-      
+
       let documentsToMoveFinal;
       if (documentsToMove.length > 0) {
         documentsToMoveFinal = documentsToMove;
@@ -574,7 +574,7 @@ const Documenten: React.FC = () => {
       const updatePromises = documentsToMoveFinal.map(async (doc) => {
         const { error } = await supabase
           .from('documents')
-          .update({ 
+          .update({
             category: folderName,
             client_id: clientId
           })
@@ -589,10 +589,10 @@ const Documenten: React.FC = () => {
       });
 
       await Promise.all(updatePromises);
-      
+
       const clientName = clients.find(c => String(c.id) === String(clientId))?.naam || 'Onbekende cliënt';
       toast.success(`${documentsToMoveFinal.length} documenten zijn verplaatst naar map "${folderName}" voor ${clientName}`);
-      
+
       // Refresh documents to show the changes
       refetchDocuments();
     } catch (error) {
@@ -645,7 +645,7 @@ const Documenten: React.FC = () => {
                   <Upload className="w-4 h-4" />
                   Upload Document
                 </button>
-                
+
                 <button
                   onClick={() => setShowUploadModal(true)}
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
@@ -692,7 +692,7 @@ const Documenten: React.FC = () => {
                     <option value="name">Sorteren op naam</option>
                     <option value="type">Sorteren op type</option>
                   </select>
-                  
+
                   <button
                     onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                     className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
@@ -750,7 +750,7 @@ const Documenten: React.FC = () => {
                   >
                     <MoreVertical className="w-4 h-4" />
                   </button>
-                  
+
                   {showBulkActions && (
                     <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-2">
@@ -801,7 +801,7 @@ const Documenten: React.FC = () => {
               className="hidden"
             />
           </div>
-          
+
           <div className="bg-white rounded shadow p-4">
             <div className="flex items-center gap-2 mb-4">
               <input
@@ -824,8 +824,8 @@ const Documenten: React.FC = () => {
                       <div
                         key={doc.id}
                         className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                          selectedDocuments.includes(Number(doc.id)) 
-                            ? 'border-blue-300 bg-blue-50' 
+                          selectedDocuments.includes(Number(doc.id))
+                            ? 'border-blue-300 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -839,16 +839,16 @@ const Documenten: React.FC = () => {
                             }}
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                           />
-                          
+
                           {doc.type === 'folder' ? (
                             <Folder className="w-5 h-5 text-yellow-600 flex-shrink-0" />
                           ) : (
                             <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
                           )}
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <h3 
+                              <h3
                                 className="font-medium text-gray-900 truncate cursor-pointer hover:text-blue-600"
                                 onClick={() => {
                                   console.log('🔍 Title clicked, document:', doc);
@@ -887,8 +887,8 @@ const Documenten: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                               <span className={`px-2 py-1 rounded text-xs ${
-                                doc.type === 'folder' 
-                                  ? 'bg-yellow-100 text-yellow-800' 
+                                doc.type === 'folder'
+                                  ? 'bg-yellow-100 text-yellow-800'
                                   : 'bg-gray-100 text-gray-700'
                               }`}>
                                 {doc.type === 'folder' ? 'Map' : doc.type}
@@ -917,8 +917,8 @@ const Documenten: React.FC = () => {
                       <div
                         key={doc.id}
                         className={`p-4 rounded-lg border transition-all cursor-pointer ${
-                          selectedDocuments.map(String).includes(String(doc.id)) 
-                            ? 'border-blue-300 bg-blue-50' 
+                          selectedDocuments.map(String).includes(String(doc.id))
+                            ? 'border-blue-300 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -960,14 +960,14 @@ const Documenten: React.FC = () => {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="text-center">
                           {doc.type === 'folder' ? (
                             <Folder className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
                           ) : (
                             <FileText className="w-12 h-12 text-blue-600 mx-auto mb-3" />
                           )}
-                          <h3 
+                          <h3
                             className="font-medium text-gray-900 text-sm mb-2 line-clamp-2 cursor-pointer hover:text-blue-600"
                             onClick={() => setSelectedDocument(doc)}
                             title={doc.title}
@@ -976,8 +976,8 @@ const Documenten: React.FC = () => {
                           </h3>
                           <div className="space-y-1 text-xs text-gray-500">
                             <div className={`px-2 py-1 rounded ${
-                              doc.type === 'folder' 
-                                ? 'bg-yellow-100 text-yellow-800' 
+                              doc.type === 'folder'
+                                ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-gray-100 text-gray-700'
                             }`}>
                               {doc.type === 'folder' ? 'Map' : doc.type}
@@ -998,7 +998,7 @@ const Documenten: React.FC = () => {
                 )}
               </>
             ) : null}
-            
+
             {!documentsLoading && filteredDocuments.length === 0 && (
               <div className="text-center py-12">
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -1006,8 +1006,8 @@ const Documenten: React.FC = () => {
                   {documents.length === 0 ? 'Nog geen documenten' : 'Geen documenten gevonden'}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  {documents.length === 0 
-                    ? 'Upload je eerste document om te beginnen.' 
+                  {documents.length === 0
+                    ? 'Upload je eerste document om te beginnen.'
                     : 'Probeer een andere zoekterm of filter, of upload nieuwe documenten.'}
                 </p>
                 <button
@@ -1028,7 +1028,7 @@ const Documenten: React.FC = () => {
               }}
               document={selectedDocument}
             />
-            
+
             {/* Debug info for modal state */}
             {selectedDocument != null && (
               <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 p-2 rounded text-xs z-[60]">
@@ -1047,7 +1047,7 @@ const Documenten: React.FC = () => {
                     <FolderPlus className="w-5 h-5 text-green-600" />
                     Nieuwe Map Aanmaken
                   </h2>
-                  
+
                   <div className="mb-4">
                     <label htmlFor="folderName" className="block text-sm font-medium text-gray-700 mb-2">
                       Mapnaam
@@ -1089,7 +1089,7 @@ const Documenten: React.FC = () => {
                         Alle documenten van een cliënt naar deze map verplaatsen
                       </label>
                     </div>
-                    
+
                     {moveClientDocuments && (
                       <div>
                         <label htmlFor="clientSelect" className="block text-sm font-medium text-gray-700 mb-2">
@@ -1104,7 +1104,7 @@ const Documenten: React.FC = () => {
                         >
                           <option value="">Selecteer een cliënt...</option>
                           {clients.map((client) => {
-                            const clientDocCount = documents.filter(doc => 
+                            const clientDocCount = documents.filter(doc =>
                               doc.client_id === client.id && doc.type !== 'folder'
                             ).length;
                             return (
@@ -1116,7 +1116,7 @@ const Documenten: React.FC = () => {
                         </select>
                         {selectedClientForFolder && (
                           <p className="text-xs text-blue-600 mt-2">
-                            {documents.filter(doc => 
+                            {documents.filter(doc =>
                               doc.client_id === parseInt(selectedClientForFolder) && doc.type !== 'folder'
                             ).length} documenten worden verplaatst naar de nieuwe map.
                           </p>
@@ -1124,7 +1124,7 @@ const Documenten: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex justify-end gap-3">
                     <button
                       onClick={() => {

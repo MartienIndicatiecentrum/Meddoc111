@@ -244,7 +244,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             type: "object",
             properties: {
               headers: { type: "object" },
-              responseType: { 
+              responseType: {
                 type: "string",
                 enum: ["json", "text", "arraybuffer"],
               },

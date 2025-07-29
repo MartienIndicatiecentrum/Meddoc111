@@ -45,7 +45,9 @@
     "pre-commit": "lint-staged",
     "analyze": "npm run build && npx vite-bundle-analyzer dist",
     "security:audit": "npm audit --audit-level moderate",
-    "security:fix": "npm audit fix"
+    "security:fix": "npm audit fix",
+    "fix:whitespace": "node fix-whitespace.js",
+    "fix:all": "npm run fix:whitespace && npm run format && npm run lint:fix"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -152,8 +154,8 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "eslint --fix --max-warnings 10"
     ],
     "*.{json,css,md}": [
       "prettier --write"

@@ -51,20 +51,20 @@ export interface Task extends BaseEntity {
   needs_response: boolean;
 }
 
-export type TaskType = 
-  | 'Hulpmiddel Aanvraag' 
-  | 'PGB Aanvraag' 
-  | 'WMO Herindicatie' 
-  | 'Indicatie' 
-  | 'Vraagstelling' 
-  | 'Update' 
+export type TaskType =
+  | 'Hulpmiddel Aanvraag'
+  | 'PGB Aanvraag'
+  | 'WMO Herindicatie'
+  | 'Indicatie'
+  | 'Vraagstelling'
+  | 'Update'
   | 'Notitie';
 
-export type TaskStatus = 
-  | 'Niet gestart' 
-  | 'In behandeling' 
-  | 'Wachten op info' 
-  | 'Opvolging' 
+export type TaskStatus =
+  | 'Niet gestart'
+  | 'In behandeling'
+  | 'Wachten op info'
+  | 'Opvolging'
   | 'Afgerond';
 
 export type TaskPriority = 'Laag' | 'Medium' | 'Hoog' | 'Urgent';
@@ -87,30 +87,30 @@ export interface LogEntry extends BaseEntity {
 
 export type FromType = 'client' | 'employee' | 'insurer' | 'family' | 'verzekeraar';
 
-export type LogEntryType = 
-  | 'Notitie' 
-  | 'Vraag Verzekeraar' 
-  | 'Vraag Client' 
-  | 'Indicatie' 
-  | 'Taak' 
-  | 'Documenten afronden en opsturen' 
-  | 'Reactie client' 
-  | 'Reactie verzekeraar' 
-  | 'Reactie Opdrachtgever' 
-  | 'Mijn reactie' 
-  | 'Vervolgreactie client' 
-  | 'Vervolgreactie verzekeraar' 
-  | 'Vervolgreactie Opdrachtgever' 
-  | 'Algemene response' 
-  | 'Anders' 
+export type LogEntryType =
+  | 'Notitie'
+  | 'Vraag Verzekeraar'
+  | 'Vraag Client'
+  | 'Indicatie'
+  | 'Taak'
+  | 'Documenten afronden en opsturen'
+  | 'Reactie client'
+  | 'Reactie verzekeraar'
+  | 'Reactie Opdrachtgever'
+  | 'Mijn reactie'
+  | 'Vervolgreactie client'
+  | 'Vervolgreactie verzekeraar'
+  | 'Vervolgreactie Opdrachtgever'
+  | 'Algemene response'
+  | 'Anders'
   | string; // Allow custom types
 
-export type LogEntryStatus = 
-  | 'Geen urgentie' 
-  | 'Licht urgent' 
-  | 'Urgent' 
-  | 'Reactie nodig' 
-  | 'Afgehandeld' 
+export type LogEntryStatus =
+  | 'Geen urgentie'
+  | 'Licht urgent'
+  | 'Urgent'
+  | 'Reactie nodig'
+  | 'Afgehandeld'
   | 'In behandeling';
 
 // Document types

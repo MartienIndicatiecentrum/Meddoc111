@@ -6,13 +6,13 @@ import { Bell, Play, Square, RefreshCw, Mail, Settings } from 'lucide-react';
  * Admin component for managing email reminder system
  */
 const EmailReminderAdmin: React.FC = () => {
-  const { 
-    status, 
-    isProcessing, 
-    startScheduler, 
-    stopScheduler, 
-    processRemindersManually, 
-    sendTestReminder 
+  const {
+    status,
+    isProcessing,
+    startScheduler,
+    stopScheduler,
+    processRemindersManually,
+    sendTestReminder
   } = useEmailReminders();
 
   const [intervalMinutes, setIntervalMinutes] = useState(5);
@@ -61,7 +61,7 @@ const EmailReminderAdmin: React.FC = () => {
               disabled={status.isRunning}
             />
           </div>
-          
+
           {!status.isRunning ? (
             <button
               onClick={() => startScheduler(intervalMinutes)}

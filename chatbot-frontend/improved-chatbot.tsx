@@ -47,7 +47,7 @@ function App() {
   // Check server status on load and retry logic
   useEffect(() => {
     checkServerStatus();
-    
+
     const interval = setInterval(() => {
       if (serverStatus === 'error' && retryCount < 3) {
         setRetryCount(prev => prev + 1);
@@ -80,7 +80,7 @@ function App() {
       console.error('MCP Server error:', error);
       return {
         success: false,
-        response: error.name === 'TimeoutError' 
+        response: error.name === 'TimeoutError'
           ? '⏱️ De server reageert niet binnen de verwachte tijd. Probeer het opnieuw met een eenvoudigere vraag.'
           : `❌ Kan geen verbinding maken met de server. Zorg dat je MCP server draait op http://localhost:8080\n\nFout: ${error.message}`,
         queryType: 'error'
@@ -157,9 +157,9 @@ function App() {
   };
 
   const formatTime = (timestamp) => {
-    return timestamp.toLocaleTimeString('nl-NL', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return timestamp.toLocaleTimeString('nl-NL', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -218,17 +218,17 @@ function App() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {/* Server Status */}
             <div className="flex items-center gap-2">
               {getStatusIcon()}
               <span className="text-sm text-gray-600">
-                {serverStatus === 'connected' ? 'Server Verbonden' : 
+                {serverStatus === 'connected' ? 'Server Verbonden' :
                  serverStatus === 'error' ? 'Server Offline' : 'Verbinding maken...'}
               </span>
             </div>
-            
+
             {/* Action buttons */}
             <div className="flex gap-2">
               <button
@@ -273,7 +273,7 @@ function App() {
                   : 'bg-white border border-gray-200 text-gray-900'
               }`}>
                 <div className="whitespace-pre-wrap">{message.content}</div>
-                
+
                 {/* Query metadata */}
                 {message.queryType && message.type === 'bot' && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
@@ -289,7 +289,7 @@ function App() {
                     </div>
                   </div>
                 )}
-                
+
                 <div className={`text-xs mt-2 ${
                   message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
                 }`}>
@@ -299,7 +299,7 @@ function App() {
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="flex gap-3 max-w-4xl">
@@ -315,7 +315,7 @@ function App() {
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -359,11 +359,11 @@ function App() {
             <Send className="w-4 h-4" />
           </button>
         </div>
-        
+
         <div className="mt-2 text-xs text-gray-500">
           Voorbeeldvragen: "Dashboard overzicht", "Documenten van Arkojan", "Urgente documenten", "Cliënt statistieken"
         </div>
-        
+
         {serverStatus === 'error' && (
           <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />

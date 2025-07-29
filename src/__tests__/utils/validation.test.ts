@@ -125,7 +125,7 @@ describe('Validation Utils', () => {
     it('should reject future dates', () => {
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
-      
+
       const result = validateDate(futureDate);
       expect(result.valid).toBe(false);
       expect(result.error).toContain('toekomst');
@@ -201,4 +201,4 @@ describe('Validation Utils', () => {
       expect(() => ClientSchema.parse(invalidClient)).toThrow();
     });
   });
-}); 
+});

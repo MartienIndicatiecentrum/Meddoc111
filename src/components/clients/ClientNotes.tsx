@@ -4,10 +4,10 @@ import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
-import { 
-  Plus, 
-  FileText, 
-  Clock, 
+import {
+  Plus,
+  FileText,
+  Clock,
   User,
   Trash2,
   Edit3
@@ -132,8 +132,8 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
         return;
       }
 
-      setNotes(notes.map(note => 
-        note.id === noteId 
+      setNotes(notes.map(note =>
+        note.id === noteId
           ? { ...note, note_text: editText.trim(), updated_at: new Date().toISOString() }
           : note
       ));
@@ -239,7 +239,7 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
               </label>
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Notitie
@@ -252,7 +252,7 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
               className="w-full"
             />
           </div>
-          
+
           <div className="flex justify-end">
             <Button
               onClick={addNote}
@@ -273,7 +273,7 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
           <FileText className="w-5 h-5 text-gray-600" />
           Eerdere Notities ({notes.length})
         </h3>
-        
+
         {notes.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -314,7 +314,7 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {editingNote === note.id ? (
                     <div className="space-y-3">
                       <Textarea
@@ -370,4 +370,4 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
   );
 };
 
-export default ClientNotes; 
+export default ClientNotes;

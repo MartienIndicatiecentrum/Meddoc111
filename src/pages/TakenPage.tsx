@@ -66,39 +66,39 @@ interface SupabaseTaskRow {
 
 // Constants
 const STATUS_COLUMNS: StatusColumn[] = [
-  { 
-    key: "nieuw", 
-    label: "Niet gestart", 
+  {
+    key: "nieuw",
+    label: "Niet gestart",
     color: "border-gray-300",
     bgColor: "bg-gray-50"
   },
-  { 
-    key: "in_behandeling", 
-    label: "In behandeling", 
+  {
+    key: "in_behandeling",
+    label: "In behandeling",
     color: "border-blue-400",
     bgColor: "bg-blue-50"
   },
-  { 
-    key: "wachten_op_info", 
-    label: "Wachten op info", 
+  {
+    key: "wachten_op_info",
+    label: "Wachten op info",
     color: "border-yellow-400",
     bgColor: "bg-yellow-50"
   },
-  { 
-    key: "opvolging", 
-    label: "Opvolging", 
+  {
+    key: "opvolging",
+    label: "Opvolging",
     color: "border-purple-400",
     bgColor: "bg-purple-50"
   },
-  { 
-    key: "afgehandeld", 
-    label: "Afgerond", 
+  {
+    key: "afgehandeld",
+    label: "Afgerond",
     color: "border-green-400",
     bgColor: "bg-green-50"
   },
-  { 
-    key: "urgent", 
-    label: "Urgent", 
+  {
+    key: "urgent",
+    label: "Urgent",
     color: "border-red-500",
     bgColor: "bg-red-100"
   },
@@ -108,27 +108,27 @@ const STATUS_COLUMNS: StatusColumn[] = [
 const fetchTasks = async (): Promise<Task[]> => {
   try {
     console.log('Fetching tasks from database...');
-    
+
     const { data, error } = await supabase
       .from("taken")
       .select(`
-        id, 
-        client_id, 
-        clientennaam, 
-        taak_type, 
-        beschrijving, 
-        status, 
-        prioriteit, 
-        deadline, 
+        id,
+        client_id,
+        clientennaam,
+        taak_type,
+        beschrijving,
+        status,
+        prioriteit,
+        deadline,
         taak_datum,
         taak_tijd,
-        geplande_datum, 
+        geplande_datum,
         notities,
         extra_notitie,
         verzekeraar,
         indicatie_type,
         upload_documenten,
-        created_at, 
+        created_at,
         updated_at
       `)
       .order("updated_at", { ascending: false });
@@ -197,14 +197,14 @@ interface TaskCardProps {
   onUpload?: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ 
-  task, 
-  clientName, 
-  index, 
-  onEdit, 
-  onDelete, 
+const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  clientName,
+  index,
+  onEdit,
+  onDelete,
   onDuplicate,
-  onUpload 
+  onUpload
 }) => {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date();
   const isUrgent = task.urgentie_status === "urgent";
@@ -243,8 +243,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
             handleEdit(e);
           }}
           className={`
-            bg-white rounded-lg shadow-sm p-4 border-l-4 
-            ${isUrgent ? "border-red-500" : "border-blue-200"} 
+            bg-white rounded-lg shadow-sm p-4 border-l-4
+            ${isUrgent ? "border-red-500" : "border-blue-200"}
             flex flex-col gap-2 hover:shadow-md transition-all duration-200
             ${snapshot.isDragging ? "ring-2 ring-blue-400 shadow-lg rotate-2" : ""}
             cursor-grab active:cursor-grabbing
@@ -256,23 +256,23 @@ const TaskCard: React.FC<TaskCardProps> = ({
               {clientName}
             </span>
           </div>
-          
+
           <div className="text-sm text-gray-700 line-clamp-2 min-h-[2.5rem]">
             {task.taakbeschrijving}
           </div>
-          
+
           <div className="space-y-2 mt-2">
             <div className="flex justify-between items-center text-xs">
               <span className="bg-gray-100 px-2 py-1 rounded text-gray-700">
                 {task.taaktype === "indicatie" ? "Indicatie" : "Vraagstelling"}
               </span>
               <span className={`px-2 py-1 rounded font-medium ${
-                isOverdue 
-                  ? "bg-red-100 text-red-700" 
+                isOverdue
+                  ? "bg-red-100 text-red-700"
                   : "bg-blue-50 text-blue-700"
               }`}>
-                {task.deadline 
-                  ? new Date(task.deadline).toLocaleDateString("nl-NL") 
+                {task.deadline
+                  ? new Date(task.deadline).toLocaleDateString("nl-NL")
                   : "Geen deadline"
                 }
               </span>
@@ -287,33 +287,33 @@ const TaskCard: React.FC<TaskCardProps> = ({
               </div>
             )}
           </div>
-          
+
           <div className="flex gap-1 mt-3 pt-2 border-t border-gray-100">
-            <button 
-              className="p-1.5 hover:bg-gray-100 rounded text-sm transition-colors flex-1 text-center" 
+            <button
+              className="p-1.5 hover:bg-gray-100 rounded text-sm transition-colors flex-1 text-center"
               title="Bewerken"
               onClick={handleEdit}
             >
               ✏️
             </button>
             {onUpload && (
-              <button 
-                className="p-1.5 hover:bg-green-100 rounded text-sm transition-colors flex-1 text-center" 
+              <button
+                className="p-1.5 hover:bg-green-100 rounded text-sm transition-colors flex-1 text-center"
                 title="Document uploaden"
                 onClick={handleUpload}
               >
                 📤
               </button>
             )}
-            <button 
-              className="p-1.5 hover:bg-gray-100 rounded text-sm transition-colors flex-1 text-center" 
+            <button
+              className="p-1.5 hover:bg-gray-100 rounded text-sm transition-colors flex-1 text-center"
               title="Dupliceren"
               onClick={handleDuplicate}
             >
               📄
             </button>
-            <button 
-              className="p-1.5 hover:bg-red-100 rounded text-sm transition-colors flex-1 text-center" 
+            <button
+              className="p-1.5 hover:bg-red-100 rounded text-sm transition-colors flex-1 text-center"
               title="Verwijderen"
               onClick={handleDelete}
             >
@@ -338,18 +338,18 @@ interface ColumnProps {
   onUploadTask?: (task: Task) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({ 
-  column, 
-  tasks, 
-  clientMap, 
-  onAddTask, 
-  onEditTask, 
-  onDeleteTask, 
+const Column: React.FC<ColumnProps> = ({
+  column,
+  tasks,
+  clientMap,
+  onAddTask,
+  onEditTask,
+  onDeleteTask,
   onDuplicateTask,
-  onUploadTask 
+  onUploadTask
 }) => {
   const urgentTasks = tasks.filter(task => task.urgentie_status === "urgent").length;
-  const overdueTasks = tasks.filter(task => 
+  const overdueTasks = tasks.filter(task =>
     task.deadline && new Date(task.deadline) < new Date()
   ).length;
 
@@ -360,7 +360,7 @@ const Column: React.FC<ColumnProps> = ({
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={`
-            flex-1 min-w-0 max-w-full ${column.bgColor} rounded-lg border-t-4 ${column.color} 
+            flex-1 min-w-0 max-w-full ${column.bgColor} rounded-lg border-t-4 ${column.color}
             shadow-sm p-4 flex flex-col transition-all duration-200
             ${snapshot.isDraggingOver ? "bg-blue-100 shadow-md scale-[1.02]" : ""}
           `}
@@ -387,7 +387,7 @@ const Column: React.FC<ColumnProps> = ({
               {tasks.length}
             </span>
           </div>
-          
+
           <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto">
             {tasks.length === 0 ? (
               <div className="text-gray-400 text-sm text-center mt-8 italic">
@@ -409,8 +409,8 @@ const Column: React.FC<ColumnProps> = ({
             )}
             {provided.placeholder}
           </div>
-          
-          <button 
+
+          <button
             className="mt-4 bg-white hover:bg-gray-50 text-gray-700 text-sm px-3 py-2 rounded-md transition-colors border border-gray-200 shadow-sm"
             onClick={() => onAddTask?.(column.key)}
           >
@@ -449,28 +449,28 @@ const TakenPage: React.FC = () => {
     upload_documenten: null as File[] | null,
     huisbezoek_datum: '' as string | null
   });
-  
+
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'todo'>('kanban');
 
   // Query hooks
-  const { 
-    data: tasks = [], 
-    isLoading: loadingTasks, 
-    error: tasksError 
-  } = useQuery<Task[]>({ 
-    queryKey: ["tasks"], 
+  const {
+    data: tasks = [],
+    isLoading: loadingTasks,
+    error: tasksError
+  } = useQuery<Task[]>({
+    queryKey: ["tasks"],
     queryFn: fetchTasks,
     staleTime: 0, // Always refetch when invalidated
     retry: 3,
   });
-  
-  const { 
-    data: clients = [], 
-    isLoading: loadingClients, 
-    error: clientsError 
-  } = useQuery<Client[]>({ 
-    queryKey: ["clients"], 
+
+  const {
+    data: clients = [],
+    isLoading: loadingClients,
+    error: clientsError
+  } = useQuery<Client[]>({
+    queryKey: ["clients"],
     queryFn: fetchClients,
     staleTime: 60000,
     retry: 3,
@@ -511,7 +511,7 @@ const TakenPage: React.FC = () => {
           filtered = filtered.filter(task => task.urgentie_status === 'urgent');
           break;
         case 'verlopen':
-          filtered = filtered.filter(task => 
+          filtered = filtered.filter(task =>
             task.deadline && new Date(task.deadline) < new Date()
           );
           break;
@@ -532,7 +532,7 @@ const TakenPage: React.FC = () => {
     STATUS_COLUMNS.forEach(col => {
       grouped[col.key] = [];
     });
-    
+
     filteredTasks.forEach((task) => {
       // Always place tasks in their actual status column, regardless of urgency
       if (grouped[task.status]) {
@@ -542,7 +542,7 @@ const TakenPage: React.FC = () => {
         grouped['nieuw'].push(task);
       }
     });
-    
+
     return grouped;
   }, [filteredTasks]);
 
@@ -550,11 +550,11 @@ const TakenPage: React.FC = () => {
   const stats = useMemo(() => {
     const allTasks = selectedClientId ? tasks.filter(task => task.client_id === selectedClientId) : tasks;
     const urgentTasks = allTasks.filter(task => task.urgentie_status === "urgent").length;
-    const overdueTasks = allTasks.filter(task => 
+    const overdueTasks = allTasks.filter(task =>
       task.deadline && new Date(task.deadline) < new Date()
     ).length;
     const completedTasks = allTasks.filter(task => task.status === "afgehandeld").length;
-    
+
     return { urgentTasks, overdueTasks, completedTasks };
   }, [tasks, selectedClientId]);
 
@@ -562,20 +562,20 @@ const TakenPage: React.FC = () => {
   const updateTaskMutation = useMutation({
     mutationFn: async ({ id, status, prioriteit }: { id: string; status?: string; prioriteit?: string }) => {
       const updateData: Record<string, string> = {};
-      
+
       if (status !== undefined) {
         updateData.status = status;
       }
-      
+
       if (prioriteit !== undefined) {
         updateData.prioriteit = prioriteit;
       }
-      
+
       const { error } = await supabase
         .from("taken")
         .update(updateData)
         .eq("id", id);
-      
+
       if (error) {
         throw new Error(`Failed to update task: ${error.message}`);
       }
@@ -593,33 +593,33 @@ const TakenPage: React.FC = () => {
   // ✅ UPDATED: Drag and drop handler - fixed for urgent column
   const onDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
-    
+
     const { draggableId, destination, source } = result;
     const destStatus = destination.droppableId;
     const srcStatus = source.droppableId;
-    
+
     if (destStatus === 'urgent') {
       // Naar urgent kolom: update prioriteit naar urgent, behoud huidige status
       const currentTask = filteredTasks.find(task => task.id === draggableId);
       const currentStatus = currentTask?.status || 'nieuw';
-      
-      updateTaskMutation.mutate({ 
-        id: draggableId, 
+
+      updateTaskMutation.mutate({
+        id: draggableId,
         prioriteit: 'urgent',
         status: currentStatus // Behoud de huidige status
       });
     } else if (srcStatus === 'urgent') {
       // Van urgent kolom weg: update status naar nieuwe kolom, zet prioriteit terug naar normaal
-      updateTaskMutation.mutate({ 
-        id: draggableId, 
+      updateTaskMutation.mutate({
+        id: draggableId,
         status: destStatus,
         prioriteit: 'normaal' // Reset prioriteit naar normaal
       });
     } else {
       // Normale status wijziging tussen andere kolommen
-      updateTaskMutation.mutate({ 
-        id: draggableId, 
-        status: destStatus 
+      updateTaskMutation.mutate({
+        id: draggableId,
+        status: destStatus
       });
     }
   }, [updateTaskMutation, filteredTasks]);
@@ -665,7 +665,7 @@ const TakenPage: React.FC = () => {
           upload_documenten: taskData.upload_documenten ? JSON.stringify(taskData.upload_documenten.map(f => f.name)) : null,
           huisbezoek_datum: taskData.huisbezoek_datum || null
         });
-      
+
       if (error) {
         throw new Error(`Failed to create task: ${error.message}`);
       }
@@ -718,7 +718,7 @@ const TakenPage: React.FC = () => {
           huisbezoek_datum: taskData.huisbezoek_datum || null
         })
         .eq('id', taskData.id);
-      
+
       if (error) {
         throw new Error(`Failed to update task: ${error.message}`);
       }
@@ -785,7 +785,7 @@ const TakenPage: React.FC = () => {
     setEditingTask(task);
     setIsEditMode(true);
     setNewTaskStatus(task.status);
-    
+
     // Pre-populate form with existing task data
     setNewTaskData({
       beschrijving: task.taakbeschrijving || '',
@@ -802,13 +802,13 @@ const TakenPage: React.FC = () => {
       upload_documenten: task.upload_documenten || null,
       huisbezoek_datum: task.huisbezoek_datum || null
     });
-    
+
     setShowTaskModal(true);
   }, []);
 
   const handleStatusChange = useCallback(async (taskId: string, newStatus: string) => {
     console.log('Updating status for task:', taskId, 'to:', newStatus);
-    
+
     try {
       // Update task status in Supabase
       const { data, error } = await supabase
@@ -822,18 +822,18 @@ const TakenPage: React.FC = () => {
       } else {
         console.log('Status update successful:', data);
         toast.success('Status bijgewerkt');
-        
+
         // Force immediate refetch with more specific options
-        queryClient.invalidateQueries({ 
+        queryClient.invalidateQueries({
           queryKey: ["tasks"],
-          exact: true 
+          exact: true
         });
-        
+
         // Also try to refetch immediately
         setTimeout(() => {
-          queryClient.refetchQueries({ 
+          queryClient.refetchQueries({
             queryKey: ["tasks"],
-            exact: true 
+            exact: true
           });
         }, 100);
       }
@@ -967,7 +967,7 @@ const TakenPage: React.FC = () => {
             <p className="text-red-600 mb-4">
               {tasksError?.message || clientsError?.message || 'Onbekende fout'}
             </p>
-            <button 
+            <button
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
               onClick={() => window.location.reload()}
             >
@@ -1003,9 +1003,9 @@ const TakenPage: React.FC = () => {
                 Takenoverzicht
                 {filterParam && (
                   <span className="ml-3 text-lg font-normal text-blue-600">
-                    - {filterParam === 'urgent' ? 'Urgente taken' : 
-                       filterParam === 'verlopen' ? 'Verlopen taken' : 
-                       filterParam === 'afgerond' ? 'Afgeronde taken' : 
+                    - {filterParam === 'urgent' ? 'Urgente taken' :
+                       filterParam === 'verlopen' ? 'Verlopen taken' :
+                       filterParam === 'afgerond' ? 'Afgeronde taken' :
                        'Gefilterd'}
                   </span>
                 )}
@@ -1022,7 +1022,7 @@ const TakenPage: React.FC = () => {
                 )}
               </p>
             </div>
-            
+
             {/* Statistics Cards */}
             <div className="flex gap-4">
               <Link to="/taken" className="group">
@@ -1051,7 +1051,7 @@ const TakenPage: React.FC = () => {
               </Link>
             </div>
           </div>
-          
+
           {/* Navigation and Filters */}
           <div className="flex flex-wrap gap-4 items-center mb-6">
             {/* Gecombineerde zoek en filter voor cliënten */}
@@ -1071,16 +1071,16 @@ const TakenPage: React.FC = () => {
                 }
               }}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Zoek en selecteer cliënt" 
-                  variant="outlined" 
+                <TextField
+                  {...params}
+                  label="Zoek en selecteer cliënt"
+                  variant="outlined"
                   size="small"
                   placeholder="Typ om te zoeken of selecteer..."
                 />
               )}
               filterOptions={(options, { inputValue }) => {
-                return options.filter(option => 
+                return options.filter(option =>
                   option.naam.toLowerCase().includes(inputValue.toLowerCase())
                 );
               }}
@@ -1091,7 +1091,7 @@ const TakenPage: React.FC = () => {
               clearOnBlur={false}
               selectOnFocus
             />
-            
+
             {selectedClientId && (
               <button
                 onClick={() => setSelectedClientId(null)}
@@ -1226,17 +1226,17 @@ const TakenPage: React.FC = () => {
               <div className="text-sm text-gray-600">Afgerond</div>
             </div>
           </div>
-          
+
           {filteredTasks.length === 0 && (
             <div className="text-center mt-6 py-8">
               <div className="text-gray-400 text-lg mb-2">🔍</div>
               <p className="text-gray-500">
-                {selectedClientId 
+                {selectedClientId
                   ? `Geen taken gevonden voor ${clientMap[selectedClientId]}`
                   : "Geen taken gevonden"
                 }
               </p>
-              <button 
+              <button
                 onClick={() => handleAddTask('nieuw')}
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
@@ -1300,7 +1300,7 @@ const TakenPage: React.FC = () => {
                     toast.error('Selecteer een cliënt');
                     return;
                   }
-                  
+
                   if (isEditMode && editingTask) {
                     editTaskMutation.mutate({ ...newTaskData, id: editingTask.id, status: newTaskStatus });
                   } else {
@@ -1378,8 +1378,8 @@ const TakenPage: React.FC = () => {
                 </div>
 
                 {/* Conditional Indicatie Type Dropdown */}
-                {(newTaskData.taak_type === 'indicatie' || 
-                  newTaskData.taak_type === 'intakegesprek_nieuwe_indicatie' || 
+                {(newTaskData.taak_type === 'indicatie' ||
+                  newTaskData.taak_type === 'intakegesprek_nieuwe_indicatie' ||
                   newTaskData.taak_type === 'intakegesprek_herindicatie') && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1585,7 +1585,7 @@ const TakenPage: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* Upload Modal */}
         {uploadModalOpen && selectedTaskForUpload && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1601,7 +1601,7 @@ const TakenPage: React.FC = () => {
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
+
               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
                   <strong>Taak:</strong> {selectedTaskForUpload.taakbeschrijving}<br/>
@@ -1610,9 +1610,9 @@ const TakenPage: React.FC = () => {
                   <strong>Deadline:</strong> {selectedTaskForUpload.deadline ? new Date(selectedTaskForUpload.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                 </p>
               </div>
-              
-              <FileUploader 
-              onUploadSuccess={handleUploadSuccess} 
+
+              <FileUploader
+              onUploadSuccess={handleUploadSuccess}
               clientId={selectedTaskForUpload.client_id}
               taskId={selectedTaskForUpload.id}
             />

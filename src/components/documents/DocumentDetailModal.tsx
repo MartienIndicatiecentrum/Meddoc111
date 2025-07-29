@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { 
-  FileText, Image, Download, Share2, Eye, 
+import {
+  FileText, Image, Download, Share2, Eye,
   X, ZoomIn, ZoomOut, RotateCw, Maximize2,
   Calendar, User, Tag, Clock
 } from 'lucide-react';
@@ -48,7 +48,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
   // Determine file type for preview with safe null/undefined handling
   const getFileType = (type: string | null | undefined) => {
     if (!type || typeof type !== 'string') return 'unknown';
-    
+
     try {
       const lowerType = type.toLowerCase();
       if (lowerType.includes('pdf')) return 'pdf';
@@ -76,7 +76,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 PDF Preview
               </h3>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={() => setZoom(Math.max(50, zoom - 25))}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Uitzoomen"
@@ -84,7 +84,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                   <ZoomOut className="w-4 h-4" />
                 </button>
                 <span className="text-sm text-gray-600">{zoom}%</span>
-                <button 
+                <button
                   onClick={() => setZoom(Math.min(200, zoom + 25))}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Inzoomen"
@@ -92,7 +92,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                   <ZoomIn className="w-4 h-4" />
                 </button>
                 {document?.file_path && (
-                  <button 
+                  <button
                     onClick={() => window.open(document.file_path, '_blank')}
                     className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                     title="Openen in nieuwe tab"
@@ -102,7 +102,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 )}
               </div>
             </div>
-            
+
             {document?.file_path ? (
               <div className="bg-white border rounded overflow-hidden" style={{ height: '500px' }}>
                 <iframe
@@ -117,12 +117,12 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                     console.log('Direct PDF view failed, trying alternative methods...');
                     const iframe = e.target as HTMLIFrameElement;
                     const container = iframe.parentElement;
-                    
+
                     // Try different fallback methods
                     setTimeout(() => {
                       console.log('Trying Google Docs viewer as fallback...');
                       iframe.src = `https://docs.google.com/viewer?url=${encodeURIComponent(document.file_path)}&embedded=true`;
-                      
+
                       // If Google Docs also fails, show error with manual link
                       iframe.onerror = () => {
                         console.log('Google Docs viewer also failed, showing manual link...');
@@ -136,7 +136,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                                 <h4 class="font-medium text-gray-700 mb-2">Kan PDF niet laden in preview</h4>
                                 <p class="text-sm text-gray-600 mb-4">Probeer het document te openen in een nieuwe tab</p>
                               </div>
-                              <button onclick="window.open('${document.file_path}', '_blank')" 
+                              <button onclick="window.open('${document.file_path}', '_blank')"
                                       class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                                 Open PDF in nieuwe tab
                               </button>
@@ -181,7 +181,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 Afbeelding Preview
               </h3>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={() => setZoom(Math.max(50, zoom - 25))}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Uitzoomen"
@@ -189,14 +189,14 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                   <ZoomOut className="w-4 h-4" />
                 </button>
                 <span className="text-sm text-gray-600">{zoom}%</span>
-                <button 
+                <button
                   onClick={() => setZoom(Math.min(200, zoom + 25))}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Inzoomen"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => setRotation((rotation + 90) % 360)}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Roteren"
@@ -204,7 +204,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                   <RotateCw className="w-4 h-4" />
                 </button>
                 {document?.file_path && (
-                  <button 
+                  <button
                     onClick={() => window.open(document.file_path, '_blank')}
                     className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                     title="Openen in nieuwe tab"
@@ -214,14 +214,14 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 )}
               </div>
             </div>
-            
+
             {document?.file_path ? (
               <div className="bg-white border rounded p-4 text-center overflow-hidden">
-                <img 
+                <img
                   src={document.file_path}
                   alt={document.title || 'Document afbeelding'}
                   className="max-w-full max-h-96 mx-auto object-contain"
-                  style={{ 
+                  style={{
                     transform: `scale(${zoom/100}) rotate(${rotation}deg)`,
                     transition: 'transform 0.3s ease'
                   }}
@@ -250,7 +250,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 Document Preview
               </h3>
               {document?.file_path && (
-                <button 
+                <button
                   onClick={() => window.open(document.file_path, '_blank')}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Openen in nieuwe tab"
@@ -259,7 +259,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 </button>
               )}
             </div>
-            
+
             {document?.file_path ? (
               <div className="bg-white border rounded overflow-hidden" style={{ height: '500px' }}>
                 <iframe
@@ -303,7 +303,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 Tekst Preview
               </h3>
               {document?.file_path && (
-                <button 
+                <button
                   onClick={() => window.open(document.file_path, '_blank')}
                   className="p-1 text-gray-600 hover:bg-gray-200 rounded"
                   title="Openen in nieuwe tab"
@@ -312,7 +312,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 </button>
               )}
             </div>
-            
+
             {document?.file_path ? (
               <div className="bg-white border rounded overflow-hidden" style={{ height: '400px' }}>
                 <iframe
@@ -331,7 +331,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                       container.innerHTML = `
                         <div class="flex flex-col items-center justify-center h-full text-center">
                           <p class="text-gray-600 mb-4">Kan dit bestand niet weergeven in de preview</p>
-                          <button onclick="window.open('${document.file_path}', '_blank')" 
+                          <button onclick="window.open('${document.file_path}', '_blank')"
                                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                             Open in nieuwe tab
                           </button>
@@ -386,7 +386,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
 
   const handleDownload = () => {
     if (!document) return;
-    
+
     try {
       if (document.file_path) {
         // If we have a file path, open it in a new tab for download
@@ -403,7 +403,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
 
   const handleShare = () => {
     if (!document) return;
-    
+
     try {
       if (document.file_path) {
         navigator.clipboard.writeText(document.file_path);
@@ -438,7 +438,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
               </svg>
               <span className="text-sm font-medium">Terug</span>
             </button>
-            
+
             <div className="flex items-center gap-3">
               <FileText className="w-6 h-6 text-blue-600" />
               <div>
@@ -459,7 +459,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
             <div className="flex bg-gray-100 rounded-lg p-1">
@@ -481,7 +481,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                 Preview
               </button>
             </div>
-            
+
             {/* Action Buttons */}
             <button
               onClick={handleDownload}
@@ -539,7 +539,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Toegang & Delen</h3>
                   <div className="space-y-3">
@@ -558,7 +558,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
                   </div>
                 </div>
               </div>
-              
+
               {/* Tags and Notes */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Tags & Notities</h3>
@@ -592,7 +592,7 @@ const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({ open, onClose
               Door: MedDoc Pro
             </span>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <button
               onClick={handleDownload}

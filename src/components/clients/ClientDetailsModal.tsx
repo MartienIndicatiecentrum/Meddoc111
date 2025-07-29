@@ -6,14 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { 
-  User, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Heart, 
-  Calendar, 
-  FileText, 
+import {
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Heart,
+  Calendar,
+  FileText,
   ClipboardList,
   Shield,
   Clock,
@@ -61,7 +61,7 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   if (!client) return null;
 
   const initials = `${client.firstName[0] ?? ''}${client.lastName[0] ?? ''}`.toUpperCase();
-  const age = client.dateOfBirth.getFullYear() !== 1900 
+  const age = client.dateOfBirth.getFullYear() !== 1900
     ? new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear()
     : null;
   const statusInfo = statusLabels[client.care.status] || client.care.status;

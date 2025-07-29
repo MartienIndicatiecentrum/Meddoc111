@@ -201,4 +201,4 @@ De Logboek component is nu:
 - ✅ **User-vriendelijker** - Betere UX met loading states en error handling
 - ✅ **Type-safe** - Proper TypeScript types toegevoegd
 
-Alle kritieke security issues zijn opgelost en de component is klaar voor verdere optimalisaties! 
+Alle kritieke security issues zijn opgelost en de component is klaar voor verdere optimalisaties!

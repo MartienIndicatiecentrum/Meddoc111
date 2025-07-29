@@ -89,7 +89,7 @@ export const useClientStore = create<ClientStore>()(
       async deleteClient(id) {
         try {
           await clientService.deleteClient(id);
-          
+
           // After successful deletion from Supabase, update local state
           set(state => ({
             clients: state.clients.filter(client => client.id !== id),

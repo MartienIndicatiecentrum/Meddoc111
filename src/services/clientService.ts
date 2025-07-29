@@ -4,14 +4,14 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import type { 
-  Client, 
-  Task, 
-  LogEntry, 
-  LogEntryDocument, 
+import type {
+  Client,
+  Task,
+  LogEntry,
+  LogEntryDocument,
   ApiResponse,
   LogEntryFilters,
-  PaginationParams 
+  PaginationParams
 } from '@/types/database';
 
 /**
@@ -75,11 +75,11 @@ export const clientService = {
       }
 
       const { data, error } = await query;
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch clients');
       }
-      
+
       return (data || []).map(transformClient);
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -97,14 +97,14 @@ export const clientService = {
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (error) {
         if (error.code === 'PGRST116') {
           return null; // Not found
         }
         handleSupabaseError(error, 'fetch client');
       }
-      
+
       return data ? transformClient(data) : null;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -122,11 +122,11 @@ export const clientService = {
         .select('*')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false });
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch client tasks');
       }
-      
+
       return data || [];
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -143,11 +143,11 @@ export const clientService = {
         .from('taken')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch all tasks');
       }
-      
+
       return data || [];
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -171,11 +171,11 @@ export const clientService = {
         `)
         .eq('client_id', clientId)
         .order('date', { ascending: false });
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch client log entries');
       }
-      
+
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
         client_name: entry.clients?.naam || 'Onbekende cliënt'
@@ -218,11 +218,11 @@ export const clientService = {
       }
 
       const { data, error } = await query;
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch all log entries');
       }
-      
+
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
         client_name: entry.clients?.naam || 'Onbekende cliënt'
@@ -249,11 +249,11 @@ export const clientService = {
         `)
         .order('date', { ascending: false })
         .limit(limit);
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch recent log entries');
       }
-      
+
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
         client_name: entry.clients?.naam || 'Onbekende cliënt'
@@ -274,11 +274,11 @@ export const clientService = {
         .insert(task)
         .select()
         .single();
-      
+
       if (error) {
         handleSupabaseError(error, 'create task');
       }
-      
+
       return data;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -292,18 +292,18 @@ export const clientService = {
   async createLogEntry(entry: Omit<LogEntry, 'id' | 'created_at' | 'updated_at'>): Promise<LogEntry | null> {
     try {
       console.log('Creating log entry with data:', entry);
-      
+
       const { data, error } = await supabase
         .from('logboek')
         .insert(entry)
         .select()
         .single();
-      
+
       if (error) {
         console.error('Supabase error creating log entry:', error);
         handleSupabaseError(error, 'create log entry');
       }
-      
+
       console.log('Log entry created successfully:', data);
       return data ? transformLogEntry(data) : null;
     } catch (error) {
@@ -324,11 +324,11 @@ export const clientService = {
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) {
         handleSupabaseError(error, 'update task');
       }
-      
+
       return data;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -347,11 +347,11 @@ export const clientService = {
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) {
         handleSupabaseError(error, 'update log entry');
       }
-      
+
       return data ? transformLogEntry(data) : null;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -368,11 +368,11 @@ export const clientService = {
         .from('taken')
         .delete()
         .eq('id', id);
-      
+
       if (error) {
         handleSupabaseError(error, 'delete task');
       }
-      
+
       return true;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -389,11 +389,11 @@ export const clientService = {
         .from('logboek')
         .delete()
         .eq('id', id);
-      
+
       if (error) {
         handleSupabaseError(error, 'delete log entry');
       }
-      
+
       return true;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -407,38 +407,38 @@ export const clientService = {
   async uploadDocument(file: File, clientId: string, logEntryId?: string): Promise<LogEntryDocument | null> {
     try {
       console.log('Uploading document:', file.name, 'for client:', clientId, 'logEntryId:', logEntryId);
-      
+
       // Validate inputs
       if (!clientId) {
         throw new ServiceError('Client ID is vereist voor document upload', 'MISSING_CLIENT_ID');
       }
-      
+
       if (!file) {
         throw new ServiceError('Bestand is vereist voor upload', 'MISSING_FILE');
       }
-      
+
       // Verify client exists first
       const { data: client, error: clientError } = await supabase
         .from('clients')
         .select('id')
         .eq('id', clientId)
         .single();
-      
+
       if (clientError || !client) {
         throw new ServiceError(`Cliënt met ID ${clientId} bestaat niet`, 'CLIENT_NOT_FOUND');
       }
-      
+
       // If logEntryId is provided, verify it exists with double-check
       if (logEntryId) {
         console.log('Verifying log entry exists:', logEntryId);
-        
+
         // First check
         const { data: logEntry, error: logEntryError } = await supabase
           .from('logboek')
           .select('id, client_id')
           .eq('id', logEntryId)
           .single();
-        
+
         if (logEntryError) {
           console.error('Log entry verification error:', logEntryError);
           if (logEntryError.code === 'PGRST116') {
@@ -446,49 +446,49 @@ export const clientService = {
           }
           throw new ServiceError(`Fout bij het controleren van logboek bericht: ${logEntryError.message}`, 'LOG_ENTRY_VERIFICATION_ERROR');
         }
-        
+
         if (!logEntry) {
           throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
         }
-        
+
         // Verify the log entry belongs to the correct client
         if (logEntry.client_id !== clientId) {
           throw new ServiceError('Het logboek bericht hoort niet bij deze cliënt', 'LOG_ENTRY_CLIENT_MISMATCH');
         }
-        
+
         console.log('Log entry verified successfully');
       }
-      
+
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `logboek-documents/${clientId}/${fileName}`;
-      
+
       console.log('Uploading to storage path:', filePath);
-      
+
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, file);
-      
+
       if (uploadError) {
         console.error('Storage upload error:', uploadError);
         throw new ServiceError(`Fout bij het uploaden naar opslag: ${uploadError.message}`, 'STORAGE_UPLOAD_ERROR');
       }
-      
+
       console.log('File uploaded to storage successfully');
-      
+
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('documents')
         .getPublicUrl(filePath);
-      
+
       console.log('Saving document to database...');
-      
+
       // Use the safe function if logEntryId is provided, otherwise use direct insert
       let dbData, dbError;
-      
+
       if (logEntryId) {
         console.log('Using safe_insert_log_entry_document function');
-        
+
         // Use the safe function for better error handling
         const { data, error } = await supabase.rpc('safe_insert_log_entry_document', {
           p_log_entry_id: logEntryId,
@@ -499,20 +499,20 @@ export const clientService = {
           p_file_type: file.type,
           p_public_url: urlData.publicUrl
         });
-        
+
         if (error) {
           console.error('Safe insert function error:', error);
           dbError = error;
         } else if (data) {
           console.log('Safe insert returned document ID:', data);
-          
+
           // Fetch the created document
           const { data: fetchedDoc, error: fetchError } = await supabase
             .from('log_entry_documents')
             .select('*')
             .eq('id', data)
             .single();
-          
+
           if (fetchError) {
             console.error('Error fetching created document:', fetchError);
             dbError = fetchError;
@@ -526,7 +526,7 @@ export const clientService = {
         }
       } else {
         console.log('Using direct insert for standalone document');
-        
+
         // Direct insert without log entry (for standalone documents)
         const { data, error } = await supabase
           .from('log_entry_documents')
@@ -541,14 +541,14 @@ export const clientService = {
           })
           .select()
           .single();
-        
+
         dbData = data;
         dbError = error;
       }
-      
+
       if (dbError) {
         console.error('Database save error:', dbError);
-        
+
         // Try to delete the uploaded file if database save fails
         try {
           await supabase.storage.from('documents').remove([filePath]);
@@ -556,7 +556,7 @@ export const clientService = {
         } catch (cleanupError) {
           console.error('Error cleaning up uploaded file:', cleanupError);
         }
-        
+
         // Handle specific database errors with Dutch messages
         if (dbError.message && dbError.message.includes('logboek bericht bestaat niet meer')) {
           throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
@@ -568,13 +568,13 @@ export const clientService = {
           throw new ServiceError(`Fout bij het opslaan in database: ${dbError.message || 'Onbekende fout'}`, 'DATABASE_SAVE_ERROR');
         }
       }
-      
+
       console.log('Document saved to database successfully:', dbData);
       return dbData;
     } catch (error) {
       console.error('Error in uploadDocument:', error);
       if (error instanceof ServiceError) throw error;
-      
+
       // Handle any unexpected errors with Dutch message
       const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
       throw new ServiceError(`Fout bij document upload: ${errorMessage}`, 'UPLOAD_ERROR');
@@ -591,11 +591,11 @@ export const clientService = {
         .select('*')
         .eq('log_entry_id', logEntryId)
         .order('created_at', { ascending: true });
-      
+
       if (error) {
         handleSupabaseError(error, 'fetch documents');
       }
-      
+
       return data || [];
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -614,35 +614,35 @@ export const clientService = {
         .select('*')
         .eq('id', documentId)
         .single();
-      
+
       if (fetchError) {
         handleSupabaseError(fetchError, 'fetch document for deletion');
       }
-      
+
       if (!document) {
         throw new ServiceError('Document not found', 'NOT_FOUND');
       }
-      
+
       // Delete from storage
       const { error: storageError } = await supabase.storage
         .from('documents')
         .remove([document.file_path]);
-      
+
       if (storageError) {
         console.error('Error deleting from storage:', storageError);
         // Continue with database deletion even if storage deletion fails
       }
-      
+
       // Delete from database
       const { error: dbError } = await supabase
         .from('log_entry_documents')
         .delete()
         .eq('id', documentId);
-      
+
       if (dbError) {
         handleSupabaseError(dbError, 'delete document from database');
       }
-      
+
       return true;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -659,11 +659,11 @@ export const clientService = {
         .from('log_entry_documents')
         .select('*', { count: 'exact', head: true })
         .eq('log_entry_id', logEntryId);
-      
+
       if (error) {
         handleSupabaseError(error, 'count documents');
       }
-      
+
       return count || 0;
     } catch (error) {
       if (error instanceof ServiceError) throw error;
@@ -679,7 +679,7 @@ export const clientService = {
       const { data } = supabase.storage
         .from('documents')
         .getPublicUrl(filePath);
-      
+
       return data.publicUrl;
     } catch (error) {
       console.error('Error getting document URL:', error);

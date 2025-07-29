@@ -14,7 +14,7 @@ const FileUpload: React.FC = () => {
             Upload documenten naar Supabase en verwerk ze automatisch met LangChain RAG voor AI-gestuurde zoekopdrachten.
           </p>
         </div>
-        
+
         <FileUploader />
       </div>
     </AppLayout>

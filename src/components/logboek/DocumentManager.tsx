@@ -2,12 +2,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Upload, 
-  FileText, 
-  Image, 
-  Download, 
-  Trash2, 
+import {
+  Upload,
+  FileText,
+  Image,
+  Download,
+  Trash2,
   Eye,
   AlertTriangle,
   CheckCircle
@@ -149,7 +149,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         // Create a new FileList-like object
         const dataTransfer = new DataTransfer();
         validFiles.forEach(file => dataTransfer.items.add(file));
-        
+
         await onDocumentUpload(dataTransfer.files);
         toast.success(`${validFiles.length} bestand(en) succesvol geüpload`);
       } catch (error) {
@@ -174,11 +174,11 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         link.download = sanitizeFilename(document.name);
         link.target = '_blank';
         link.rel = 'noopener noreferrer'; // Security: prevent opener hijacking
-        
+
         // Add to DOM temporarily
         window.document.body.appendChild(link);
         link.click();
-        
+
         // Clean up
         window.document.body.removeChild(link);
       }
@@ -232,8 +232,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           {/* Upload area */}
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-              dragActive 
-                ? 'border-blue-500 bg-blue-50' 
+              dragActive
+                ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-300 hover:border-gray-400'
             }`}
             onDragEnter={handleDrag}
@@ -284,7 +284,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"
@@ -295,7 +295,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -305,7 +305,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     >
                       <Download className="h-4 w-4" />
                     </Button>
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -332,4 +332,4 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       </Card>
     </div>
   );
-}; 
+};

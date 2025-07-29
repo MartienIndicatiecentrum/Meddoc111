@@ -75,12 +75,12 @@ const fetchClients = async (): Promise<Client[]> => {
       .from('clients')
       .select('*')
       .limit(1);
-    
+
     if (allFieldsData && allFieldsData.length > 0) {
       console.log('Sample client with all fields:', allFieldsData[0]);
       console.log('Available fields:', Object.keys(allFieldsData[0]));
     }
-    
+
     const { data, error } = await supabase
       .from('clients')
       .select('id, naam, telefoon, adres, email')
@@ -327,11 +327,11 @@ const Planning: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <button 
+          <button
             onClick={() => appointments.length > 0 && setShowAppointmentsModal(true)}
             className={`bg-white rounded-lg shadow-sm border p-4 text-left transition-all duration-200 ${
-              appointments.length > 0 
-                ? 'hover:shadow-md hover:border-blue-300 cursor-pointer transform hover:scale-105' 
+              appointments.length > 0
+                ? 'hover:shadow-md hover:border-blue-300 cursor-pointer transform hover:scale-105'
                 : 'cursor-default'
             }`}
             disabled={appointments.length === 0}
@@ -342,11 +342,11 @@ const Planning: React.FC = () => {
               <div className="text-xs text-blue-500 mt-1">Klik om te bekijken</div>
             )}
           </button>
-          <button 
+          <button
             onClick={() => clients.length > 0 && setShowClientsModal(true)}
             className={`bg-white rounded-lg shadow-sm border p-4 text-left transition-all duration-200 ${
-              clients.length > 0 
-                ? 'hover:shadow-md hover:border-green-300 cursor-pointer transform hover:scale-105' 
+              clients.length > 0
+                ? 'hover:shadow-md hover:border-green-300 cursor-pointer transform hover:scale-105'
                 : 'cursor-default'
             }`}
             disabled={clients.length === 0}
@@ -394,14 +394,14 @@ const Planning: React.FC = () => {
                     {clientMap[appointment.client_id]?.naam || 'Onbekende cliënt'}
                   </span>
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={() => handleEditAppointment(appointment)}
                       className="text-blue-600 hover:text-blue-800 text-sm"
                       title="Bewerk afspraak"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteAppointment(appointment)}
                       className="text-red-600 hover:text-red-800 text-sm"
                       title="Verwijder afspraak"
@@ -416,7 +416,7 @@ const Planning: React.FC = () => {
                     <Calendar className="w-4 h-4" />
                     <span>{new Date(appointment.date).toLocaleDateString('nl-NL')}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     <span>{appointment.start_time} - {appointment.end_time}</span>
@@ -471,12 +471,12 @@ const Planning: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Afspraak verwijderen
               </h3>
-              
+
               <div className="mb-6">
                 <p className="text-gray-600 mb-4">
                   Weet je zeker dat je deze afspraak wilt verwijderen?
                 </p>
-                
+
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="font-medium text-gray-900">
                     {clientMap[deleteConfirm.appointment.client_id]?.naam || 'Onbekende cliënt'}
@@ -489,7 +489,7 @@ const Planning: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3">
                 <button
                   onClick={cancelDelete}
@@ -579,10 +579,10 @@ const Planning: React.FC = () => {
                           const caregiver = caregiverMap[appointment.caregiver_id || ''];
                           const appointmentDate = new Date(`${appointment.date}T${appointment.start_time}`);
                           const isUpcoming = appointmentDate > new Date();
-                          
+
                           return (
-                            <div 
-                              key={appointment.id} 
+                            <div
+                              key={appointment.id}
                               className={`border rounded-lg p-4 transition-colors ${
                                 isUpcoming ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'
                               }`}
@@ -628,7 +628,7 @@ const Planning: React.FC = () => {
                                     year: 'numeric'
                                   })}</span>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-2 text-gray-600">
                                   <Clock className="w-4 h-4" />
                                   <span>{appointment.start_time} - {appointment.end_time}</span>
@@ -732,7 +732,7 @@ const Planning: React.FC = () => {
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                     />
                   </div>
-                  
+
                   {/* Filter Dropdown */}
                   <div className="sm:w-64">
                     <select
@@ -796,13 +796,13 @@ const Planning: React.FC = () => {
                         let filteredClients = clients.filter(client => {
                           // Search filter
                           const searchLower = clientSearchTerm.toLowerCase();
-                          const matchesSearch = !clientSearchTerm || 
+                          const matchesSearch = !clientSearchTerm ||
                             client.naam.toLowerCase().includes(searchLower) ||
                             (client.email && client.email.toLowerCase().includes(searchLower)) ||
                             (client.telefoon && client.telefoon.toLowerCase().includes(searchLower));
-                          
+
                           if (!matchesSearch) return false;
-                          
+
                           // Category filter
                           switch (clientFilter) {
                             case 'with-email':
@@ -822,13 +822,13 @@ const Planning: React.FC = () => {
                               return true;
                           }
                         });
-                        
+
                         // Sort filtered clients
                         filteredClients = filteredClients.sort((a, b) => a.naam.localeCompare(b.naam));
-                        
+
                         // Show results count if filtered
                         const showingFiltered = clientSearchTerm || clientFilter !== 'all';
-                        
+
                         return (
                           <>
                             {showingFiltered && (
@@ -840,14 +840,14 @@ const Planning: React.FC = () => {
                                 {clientFilter !== 'all' && (
                                   <span className="ml-2">• Filter: {{
                                     'with-email': 'Met email',
-                                    'with-phone': 'Met telefoon', 
+                                    'with-phone': 'Met telefoon',
                                     'with-appointments': 'Met afspraken',
                                     'without-appointments': 'Zonder afspraken'
                                   }[clientFilter]}</span>
                                 )}
                               </div>
                             )}
-                            
+
                             {filteredClients.length === 0 && showingFiltered ? (
                               <div className="text-center py-8">
                                 <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -872,10 +872,10 @@ const Planning: React.FC = () => {
                                     return appointmentDate > new Date() && apt.status === 'scheduled';
                                   });
                                   const completedAppointments = clientAppointments.filter(apt => apt.status === 'completed');
-                                  
+
                                   return (
-                                    <div 
-                                      key={client.id} 
+                                    <div
+                                      key={client.id}
                                       className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors"
                                     >
                                       <div className="flex justify-between items-start mb-3">
@@ -925,7 +925,7 @@ const Planning: React.FC = () => {
                                           <Calendar className="w-4 h-4" />
                                           <span>{clientAppointments.length} totaal afspra{clientAppointments.length === 1 ? 'ak' : 'ken'}</span>
                                         </div>
-                                        
+
                                         <div className="flex items-center gap-2 text-gray-600">
                                           <Clock className="w-4 h-4" />
                                           <span>{upcomingAppointments.length} aankomend{upcomingAppointments.length === 1 ? 'e' : ''}</span>
@@ -953,7 +953,7 @@ const Planning: React.FC = () => {
                                                 const appointmentDate = new Date(`${appointment.date}T${appointment.start_time}`);
                                                 const isUpcoming = appointmentDate > new Date();
                                                 const caregiver = caregiverMap[appointment.caregiver_id || ''];
-                                                
+
                                                 return (
                                                   <div key={appointment.id} className="flex justify-between items-center text-xs">
                                                     <div className="flex items-center gap-2">

@@ -62,7 +62,7 @@ export const runCreateRecordTool = async (supabase: SupabaseClient, args: z.infe
 
 export const runReadRecordsTool = async (supabase: SupabaseClient, args: z.infer<typeof ReadRecordsSchema>) => {
   const { table, select, filter } = args;
-  
+
   let query = supabase
     .from(table)
     .select(select?.join(',') || '*');
@@ -88,7 +88,7 @@ export const runReadRecordsTool = async (supabase: SupabaseClient, args: z.infer
 
 export const runUpdateRecordTool = async (supabase: SupabaseClient, args: z.infer<typeof UpdateRecordSchema>) => {
   const { table, data, filter, returning } = args;
-  
+
   let query = supabase
     .from(table)
     .update(data);
@@ -108,7 +108,7 @@ export const runUpdateRecordTool = async (supabase: SupabaseClient, args: z.infe
 
 export const runDeleteRecordTool = async (supabase: SupabaseClient, args: z.infer<typeof DeleteRecordSchema>) => {
   const { table, filter, returning } = args;
-  
+
   let query = supabase
     .from(table)
     .delete();
@@ -124,4 +124,4 @@ export const runDeleteRecordTool = async (supabase: SupabaseClient, args: z.infe
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(result || []) }],
   });
-}; 
+};

@@ -79,7 +79,7 @@ export class EmailService {
           <div class="content">
             <p>Beste ${data.clientName},</p>
             <p>Dit is een herinnering voor uw aankomende afspraak:</p>
-            
+
             <div class="appointment-details">
               <div class="detail-row">
                 <span class="label">📅 Datum:</span>
@@ -194,7 +194,7 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
   public async processAppointmentReminders(): Promise<void> {
     try {
       const now = new Date();
-      
+
       // Query appointments that have reminders enabled and haven't been sent yet
       const { data: appointments, error } = await supabase
         .from('appointments')
@@ -231,7 +231,7 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
 
       for (const appointment of appointments) {
         const appointmentDateTime = new Date(`${appointment.date}T${appointment.start_time}`);
-        
+
         // Calculate when to send reminder
         let reminderTime = new Date(appointmentDateTime);
         switch (appointment.reminder_unit) {
@@ -267,7 +267,7 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
             // Mark reminder as sent
             await supabase
               .from('appointments')
-              .update({ 
+              .update({
                 reminder_sent: now.toISOString(),
                 updated_at: now.toISOString()
               })

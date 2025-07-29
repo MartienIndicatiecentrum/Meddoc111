@@ -43,4 +43,4 @@ if (checkBuild(cwd)) {
   console.log('build/start-server.js bestaat.');
 } else {
   console.log('FOUT: build/start-server.js ontbreekt. Run eerst: npm run build');
-} 
+}

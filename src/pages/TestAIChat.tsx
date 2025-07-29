@@ -42,7 +42,7 @@ export default function TestAIChat() {
 
   async function handleTest() {
     if (!query.trim()) return;
-    
+
     setLoading(true);
     setResponse("");
 

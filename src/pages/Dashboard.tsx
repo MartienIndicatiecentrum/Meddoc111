@@ -50,15 +50,15 @@ interface QuickStatsProps {
 // Components
 const WelcomeCard: React.FC = () => (
   <div className="p-6 bg-white rounded shadow heading-md mb-4">
-    Welkom terug, {mockUser.name}! 
+    Welkom terug, {mockUser.name}!
     <span className="text-gray-500 ml-2">Vrijdag 18 juli 2025</span>
   </div>
 );
 
-const QuickStats: React.FC<QuickStatsProps> = ({ 
-  documentCount, 
-  appointmentCount, 
-  taskCount 
+const QuickStats: React.FC<QuickStatsProps> = ({
+  documentCount,
+  appointmentCount,
+  taskCount
 }) => (
   <div className="grid grid-cols-3 gap-4 mb-4">
     <div className="bg-primary-50 rounded p-4 text-center">
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
   const [documentCount, setDocumentCount] = useState(0);
   const [showRecentDocuments, setShowRecentDocuments] = useState(false);
   const [showTodoList, setShowTodoList] = useState(false);
-  
+
   // Loading states
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [loadingTasks, setLoadingTasks] = useState(true);
@@ -204,7 +204,7 @@ const Home: React.FC = () => {
     try {
       setLoadingAppointments(true);
       const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-      
+
       const { data, error } = await supabase
         .from('appointments')
         .select('id, date, name')
@@ -338,13 +338,13 @@ const Home: React.FC = () => {
           <div className="lg:col-span-1">
             <UpcomingAppointments appointments={appointments} max={5} />
           </div>
-          
+
           {/* Kolom 2: Toon recente documenten (checkbox) */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow p-6">
                               <div className="flex items-center space-x-2 mb-6">
-                  <Checkbox 
-                    id="showRecentDocuments" 
+                  <Checkbox
+                    id="showRecentDocuments"
                     checked={showRecentDocuments}
                     onCheckedChange={(checked) => setShowRecentDocuments(checked as boolean)}
                   />
@@ -360,13 +360,13 @@ const Home: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           {/* Kolom 3: To do list (checkbox) */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow p-6">
                               <div className="flex items-center space-x-2 mb-6">
-                  <Checkbox 
-                    id="showTodoList" 
+                  <Checkbox
+                    id="showTodoList"
                     checked={showTodoList}
                     onCheckedChange={(checked) => setShowTodoList(checked as boolean)}
                   />
@@ -423,7 +423,7 @@ const Home: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
 
       </div>
     </AppLayout>

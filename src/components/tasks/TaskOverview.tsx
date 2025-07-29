@@ -33,7 +33,7 @@ const TaskOverview: React.FC<TaskOverviewProps> = ({ tasks }) => {
     <div className="task-overview p-6 bg-white rounded shadow">
       <h2 className="text-xl font-bold mb-4">Takenoverzicht</h2>
       <TaskList tasks={tasks} onUpload={handleUpload} />
-      
+
       {/* Upload Modal */}
       {uploadModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -49,7 +49,7 @@ const TaskOverview: React.FC<TaskOverviewProps> = ({ tasks }) => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
+
             <div className="mb-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
                 <strong>Taak:</strong> {selectedTask?.title}<br/>
@@ -57,7 +57,7 @@ const TaskOverview: React.FC<TaskOverviewProps> = ({ tasks }) => {
                 <strong>Deadline:</strong> {selectedTask?.deadline ? new Date(selectedTask.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
               </p>
             </div>
-            
+
             <FileUploader onUploadSuccess={handleUploadSuccess} />
           </div>
         </div>

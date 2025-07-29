@@ -25,7 +25,7 @@ const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({ appointment
     const appointmentDate = new Date(dateString);
     const today = new Date();
     const diffDays = Math.ceil((appointmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'text-red-600 font-semibold'; // Today
     if (diffDays <= 3) return 'text-orange-600 font-medium'; // Within 3 days
     return 'text-gray-400'; // Normal
@@ -54,8 +54,8 @@ const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({ appointment
       )}
       {appointments.length > max && (
         <div className="mt-2">
-          <Link 
-            to="/planning" 
+          <Link
+            to="/planning"
             className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
           >
             Bekijk alle {appointments.length} afspraken →

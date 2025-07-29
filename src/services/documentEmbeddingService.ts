@@ -63,7 +63,7 @@ export class DocumentEmbeddingService {
           if (!content) {
             return { success: false, error: 'Failed to extract PDF content' };
           }
-          
+
           // Update document with content
           const { error: updateError } = await supabase
             .from('documents')
@@ -114,15 +114,15 @@ export class DocumentEmbeddingService {
   async extractPDFContent(filePath: string): Promise<string | null> {
     try {
       // Construct the full URL for the PDF
-      const fileUrl = filePath.startsWith('http') 
-        ? filePath 
+      const fileUrl = filePath.startsWith('http')
+        ? filePath
         : `${supabase.storage.from('documents').getPublicUrl(filePath).data.publicUrl}`;
 
       // Use a PDF extraction service or API
       // For now, we'll return a placeholder
       // In production, you'd use a service like pdf.js or a backend API
       console.log('PDF extraction needed for:', fileUrl);
-      
+
       // Call your backend PDF extraction endpoint
       const response = await fetch('http://localhost:5000/api/extract-pdf', {
         method: 'POST',
@@ -146,7 +146,7 @@ export class DocumentEmbeddingService {
    * Update document processing status
    */
   async updateProcessingStatus(
-    documentId: string, 
+    documentId: string,
     status: 'pending' | 'processing' | 'completed' | 'failed',
     errorMessage?: string
   ): Promise<void> {
@@ -206,7 +206,7 @@ export class DocumentEmbeddingService {
    * Search documents using vector similarity
    */
   async searchDocuments(
-    query: string, 
+    query: string,
     options: {
       limit?: number;
       threshold?: number;

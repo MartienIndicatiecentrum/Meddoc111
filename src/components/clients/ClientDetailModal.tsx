@@ -73,7 +73,7 @@ const ClientDetailModal: React.FC<ClientDetailModalProps> = ({ open, onClose, cl
           ))}
         </nav>
         {/* Tab panels */}
-        <div className="p-6" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}> 
+        <div className="p-6" role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
           {activeTab === 'overview' && (
             <div>
               <h2 className="font-bold mb-2">Basisinformatie</h2>

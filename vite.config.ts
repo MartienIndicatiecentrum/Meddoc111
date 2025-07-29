@@ -6,19 +6,19 @@ import { spawn } from "child_process";
 // Auto-start services plugin
 const autoStartServices = () => {
   let started = false;
-  
+
   return {
     name: 'auto-start-services',
     configureServer(server) {
       if (!started) {
         started = true;
         console.log('🚀 Checking backend services...');
-        
+
         const startScript = spawn('node', ['auto-start-services.js'], {
           stdio: 'inherit',
           cwd: process.cwd()
         });
-        
+
         startScript.on('close', (code) => {
           if (code === 0) {
             console.log('✅ Backend services ready');
@@ -27,7 +27,7 @@ const autoStartServices = () => {
             console.log('   Check the logs above for details');
           }
         });
-        
+
         startScript.on('error', (err) => {
           console.error('❌ Failed to start services:', err.message);
           console.log('   Try running "npm run dev:all" for manual start');
@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
     autoStartServices(),
     react()
   ];
-  
+
   return {
     server: {
       host: "::",

@@ -19,7 +19,7 @@ const colors = {
 async function isPortInUse(port) {
   return new Promise((resolve) => {
     const server = net.createServer();
-    
+
     server.once('error', (err) => {
       if (err.code === 'EADDRINUSE') {
         resolve(true);
@@ -27,12 +27,12 @@ async function isPortInUse(port) {
         resolve(false);
       }
     });
-    
+
     server.once('listening', () => {
       server.close();
       resolve(false);
     });
-    
+
     server.listen(port);
   });
 }
@@ -49,12 +49,12 @@ async function waitForService(url, maxAttempts = 10) {
           resolve(false);
         });
       });
-      
+
       if (response) return true;
     } catch (error) {
       // Service not ready yet
     }
-    
+
     // Wait before retry
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
@@ -64,29 +64,29 @@ async function waitForService(url, maxAttempts = 10) {
 // Start service if not running
 async function ensureServiceRunning(config) {
   const { name, port, command, args, checkUrl, color = colors.cyan } = config;
-  
+
   const inUse = await isPortInUse(port);
-  
+
   if (inUse) {
     console.log(`${color}✓${colors.reset} ${name} already running on port ${port}`);
     return true;
   }
-  
+
   console.log(`${color}↻${colors.reset} Starting ${name}...`);
-  
+
   // Start the service
   const isWindows = process.platform === 'win32';
   const cmd = isWindows && command === 'npm' ? 'npm.cmd' : command;
-  
+
   const proc = spawn(cmd, args, {
     detached: true,
     stdio: 'ignore',
     shell: isWindows,
     cwd: process.cwd()
   });
-  
+
   proc.unref();
-  
+
   // Wait for service to be ready
   if (checkUrl) {
     const ready = await waitForService(checkUrl);
@@ -107,7 +107,7 @@ async function ensureServiceRunning(config) {
 
 async function main() {
   console.log(`${colors.bright}🚀 Auto-starting backend services...${colors.reset}\n`);
-  
+
   // Check environment first
   const envPath = path.join(__dirname, '.env');
   if (!fs.existsSync(envPath)) {
@@ -119,7 +119,7 @@ async function main() {
     console.log('   Backend API will not work without Supabase credentials.');
     console.log('   Run "npm run check:env" for setup help.\n');
   }
-  
+
   // Services to start
   const services = [
     {
@@ -139,7 +139,7 @@ async function main() {
       color: colors.yellow
     }
   ];
-  
+
   // Check for Python before trying to start RAG server
   const pythonAvailable = await checkPythonInstallation();
   if (!pythonAvailable) {
@@ -149,14 +149,14 @@ async function main() {
     // Remove RAG server from services
     services.splice(1, 1);
   }
-  
+
   // Start all services
   const results = await Promise.all(
     services.map(service => ensureServiceRunning(service))
   );
-  
+
   const allSuccessful = results.every(r => r);
-  
+
   if (allSuccessful) {
     console.log(`\n${colors.green}✅ All services ready!${colors.reset}`);
     process.exit(0);
@@ -170,22 +170,22 @@ async function main() {
 function checkPythonInstallation() {
   return new Promise((resolve) => {
     const python = spawn('python', ['--version']);
-    
+
     python.on('error', () => {
       resolve(false);
     });
-    
+
     python.stdout.on('data', () => {
       resolve(true);
     });
-    
+
     python.stderr.on('data', (data) => {
       // Python sometimes outputs version to stderr
       if (data.toString().includes('Python')) {
         resolve(true);
       }
     });
-    
+
     // Timeout after 3 seconds
     setTimeout(() => resolve(false), 3000);
   });

@@ -100,4 +100,4 @@ De pagina gebruikt momenteel mock data voor demonstratie met voorbeelden van:
 5. **Export**: Export functionaliteit voor rapportages
 6. **Email integratie**: Automatische email notificaties
 7. **Zoek functionaliteit**: Geavanceerde zoekopties
-8. **Bulk acties**: Meerdere entries tegelijk bewerken 
+8. **Bulk acties**: Meerdere entries tegelijk bewerken

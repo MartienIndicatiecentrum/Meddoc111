@@ -60,4 +60,4 @@ async function updateDocument(id, text) {
       }
     }
   }
-})(); 
+})();

@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { 
-  Upload, 
-  FileText, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Upload,
+  FileText,
+  CheckCircle,
+  AlertCircle,
   Loader2,
-  X 
+  X
 } from 'lucide-react';
 
 interface FileUploadResult {
@@ -67,7 +67,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
   const uploadToSupabase = async (file: File): Promise<FileUploadResult> => {
     try {
       setUploadProgress('Bestand uploaden naar Supabase...');
-      
+
       // Create unique filename with timestamp
       const timestamp = Date.now();
       const fileExt = file.name.split('.').pop()?.toLowerCase() || 'bin';
@@ -104,7 +104,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
       // Save document metadata to database
       setUploadProgress('Document metadata opslaan...');
-      
+
       const documentRecord: any = {
         name: file.name,
         type: 'document',
@@ -113,12 +113,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
         size: file.size,
         mime_type: file.type
       };
-      
+
       // Add client_id if provided
       if (clientId) {
         documentRecord.client_id = clientId;
       }
-      
+
       const { data: documentData, error: dbError } = await supabase
         .from('documents')
         .insert(documentRecord)
@@ -151,7 +151,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
   const sendToLangChain = async (fileUrl: string): Promise<LangChainResponse> => {
     try {
       setUploadProgress('Bestand verwerken met LangChain RAG server...');
-      
+
       console.log('Sending to LangChain RAG server:', fileUrl);
 
       const response = await fetch('http://localhost:5001/ingest', {
@@ -192,14 +192,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
     const validFiles: File[] = [];
     const fileArray = Array.from(files);
-    
+
     // Validate each file
     for (const file of fileArray) {
       if (validateFile(file)) {
         validFiles.push(file);
       }
     }
-    
+
     if (validFiles.length > 0) {
       setSelectedFiles(validFiles);
       setUploadResults([]);
@@ -231,14 +231,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
         try {
           // Step 1: Upload to Supabase
           const uploadResult = await uploadToSupabase(file);
-          
+
           if (!uploadResult.success) {
             throw new Error(uploadResult.error || 'Upload naar Supabase mislukt');
           }
 
           // Step 2: Send to LangChain RAG server
           const langChainResult = await sendToLangChain(uploadResult.publicUrl!);
-          
+
           if (!langChainResult.success) {
             console.warn(`LangChain processing failed for ${file.name}, but file was uploaded successfully`);
             toast.warning(`Bestand ${file.name} geüpload, maar RAG verwerking mislukt`);
@@ -250,22 +250,22 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
             publicUrl: uploadResult.publicUrl,
             fileName: uploadResult.fileName
           };
-          
+
           results.push(result);
           successfulUploads.push(file.name);
-          
+
           toast.success(`Bestand "${file.name}" succesvol geüpload en verwerkt!`);
 
         } catch (fileError) {
           console.error(`Upload failed for ${file.name}:`, fileError);
           const errorMessage = fileError instanceof Error ? fileError.message : 'Upload mislukt';
-          
+
           const result: FileUploadResult = {
             success: false,
             fileName: file.name,
             error: errorMessage
           };
-          
+
           results.push(result);
           toast.error(`Upload fout voor ${file.name}: ${errorMessage}`);
         }
@@ -273,16 +273,16 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
       // Update results
       setUploadResults(results);
-      
+
       // Call success callback for all successful uploads
       if (onUploadSuccess && successfulUploads.length > 0) {
         onUploadSuccess(successfulUploads.join(', '));
       }
-      
+
       // Show summary
       const successCount = results.filter(r => r.success).length;
       const failCount = results.length - successCount;
-      
+
       if (successCount === results.length) {
         toast.success(`Alle ${successCount} bestanden succesvol geüpload!`);
       } else if (successCount > 0) {
@@ -290,7 +290,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       } else {
         toast.error(`Alle ${failCount} uploads mislukt`);
       }
-      
+
       // Reset form
       setSelectedFiles([]);
       if (fileInputRef.current) {
@@ -341,8 +341,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
           {/* File Input */}
           <div className="mb-6">
-            <label 
-              htmlFor="file-upload" 
+            <label
+              htmlFor="file-upload"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
               Selecteer bestanden
@@ -412,8 +412,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
               <h3 className="font-medium text-gray-900">Upload Resultaten</h3>
               {uploadResults.map((result, index) => (
                 <div key={index} className={`p-4 rounded-lg border ${
-                  result.success 
-                    ? 'bg-green-50 border-green-200' 
+                  result.success
+                    ? 'bg-green-50 border-green-200'
                     : 'bg-red-50 border-red-200'
                 }`}>
                   <div className="flex items-start space-x-3">

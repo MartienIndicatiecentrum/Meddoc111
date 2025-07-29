@@ -13,7 +13,7 @@ const mockClients: Client[] = [];
 
 const ClientOverview: React.FC = () => {
   const { viewMode, setViewMode, searchFilters, clients, deleteClient } = useClientStore();
-  
+
   const handleDeleteClient = async (clientId: string) => {
     try {
       await deleteClient(clientId);

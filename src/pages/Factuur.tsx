@@ -9,14 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import SearchableClientDropdown from '@/components/forms/SearchableClientDropdown';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Receipt, 
-  Plus, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit, 
+import {
+  Receipt,
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit,
   Trash2,
   Calendar,
   Euro,
@@ -148,7 +148,7 @@ const Factuur: React.FC = () => {
           .from('clients')
           .select('id, naam, telefoon, email, adres')
           .order('naam');
-        
+
         if (clientsError) {
           console.error('Error fetching clients:', clientsError);
         } else {
@@ -174,7 +174,7 @@ const Factuur: React.FC = () => {
             document_urls
           `)
           .order('created_at', { ascending: false });
-        
+
         if (invoicesError) {
           console.error('Error fetching invoices:', invoicesError);
           // Fallback to mock data if database fails
@@ -196,27 +196,27 @@ const Factuur: React.FC = () => {
             documentUrl: invoice.document_urls && invoice.document_urls.length > 0 ? invoice.document_urls[0] : null, // First document URL for easy access
             opdrachtgever: invoice.opdrachtgever || null // Add opdrachtgever for filtering
           }));
-          
+
           setInvoices(transformedInvoices);
-          
+
           // Calculate statistics
           const totalAmount = transformedInvoices.reduce((sum, inv) => sum + inv.amount, 0);
           const paidAmount = transformedInvoices
             .filter(inv => inv.status === 'betaald')
             .reduce((sum, inv) => sum + inv.amount, 0);
-          
+
           // Count uploaded documents (facturen with document_urls)
-          const uploadedDocuments = (invoicesData || []).filter(invoice => 
+          const uploadedDocuments = (invoicesData || []).filter(invoice =>
             invoice.document_urls && invoice.document_urls.length > 0
           ).length;
-          
+
           console.log('📊 Statistics calculated:', {
             totalInvoices: transformedInvoices.length,
             uploadedDocuments,
             totalAmount,
             paidAmount
           });
-          
+
           setStatistics({
             totalInvoices: transformedInvoices.length,
             uploadedDocuments,
@@ -240,20 +240,20 @@ const Factuur: React.FC = () => {
   // Filter invoices based on search term, status, opdrachtgever, and selected client
   const filteredInvoices = invoices.filter(invoice => {
     // Search term filter (invoice number or client name)
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.clientName.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     // Status filter
     const matchesStatus = statusFilter === 'alle' || invoice.status === statusFilter;
-    
+
     // Opdrachtgever filter - check if invoice has opdrachtgever field
-    const matchesOpdrachtgever = opdrachtgeverFilter === 'alle' || 
+    const matchesOpdrachtgever = opdrachtgeverFilter === 'alle' ||
       (invoice as any).opdrachtgever === opdrachtgeverFilter;
-    
+
     // Client filter
     const matchesClient = !selectedClient || invoice.clientName === selectedClient;
-    
+
     return matchesSearch && matchesStatus && matchesOpdrachtgever && matchesClient;
   });
 
@@ -276,7 +276,7 @@ const Factuur: React.FC = () => {
   const testDocumentsBucket = async () => {
     try {
       console.log('Testing documents bucket access...');
-      
+
       // Test bucket toegang
       const { data, error } = await supabase.storage
         .from('documents')
@@ -292,7 +292,7 @@ const Factuur: React.FC = () => {
       console.log('Documents bucket toegang OK. Gevonden bestanden:', data.length);
       console.log('Eerste paar bestanden:', data);
       return true;
-      
+
     } catch (error) {
       console.error('Bucket test fout:', error);
       return false;
@@ -304,7 +304,7 @@ const Factuur: React.FC = () => {
     try {
       console.log('Starting upload process...');
       console.log('File input found:', !!file);
-      
+
       if (!file) {
         throw new Error('Geen bestand geselecteerd');
       }
@@ -312,7 +312,7 @@ const Factuur: React.FC = () => {
       // Maak een unieke filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
+
       // Upload naar facturen subfolder in documents bucket
       const filePath = `facturen/${fileName}`;
 
@@ -384,7 +384,7 @@ const Factuur: React.FC = () => {
 
       console.log('Factuur opgeslagen in database:', data);
       return data[0];
-      
+
     } catch (error) {
       console.error('Database save fout:', error);
       throw error;
@@ -395,7 +395,7 @@ const Factuur: React.FC = () => {
   const handleUploadFacturen = async () => {
     setUploading(true);
     console.log('🚀 Starting upload process...');
-    
+
     try {
       // Get form data
       const fileInput = document.getElementById('uploadFile') as HTMLInputElement;
@@ -403,9 +403,9 @@ const Factuur: React.FC = () => {
       const dateSentInput = document.getElementById('uploadDateSent') as HTMLInputElement;
       const datePaidInput = document.getElementById('uploadDatePaid') as HTMLInputElement;
       const notesInput = document.getElementById('uploadNotes') as HTMLTextAreaElement;
-      
+
       console.log('📁 File input found:', !!fileInput);
-      
+
       // Get selected clients
       const selectedClients: string[] = [];
       const clientCheckboxes = document.querySelectorAll('input[id^="client-"]:checked');
@@ -414,56 +414,56 @@ const Factuur: React.FC = () => {
         const client = clients.find(c => c.id === clientId);
         if (client) selectedClients.push(client.naam);
       });
-      
+
       console.log('👥 Selected clients:', selectedClients);
-      
+
       // Get selected opdrachtgever
       const opdrachtgeverSelect = document.querySelector('[data-testid="uploadOpdrachtgever"]') as HTMLSelectElement;
       const selectedOpdrachtgever = opdrachtgeverSelect?.value || 'Particulier';
-      
+
       // Get selected status
       const statusSelect = document.querySelector('[data-testid="uploadStatus"]') as HTMLSelectElement;
       const selectedStatus = statusSelect?.value || 'concept';
-      
+
       console.log('📋 Form data:', {
         opdrachtgever: selectedOpdrachtgever,
         status: selectedStatus,
         factuurnummer: factuurnummerInput?.value
       });
-      
+
       const files = fileInput?.files;
       if (!files || files.length === 0) {
         console.log('❌ No files selected');
         toast.error('Selecteer minimaal één bestand om te uploaden');
         return;
       }
-      
+
       console.log(`📄 Found ${files.length} files to upload`);
-      
+
       // Test eerst bucket toegang
       console.log('Testing bucket access...');
       const bucketOK = await testDocumentsBucket();
-      
+
       if (!bucketOK) {
         toast.error('Kan geen toegang krijgen tot documents bucket - check console voor details');
         return;
       }
 
       console.log('Bucket access OK, starting upload...');
-      
+
       const uploadResults: any[] = [];
-      
+
       // Upload each file
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         console.log(`⬆️ Uploading file ${i + 1}/${files.length}: ${file.name} (${file.size} bytes)`);
-        
+
         try {
           // Upload bestand
           const result = await uploadFactuur(file);
           console.log('Upload resultaat:', result);
-          
+
           // Prepare form data for this file
           const formData = {
             factuurnummer: factuurnummerInput?.value ? `${factuurnummerInput.value}${files.length > 1 ? `-${i + 1}` : ''}` : `FAC-${Date.now()}-${i + 1}`,
@@ -474,30 +474,30 @@ const Factuur: React.FC = () => {
             datePaid: datePaidInput?.value || null,
             notes: notesInput?.value || null
           };
-          
+
           // Save to database
           await saveFactuurToDatabase(result, file, formData);
-          
+
           uploadResults.push(result);
-          
+
         } catch (fileError) {
           console.error(`Upload fout voor ${file.name}:`, fileError);
           toast.error(`Upload gefaald voor ${file.name}: ${fileError.message}`);
         }
       }
-      
+
       if (uploadResults.length === 0) {
         toast.error('Geen bestanden succesvol geüpload');
         return;
       }
-      
+
       console.log('🎉 Upload process completed successfully!');
       toast.success(`${uploadResults.length} facturen succesvol geüpload en opgeslagen!`);
       setShowUploadModal(false);
-      
+
       // Refresh data to show new invoices
       window.location.reload();
-      
+
     } catch (error) {
       console.error('💥 Upload process failed:', error);
       toast.error(`Er is een fout opgetreden bij het uploaden: ${error}`);
@@ -526,7 +526,7 @@ const Factuur: React.FC = () => {
             <p className="text-gray-600 mt-1">Beheer en overzicht van alle facturen</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowUploadModal(true)}
               className="flex items-center gap-2"
@@ -534,14 +534,14 @@ const Factuur: React.FC = () => {
               <Upload className="w-4 h-4" />
               Uploaden Factuur
             </Button>
-            <Button 
+            <Button
               onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Nieuwe Factuur
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => window.location.href = '/factuur-generator'}
               className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
@@ -556,7 +556,7 @@ const Factuur: React.FC = () => {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card 
+          <Card
             className="cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:bg-gray-50"
             onClick={() => setShowInvoiceOverview(true)}
           >
@@ -655,7 +655,7 @@ const Factuur: React.FC = () => {
                   </Select>
                 </div>
               </div>
-              
+
               {/* Opdrachtgever Filter Row */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
@@ -808,9 +808,9 @@ const Factuur: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="uploadFile">Selecteer Factuur Bestanden</Label>
-                  <Input 
-                    id="uploadFile" 
-                    type="file" 
+                  <Input
+                    id="uploadFile"
+                    type="file"
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                     multiple
                     className="mt-2"
@@ -860,8 +860,8 @@ const Factuur: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="uploadFactuurnummer">Factuurnummer (optioneel)</Label>
-                  <Input 
-                    id="uploadFactuurnummer" 
+                  <Input
+                    id="uploadFactuurnummer"
                     placeholder="Bijv. FAC-2024-003"
                     className="mt-2"
                   />
@@ -869,16 +869,16 @@ const Factuur: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="uploadDateSent">Datum van Versturen (optioneel)</Label>
-                    <Input 
-                      id="uploadDateSent" 
+                    <Input
+                      id="uploadDateSent"
                       type="date"
                       className="mt-2"
                     />
                   </div>
                   <div>
                     <Label htmlFor="uploadDatePaid">Datum van Betaling (optioneel)</Label>
-                    <Input 
-                      id="uploadDatePaid" 
+                    <Input
+                      id="uploadDatePaid"
                       type="date"
                       className="mt-2"
                     />
@@ -898,8 +898,8 @@ const Factuur: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="uploadNotes">Notities (optioneel)</Label>
-                  <Textarea 
-                    id="uploadNotes" 
+                  <Textarea
+                    id="uploadNotes"
                     placeholder="Extra notities over deze factuur..."
                     rows={3}
                   />
@@ -1039,7 +1039,7 @@ const Factuur: React.FC = () => {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 {loading ? (
                   <div className="flex items-center justify-center py-8">
@@ -1087,8 +1087,8 @@ const Factuur: React.FC = () => {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Button 
-                                    variant="outline" 
+                                  <Button
+                                    variant="outline"
                                     size="sm"
                                     onClick={() => {
                                       setSelectedDocument(invoice);
@@ -1098,8 +1098,8 @@ const Factuur: React.FC = () => {
                                   >
                                     <Eye className="w-4 h-4" />
                                   </Button>
-                                  <Button 
-                                    variant="outline" 
+                                  <Button
+                                    variant="outline"
                                     size="sm"
                                     title="Download document"
                                   >
@@ -1115,12 +1115,12 @@ const Factuur: React.FC = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="p-6 border-t border-gray-200 bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-600">
-                    Totaal: €{statistics.totalAmount.toFixed(2)} | 
-                    Betaald: €{statistics.paidAmount.toFixed(2)} | 
+                    Totaal: €{statistics.totalAmount.toFixed(2)} |
+                    Betaald: €{statistics.paidAmount.toFixed(2)} |
                     Uitstaand: €{statistics.outstandingAmount.toFixed(2)}
                   </div>
                   <div className="flex gap-2">
@@ -1182,20 +1182,20 @@ const Factuur: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-4 overflow-auto max-h-[calc(90vh-120px)]">
                 {(() => {
                   // Debug: Log the selected document to see what data is available
                   console.log('🔍 Selected document for preview:', selectedDocument);
                   console.log('📄 Document URLs:', selectedDocument.document_urls);
                   console.log('🔗 Primary document URL:', selectedDocument.documentUrl);
-                  
+
                   // Get document URL from the invoice data
-                  const documentUrl = selectedDocument.documentUrl || 
+                  const documentUrl = selectedDocument.documentUrl ||
                     (selectedDocument.document_urls && selectedDocument.document_urls.length > 0 ? selectedDocument.document_urls[0] : null);
-                  
+
                   console.log('🎯 Final document URL for preview:', documentUrl);
-                  
+
                   if (!documentUrl) {
                     return (
                       <div className="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -1213,12 +1213,12 @@ const Factuur: React.FC = () => {
                       </div>
                     );
                   }
-                  
+
                   // Determine file type from URL
                   const fileExtension = documentUrl.split('.').pop()?.toLowerCase();
                   const isPdf = fileExtension === 'pdf';
                   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension || '');
-                  
+
                   if (isPdf) {
                     return (
                       <div className="w-full h-full">
@@ -1228,10 +1228,10 @@ const Factuur: React.FC = () => {
                           title="PDF Preview"
                         />
                         <p className="text-xs text-gray-500 mt-2 text-center">
-                          PDF wordt weergegeven. Als het niet laadt, 
-                          <a 
-                            href={documentUrl} 
-                            target="_blank" 
+                          PDF wordt weergegeven. Als het niet laadt,
+                          <a
+                            href={documentUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline ml-1"
                           >
@@ -1241,7 +1241,7 @@ const Factuur: React.FC = () => {
                       </div>
                     );
                   }
-                  
+
                   if (isImage) {
                     return (
                       <div className="flex justify-center">
@@ -1269,7 +1269,7 @@ const Factuur: React.FC = () => {
                       </div>
                     );
                   }
-                  
+
                   // For other file types, show a download link
                   return (
                     <div className="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -1305,12 +1305,12 @@ const Factuur: React.FC = () => {
                   );
                 })()}
               </div>
-              
+
               <div className="p-4 border-t border-gray-200 bg-gray-50">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <div>
-                    <span className="font-medium">Factuur:</span> {selectedDocument.invoiceNumber} | 
-                    <span className="font-medium text-gray-500">Cliënt:</span> <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 border border-purple-500 font-medium text-xs ml-1">{selectedDocument.clientName}</span> | 
+                    <span className="font-medium">Factuur:</span> {selectedDocument.invoiceNumber} |
+                    <span className="font-medium text-gray-500">Cliënt:</span> <span className="inline-block px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 border border-purple-500 font-medium text-xs ml-1">{selectedDocument.clientName}</span> |
                     <span className="font-medium">Bedrag:</span> €{selectedDocument.amount?.toFixed(2)}
                   </div>
                   <div className="flex items-center gap-2">

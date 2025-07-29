@@ -1,25 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Activity, 
-  Upload, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  RotateCcw,
-  Search,
-  Filter,
-  Calendar,
-  User,
-  Clock,
-  Globe,
-  Download
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Calendar, Clock, User, MapPin, _Filter, _Calendar } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ActivityLog {
   id: string;
@@ -126,7 +115,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
         timestamp: new Date(Date.now() - 150000)
       }
     ];
-    
+
     setActivities(mockActivities);
     setFilteredActivities(mockActivities);
   }, []);
@@ -150,7 +139,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
     if (dateFilter !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       switch (dateFilter) {
         case 'today':
           filterDate.setHours(0, 0, 0, 0);
@@ -162,7 +151,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
           filterDate.setMonth(now.getMonth() - 1);
           break;
       }
-      
+
       filtered = filtered.filter(activity => activity.timestamp >= filterDate);
     }
 
@@ -209,12 +198,12 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
   };
 
   const exportActivities = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
+    const csvContent = "data:text/csv;charset=utf-8,"
       + "Timestamp,Document,Gebruiker,Actie,Beschrijving,IP Adres\n"
-      + filteredActivities.map(activity => 
+      + filteredActivities.map(activity =>
           `${activity.timestamp.toLocaleString('nl-NL')},${activity.document_title},${activity.user_name},${getActionLabel(activity.action)},${activity.details.description},${activity.details.ip_address}`
         ).join("\n");
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -236,7 +225,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
             Volledige audit trail van alle acties in het documentmanagement systeem
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-4">
@@ -249,7 +238,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 className="w-64"
               />
             </div>
-            
+
             <Select value={actionFilter} onValueChange={setActionFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue />
@@ -264,7 +253,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 <SelectItem value="delete">Verwijderd</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -276,7 +265,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 <SelectItem value="month">Deze Maand</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Button variant="outline" onClick={exportActivities}>
               <Download className="h-4 w-4 mr-2" />
               Exporteren
@@ -296,7 +285,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 </div>
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Eye className="h-4 w-4 text-blue-600" />
@@ -308,7 +297,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 </div>
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Activity className="h-4 w-4 text-orange-600" />
@@ -320,7 +309,7 @@ export const ActivityLogger: React.FC<ActivityLoggerProps> = ({ cardWidth }) => 
                 </div>
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center space-x-2">
                 <Search className="h-4 w-4 text-indigo-600" />

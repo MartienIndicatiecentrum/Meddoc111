@@ -30,7 +30,7 @@ const priorityColor = {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onEdit, onDelete, onUpload }) => {
   return (
-    <div className={`flex flex-col md:flex-row items-start md:items-center gap-2 border-l-4 p-4 shadow-sm rounded-md mb-2 ${priorityColor[task.priority]}`}> 
+    <div className={`flex flex-col md:flex-row items-start md:items-center gap-2 border-l-4 p-4 shadow-sm rounded-md mb-2 ${priorityColor[task.priority]}`}>
       {/* Status indicator */}
       <span className={`px-2 py-1 rounded text-xs font-semibold ${statusColor[task.status]}`}>{task.status}</span>
       {/* Title & type */}

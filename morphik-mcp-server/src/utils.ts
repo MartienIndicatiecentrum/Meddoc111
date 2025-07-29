@@ -30,13 +30,13 @@ export async function readFileAsBuffer(filePath: string): Promise<Buffer> {
 
 export async function getFilesInDirectory(dirPath: string): Promise<string[]> {
   const files: string[] = [];
-  
+
   async function traverse(currentPath: string) {
     const entries = await fs.readdir(currentPath, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(currentPath, entry.name);
-      
+
       if (entry.isDirectory()) {
         await traverse(fullPath);
       } else {
@@ -44,7 +44,7 @@ export async function getFilesInDirectory(dirPath: string): Promise<string[]> {
       }
     }
   }
-  
+
   await traverse(dirPath);
   return files;
 }
@@ -56,7 +56,7 @@ export function getMimeType(filePath: string): string {
 export function extractMetadataFromPath(filePath: string): Record<string, any> {
   const parsed = path.parse(filePath);
   const parts = parsed.dir.split(path.sep);
-  
+
   return {
     filename: parsed.base,
     extension: parsed.ext,
@@ -95,13 +95,13 @@ export async function retryWithBackoff<T>(
   initialDelay: number = 1000
 ): Promise<T> {
   let lastError: any;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error;
-      
+
       if (i < maxRetries - 1) {
         const delay = initialDelay * Math.pow(2, i);
         logger.warn(`Retry ${i + 1}/${maxRetries} after ${delay}ms`, { error });
@@ -109,6 +109,6 @@ export async function retryWithBackoff<T>(
       }
     }
   }
-  
+
   throw lastError;
 }

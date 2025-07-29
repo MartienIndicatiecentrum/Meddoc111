@@ -60,4 +60,4 @@ const ClosedTasksModal: React.FC<ClosedTasksModalProps> = ({ clientId, open, onC
   );
 };
 
-export default ClosedTasksModal; 
+export default ClosedTasksModal;

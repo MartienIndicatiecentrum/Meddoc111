@@ -6,13 +6,13 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { clientService, ServiceError } from '@/services/clientService';
-import type { 
-  LogboekEntry, 
-  LogEntryFilters, 
-  NewEntryForm, 
+import type {
+  LogboekEntry,
+  LogEntryFilters,
+  NewEntryForm,
   EditEntryForm,
   UploadedDocument,
-  LoadingState 
+  LoadingState
 } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -26,21 +26,21 @@ interface UseLogboekReturn {
   entries: LogboekEntry[];
   loading: LoadingState;
   error: string | null;
-  
+
   // Filters
   filters: LogEntryFilters;
   setFilters: (filters: Partial<LogEntryFilters>) => void;
-  
+
   // Operations
   loadEntries: () => Promise<void>;
   addEntry: (entry: NewEntryForm, documents?: UploadedDocument[]) => Promise<boolean>;
   updateEntry: (id: string, updates: EditEntryForm) => Promise<boolean>;
   deleteEntry: (id: string) => Promise<boolean>;
-  
+
   // Document operations
   uploadDocument: (file: File, logEntryId?: string) => Promise<UploadedDocument | null>;
   deleteDocument: (documentId: string) => Promise<boolean>;
-  
+
   // Utilities
   clearError: () => void;
   resetFilters: () => void;
@@ -48,13 +48,13 @@ interface UseLogboekReturn {
 
 export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn => {
   const { clientId, initialFilters = {} } = options;
-  
+
   // State
   const [entries, setEntries] = useState<LogboekEntry[]>([]);
   const [loading, setLoading] = useState<LoadingState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [filters, setFiltersState] = useState<LogEntryFilters>(initialFilters);
-  
+
   // Realtime subscription ref
   const channelRef = useRef<RealtimeChannel | null>(null);
 
@@ -77,9 +77,9 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
         },
         (payload) => {
           console.log('Real-time logboek change received:', payload);
-          
+
           const { eventType, new: newRecord, old: oldRecord } = payload;
-          
+
           switch (eventType) {
             case 'INSERT':
               if (newRecord) {
@@ -99,22 +99,22 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
                   isUrgent: newRecord.is_urgent,
                   needsResponse: newRecord.needs_response,
                 };
-                
+
                 setEntries(prev => {
                   // Check if entry already exists to avoid duplicates
                   const exists = prev.some(entry => entry.id === newEntry.id);
                   if (exists) return prev;
-                  
+
                   // Add new entry at the beginning (most recent first)
                   return [newEntry, ...prev];
                 });
               }
               break;
-              
+
             case 'UPDATE':
               if (newRecord) {
-                setEntries(prev => prev.map(entry => 
-                  entry.id === newRecord.id 
+                setEntries(prev => prev.map(entry =>
+                  entry.id === newRecord.id
                     ? {
                         ...entry,
                         from: {
@@ -133,12 +133,12 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
                 ));
               }
               break;
-              
+
             case 'DELETE':
               if (oldRecord) {
                 console.log('Log entry deleted via real-time:', oldRecord.id);
                 setEntries(prev => prev.filter(entry => entry.id !== oldRecord.id));
-                
+
                 // Show a user-friendly notification when an entry is deleted
                 // This helps users understand why their document upload might fail
                 if (entries.length > 0) {
@@ -198,7 +198,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
     try {
       const data = await clientService.getClientLogEntries(clientId);
-      
+
       // Transform data to LogboekEntry format
       const transformedEntries: LogboekEntry[] = data.map(entry => ({
         id: entry.id,
@@ -220,8 +220,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
       setEntries(transformedEntries);
       setLoading('success');
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to load log entries';
       setError(errorMessage);
       setLoading('error');
@@ -230,7 +230,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
   // Add new entry
   const addEntry = useCallback(async (
-    entryData: NewEntryForm, 
+    entryData: NewEntryForm,
     documents?: UploadedDocument[]
   ): Promise<boolean> => {
     if (!clientId) {
@@ -243,13 +243,13 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
     try {
       // Prepare entry data
-      const finalType = entryData.type === 'Anders' && entryData.customType 
-        ? entryData.customType 
+      const finalType = entryData.type === 'Anders' && entryData.customType
+        ? entryData.customType
         : entryData.type;
 
       let finalDescription = entryData.description || 'Geen beschrijving';
       if (documents && documents.length > 0) {
-        const documentList = documents.map(doc => 
+        const documentList = documents.map(doc =>
           `📎 ${doc.name} (${(doc.size / 1024 / 1024).toFixed(1)} MB)`
         ).join('\n');
         finalDescription += `\n\n📎 **BIJLAGEN:**\n${documentList}`;
@@ -280,7 +280,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
             }
             return null;
           });
-          
+
           await Promise.all(uploadPromises);
         }
 
@@ -294,8 +294,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
         return false;
       }
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to create log entry';
       setError(errorMessage);
       setLoading('error');
@@ -305,7 +305,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
   // Update entry
   const updateEntry = useCallback(async (
-    id: string, 
+    id: string,
     updates: EditEntryForm
   ): Promise<boolean> => {
     setLoading('loading');
@@ -320,8 +320,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
       if (updatedEntry) {
         // Update local state
-        setEntries(prev => prev.map(entry => 
-          entry.id === id 
+        setEntries(prev => prev.map(entry =>
+          entry.id === id
             ? {
                 ...entry,
                 action: updates.action,
@@ -338,8 +338,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
         return false;
       }
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to update log entry';
       setError(errorMessage);
       setLoading('error');
@@ -354,7 +354,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
     try {
       const success = await clientService.deleteLogEntry(id);
-      
+
       if (success) {
         // Remove from local state
         setEntries(prev => prev.filter(entry => entry.id !== id));
@@ -366,8 +366,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
         return false;
       }
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to delete log entry';
       setError(errorMessage);
       setLoading('error');
@@ -377,7 +377,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
   // Upload document
   const uploadDocument = useCallback(async (
-    file: File, 
+    file: File,
     logEntryId?: string
   ): Promise<UploadedDocument | null> => {
     if (!clientId) {
@@ -387,7 +387,7 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
     try {
       const document = await clientService.uploadDocument(file, clientId, logEntryId);
-      
+
       if (document) {
         return {
           id: document.id,
@@ -399,8 +399,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
       }
       return null;
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to upload document';
       setError(errorMessage);
       return null;
@@ -412,8 +412,8 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
     try {
       return await clientService.deleteDocument(documentId);
     } catch (err) {
-      const errorMessage = err instanceof ServiceError 
-        ? err.message 
+      const errorMessage = err instanceof ServiceError
+        ? err.message
         : 'Failed to delete document';
       setError(errorMessage);
       return false;
@@ -444,21 +444,21 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
     entries: filteredEntries,
     loading,
     error,
-    
+
     // Filters
     filters,
     setFilters,
-    
+
     // Operations
     loadEntries,
     addEntry,
     updateEntry,
     deleteEntry,
-    
+
     // Document operations
     uploadDocument,
     deleteDocument,
-    
+
     // Utilities
     clearError,
     resetFilters,
@@ -486,4 +486,4 @@ const getColorForType = (type: string): string => {
     verzekeraar: 'bg-purple-500',
   };
   return colors[type] || 'bg-gray-500';
-}; 
+};

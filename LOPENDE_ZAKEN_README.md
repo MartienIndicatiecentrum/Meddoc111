@@ -18,7 +18,7 @@ Drie kaarten die belangrijke statistieken tonen:
 
 ### 3. Filter en Zoekbalk
 - **Zoekveld**: Filter op cliënt naam
-- **Filter knoppen**: 
+- **Filter knoppen**:
   - Urgent
   - Verlopen
   - Afgerond
@@ -84,4 +84,4 @@ De pagina gebruikt momenteel mock data voor demonstratie. In productie zou dit v
 2. Bekijk het overzicht van alle processen
 3. Gebruik de filters om specifieke processen te vinden
 4. Schakel tussen Kanban en Lijst weergave
-5. Klik op actie iconen om processen te beheren 
+5. Klik op actie iconen om processen te beheren

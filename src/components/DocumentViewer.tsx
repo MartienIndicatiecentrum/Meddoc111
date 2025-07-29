@@ -1,22 +1,18 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  FileText, 
-  Download, 
-  Printer, 
-  Eye, 
-  MessageSquare,
-  Calendar,
-  Clock,
-  User,
-  Share2,
-  Bookmark,
-  Edit3
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { _Card, _CardContent, _CardDescription, _CardHeader, _CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { _User, FileText, Download, Eye, Edit, Trash2, Search, Filter, Calendar, Clock, User, MapPin } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Document {
   id: string;
@@ -182,8 +178,8 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ document, fullsc
             <Share2 className="h-4 w-4 mr-2" />
             Delen
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => setShowAnnotations(!showAnnotations)}
           >

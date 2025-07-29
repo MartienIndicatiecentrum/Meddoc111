@@ -688,4 +688,4 @@ const NewTaskPage: React.FC = () => {
   );
 };
 
-export default NewTaskPage; 
+export default NewTaskPage;

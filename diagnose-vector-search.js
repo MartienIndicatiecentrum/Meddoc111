@@ -27,7 +27,7 @@ if (sampleDoc) {
   console.log(`Sample document: ${sampleDoc.title}`);
   console.log(`Embedding type: ${typeof sampleDoc.vector_embedding}`);
   console.log(`Raw embedding preview: ${JSON.stringify(sampleDoc.vector_embedding).substring(0, 100)}...`);
-  
+
   // Check if it's a valid vector format
   if (typeof sampleDoc.vector_embedding === 'string') {
     console.log('\n⚠️  Embeddings are stored as strings!');
@@ -67,7 +67,7 @@ if (colError) {
     .eq('table_name', 'documents')
     .eq('column_name', 'vector_embedding')
     .single();
-    
+
   if (tableInfo) {
     console.log(`Column type: ${tableInfo.data_type}`);
     console.log(`UDT name: ${tableInfo.udt_name}`);
@@ -98,7 +98,7 @@ try {
     .not('vector_embedding', 'is', null)
     .limit(1)
     .single();
-    
+
   if (testDoc && testDoc.vector_embedding) {
     // Try to parse the embedding if it's a string
     let embedding;
@@ -109,10 +109,10 @@ try {
     } else {
       embedding = testDoc.vector_embedding;
     }
-    
+
     console.log(`Testing with embedding from: ${testDoc.title}`);
     console.log(`Parsed embedding length: ${embedding.length}`);
-    
+
     // Search with the same embedding (should find itself with high similarity)
     const { data: selfSearch, error: selfError } = await supabase
       .rpc('match_documents', {
@@ -120,7 +120,7 @@ try {
         match_threshold: 0.5,
         match_count: 5
       });
-      
+
     if (selfError) {
       console.error('Self-search error:', selfError);
     } else {

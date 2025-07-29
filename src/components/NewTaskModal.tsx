@@ -72,4 +72,4 @@ const NewTaskModal: React.FC<NewTaskModalProps> = ({ clientId, open, onClose }) 
   );
 };
 
-export default NewTaskModal; 
+export default NewTaskModal;

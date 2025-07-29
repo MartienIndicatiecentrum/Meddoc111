@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const UZOVI_CODES = {
   // Basis verzekeraars
   'De Friesland': '3358',
-  'FBTO': '3351', 
+  'FBTO': '3351',
   'Interpolis': '3313',
   'De Christelijke Zorgverzekeraar': '3311',
   'ZieZo': '3311',
@@ -27,7 +27,7 @@ const UZOVI_CODES = {
   'ASR': '9018',
   'OHRA': '7053',
   'Stad Holland': '7037',
-  
+
   // Uitgebreide mapping uit Excel sheets
   'Avéro Achmea Zorgverzekeringen NV': '3329',
   'Menzis Zorgverzekeraar N.V.': '3332',
@@ -54,7 +54,7 @@ const UZOVI_CODES = {
   'Centrale Verw. eenheid CZ: CZ, Nationale-Nederlanden': '9644',
   'Regeling Wlz financiering instellingen': '9994',
   'Regeling VOZD': '9995',
-  
+
   // Alternatieve namen en afkortingen
   'Achmea': '3329',
   'Zilveren Kruis': '9018',
@@ -89,17 +89,17 @@ export default function FactuurGeneratorPage() {
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
   const [dueDate, setDueDate] = useState('');
-  
+
   // Factuur instellingen
   const [numberOfHours, setNumberOfHours] = useState('1');
   const [hourlyRate, setHourlyRate] = useState('45.00');
   const [vatRate, setVatRate] = useState('21');
-  
+
   // Betaalgegevens
   const [iban, setIban] = useState('NL91ABNA0417164300');
   const [accountHolder, setAccountHolder] = useState('MedDoc AI Flow');
   const [paymentDescription, setPaymentDescription] = useState('Factuur MedDoc AI Flow');
-  
+
   // Factuurregels
   const [invoiceLines, setInvoiceLines] = useState([
     { id: 1, date: '', description: '', hours: '1', rate: '45.00', total: '45.00' }
@@ -113,7 +113,7 @@ export default function FactuurGeneratorPage() {
 
     setInvoiceDate(today.toLocaleDateString('nl-NL'));
     setDueDate(dueDate.toLocaleDateString('nl-NL'));
-    
+
     // Genereer factuurnummer (2025-XXX format)
     const year = today.getFullYear();
     const randomNum = Math.floor(Math.random() * 999) + 1;
@@ -145,11 +145,11 @@ export default function FactuurGeneratorPage() {
         .select('*')
         .eq('id', selectedClient.id)
         .single();
-      
+
       if (!error && data) {
         // Zorg ervoor dat alle verzekeraar gegevens correct worden ingevuld
         const verzekeraarAdres = VERZEKERAAR_ADRESSEN[data.verzekeraar] || { adres: '', postcode: '', plaats: '' };
-        
+
         // Zorg ervoor dat datum correct wordt geformatteerd voor HTML date input
         let formattedDate = '';
         if (data.geboortedatum) {
@@ -191,7 +191,7 @@ export default function FactuurGeneratorPage() {
       // Haal verzekeraar adres gegevens op
       const verzekeraarAdres = VERZEKERAAR_ADRESSEN[selectedVerzekeraar] || { adres: '', postcode: '', plaats: '' };
       const uzoviCode = UZOVI_CODES[selectedVerzekeraar] || '0000';
-      
+
       // Update client data met alle verzekeraar gegevens
       setClientData(prev => ({
         ...prev,
@@ -206,7 +206,7 @@ export default function FactuurGeneratorPage() {
       try {
         const { error } = await supabase
           .from('clients')
-          .update({ 
+          .update({
             verzekeraar: selectedVerzekeraar,
             verzekeraar_adres: verzekeraarAdres.adres,
             verzekeraar_postcode: verzekeraarAdres.postcode,
@@ -229,7 +229,7 @@ export default function FactuurGeneratorPage() {
   // Functie om datum correct te formatteren
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '';
-    
+
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return '';
@@ -243,14 +243,14 @@ export default function FactuurGeneratorPage() {
   // Functie om datum input te parsen
   const parseDateInput = (dateInput: string) => {
     if (!dateInput) return null;
-    
+
     // Probeer verschillende datum formaten
     const formats = [
       /^\d{1,2}-\d{1,2}-\d{4}$/, // DD-MM-YYYY
       /^\d{4}-\d{1,2}-\d{1,2}$/, // YYYY-MM-DD
       /^\d{1,2}\/\d{1,2}\/\d{4}$/, // DD/MM/YYYY
     ];
-    
+
     for (const format of formats) {
       if (format.test(dateInput)) {
         const date = new Date(dateInput);
@@ -259,7 +259,7 @@ export default function FactuurGeneratorPage() {
         }
       }
     }
-    
+
     return null;
   };
 
@@ -345,7 +345,7 @@ export default function FactuurGeneratorPage() {
               <p className="text-gray-600 mt-2">Genereer automatisch facturen voor cliënten</p>
             </div>
           </div>
-          
+
           {/* Navigation */}
           <div className="flex flex-wrap gap-4 items-center mb-6">
             <Link to="/taken">
@@ -353,7 +353,7 @@ export default function FactuurGeneratorPage() {
                 Terug naar Taken
               </Button>
             </Link>
-            
+
             {/* Client Selection */}
             <Autocomplete
               options={clients}
@@ -361,10 +361,10 @@ export default function FactuurGeneratorPage() {
               value={selectedClient}
               onChange={(_, newValue) => setSelectedClient(newValue)}
               renderInput={(params) => (
-                <TextField 
-                  {...params} 
-                  label="Selecteer cliënt" 
-                  variant="outlined" 
+                <TextField
+                  {...params}
+                  label="Selecteer cliënt"
+                  variant="outlined"
                   size="small"
                   placeholder="Kies een cliënt voor factuur..."
                   sx={{
@@ -619,7 +619,7 @@ export default function FactuurGeneratorPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     📋 Factuurregels
-                    <Button 
+                    <Button
                       onClick={addInvoiceLine}
                       variant="outline"
                       size="sm"
@@ -704,16 +704,16 @@ export default function FactuurGeneratorPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Button 
+                    <Button
                       onClick={generatePDF}
                       className="w-full bg-blue-600 hover:bg-blue-700"
                       disabled={!clientData}
                     >
                       📥 Download als PDF
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full"
                       disabled={!clientData}
                     >
@@ -843,4 +843,4 @@ export default function FactuurGeneratorPage() {
       </div>
     </AppLayout>
   );
-} 
+}

@@ -60,4 +60,4 @@ export const runListProjectsTool = async (accessToken: string) => {
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(Array.isArray(data) ? data : [data]) }],
   });
-}; 
+};

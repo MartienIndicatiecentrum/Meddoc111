@@ -30,13 +30,13 @@ ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_from_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_status_check;
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check
     CHECK (from_type IN ('client', 'employee', 'insurer', 'family', 'verzekeraar'));
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check
     CHECK (type IS NOT NULL AND length(trim(type)) > 0);
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check
     CHECK (status IN ('Geen urgentie', 'Licht urgent', 'Urgent', 'Reactie nodig', 'Afgehandeld', 'In behandeling'));
 
 -- Update defaults
@@ -64,4 +64,4 @@ Na het uitvoeren van dit script zou het automatisch opslaan van berichten en doc
 2. Controleer of je de juiste cliënt hebt geselecteerd
 3. Controleer of je een bericht hebt ingevuld
 
-**De applicatie draait al op http://localhost:3001 - probeer het nu!** 🚀 
+**De applicatie draait al op http://localhost:3001 - probeer het nu!** 🚀

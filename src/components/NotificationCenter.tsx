@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { 
-  Bell, 
-  Calendar, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Bell,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
   FileText,
   Clock,
   X,
@@ -77,7 +77,7 @@ export const NotificationCenter: React.FC = () => {
         priority: 'low'
       }
     ];
-    
+
     setNotifications(mockNotifications);
   }, []);
 
@@ -105,7 +105,7 @@ export const NotificationCenter: React.FC = () => {
   };
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev => prev.map(n => 
+    setNotifications(prev => prev.map(n =>
       n.id === notificationId ? { ...n, read: true } : n
     ));
   };
@@ -130,7 +130,7 @@ export const NotificationCenter: React.FC = () => {
           )}
         </Button>
       </PopoverTrigger>
-      
+
       <PopoverContent className="w-96 p-0" align="end">
         <Card className="border-0 shadow-lg">
           <CardHeader className="pb-3">
@@ -156,7 +156,7 @@ export const NotificationCenter: React.FC = () => {
               </CardDescription>
             )}
           </CardHeader>
-          
+
           <CardContent className="p-0">
             <div className="max-h-96 overflow-y-auto">
               {displayNotifications.length > 0 ? (
@@ -172,15 +172,15 @@ export const NotificationCenter: React.FC = () => {
                         <div className="flex-shrink-0 mt-1">
                           {getNotificationIcon(notification.type)}
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h4 className="text-sm font-medium text-gray-900">
                               {notification.title}
                             </h4>
                             <div className="flex items-center space-x-2">
-                              <Badge 
-                                variant="outline" 
+                              <Badge
+                                variant="outline"
                                 className={`text-xs ${getPriorityColor(notification.priority)}`}
                               >
                                 {notification.priority}
@@ -195,11 +195,11 @@ export const NotificationCenter: React.FC = () => {
                               </Button>
                             </div>
                           </div>
-                          
+
                           <p className="text-sm text-gray-700 mb-2">
                             {notification.message}
                           </p>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1 text-xs text-gray-500">
                               <Clock className="h-3 w-3" />
@@ -212,7 +212,7 @@ export const NotificationCenter: React.FC = () => {
                                 })}
                               </span>
                             </div>
-                            
+
                             {!notification.read && (
                               <Button
                                 variant="ghost"
@@ -236,7 +236,7 @@ export const NotificationCenter: React.FC = () => {
                 </div>
               )}
             </div>
-            
+
             {notifications.length > 5 && (
               <div className="p-4 border-t">
                 <Button

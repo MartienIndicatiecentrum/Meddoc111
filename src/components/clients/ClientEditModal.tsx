@@ -73,16 +73,16 @@ export const ClientEditModal: React.FC<ClientEditModalProps> = ({
   const updateField = (path: string, value: any) => {
     setEditedClient(prev => {
       if (!prev) return prev;
-      
+
       const keys = path.split('.');
       const newClient = { ...prev };
       let current: any = newClient;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         current[keys[i]] = { ...current[keys[i]] };
         current = current[keys[i]];
       }
-      
+
       current[keys[keys.length - 1]] = value;
       return newClient;
     });

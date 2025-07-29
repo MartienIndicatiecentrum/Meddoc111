@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { clientService, Task } from '@/services/clientService';
-import { 
-  BarChart3, 
-  Kanban, 
-  List, 
-  Search, 
-  ChevronDown, 
-  AlertTriangle, 
-  Clock, 
+import {
+  BarChart3,
+  Kanban,
+  List,
+  Search,
+  ChevronDown,
+  AlertTriangle,
+  Clock,
   CheckCircle,
   Edit,
   Link,
@@ -56,21 +56,21 @@ const LopendeZaken: React.FC = () => {
     try {
       setLoading(true);
       const allTasks = await clientService.getAllTasks();
-      
+
       // Transform tasks to include client name and check if expired
       const transformedTasks: ProcessCard[] = allTasks.map(task => {
         const taskWithClient = task as Task & { clients?: { name: string } };
         const client = taskWithClient.clients?.name || 'Onbekende cliënt';
         const deadline = task.deadline ? new Date(task.deadline) : null;
         const isExpired = deadline ? deadline < new Date() : false;
-        
+
         return {
           ...task,
           client,
           isExpired
         };
       });
-      
+
       setTasks(transformedTasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -119,7 +119,7 @@ const LopendeZaken: React.FC = () => {
           <div className="mb-3">
             <div className="text-xs text-gray-600 mb-1">Voortgang</div>
             <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
+              <div
                 className={`h-full transition-all duration-300 ${progressColor}`}
                 style={{ width: `${process.progress}%` }}
               />
@@ -131,7 +131,7 @@ const LopendeZaken: React.FC = () => {
             <div><span className="font-medium">Type:</span> {process.type}</div>
             <div><span className="font-medium">Deadline:</span> {process.deadline}</div>
             <div>
-              <span className="font-medium">Prioriteit:</span> 
+              <span className="font-medium">Prioriteit:</span>
               <span className={`ml-1 ${priorityColors[process.priority]}`}>
                 {process.priority}
               </span>
@@ -167,7 +167,7 @@ const LopendeZaken: React.FC = () => {
           </div>
           <p className="text-gray-600">Overzicht van alle actieve zorgprocessen</p>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant={viewMode === 'kanban' ? 'default' : 'outline'}
@@ -246,7 +246,7 @@ const LopendeZaken: React.FC = () => {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="flex items-center gap-1">
             <ChevronDown className="h-4 w-4" />
@@ -288,7 +288,7 @@ const LopendeZaken: React.FC = () => {
           {statusColumns.map((column) => {
             const processes = getProcessesByStatus(column.key);
             const count = processes.length;
-            
+
             return (
               <div key={column.key} className="min-h-[600px]">
                 <div className="mb-4">
@@ -303,12 +303,12 @@ const LopendeZaken: React.FC = () => {
                   </h3>
                   <p className="text-xs text-gray-500">{count} processen</p>
                 </div>
-                
+
                 <div className="space-y-4">
                   {processes.map((process) => (
                     <ProcessCard key={process.id} process={process} />
                   ))}
-                  
+
                   <Button
                     variant="outline"
                     className="w-full border-dashed border-gray-300 text-gray-500 hover:text-gray-700 hover:border-gray-400"
@@ -342,4 +342,4 @@ const LopendeZaken: React.FC = () => {
   );
 };
 
-export default LopendeZaken; 
+export default LopendeZaken;

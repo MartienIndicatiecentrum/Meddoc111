@@ -210,7 +210,7 @@ export const NewClientForm: React.FC<NewClientFormProps> = ({ onClose, onClientA
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-6">
               <div className="space-y-2 col-span-1">
                 <Label>Datum huisbezoek (optioneel)</Label>

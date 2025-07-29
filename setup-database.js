@@ -111,7 +111,7 @@ async function setupDatabase() {
 
     // Insert sample data
     console.log('📝 Sample data toevoegen...');
-    
+
     // Insert sample clients
     const { data: clients, error: insertClientsError } = await supabase
       .from('clients')
@@ -147,7 +147,7 @@ async function setupDatabase() {
       console.log('ℹ️  Sample clients konden niet toegevoegd worden:', insertClientsError.message);
     } else {
       console.log('✅ Sample clients toegevoegd');
-      
+
       // Insert sample tasks for the first client
       if (clients && clients.length > 0) {
         const { error: insertTasksError } = await supabase
@@ -235,4 +235,4 @@ async function setupDatabase() {
   }
 }
 
-setupDatabase(); 
+setupDatabase();

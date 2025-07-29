@@ -133,9 +133,9 @@ export const safeValidateClient = (data: unknown): { success: true; data: Client
   if (result.success) {
     return { success: true, data: result.data };
   } else {
-    return { 
-      success: false, 
-      errors: result.error.errors.map(err => err.message) 
+    return {
+      success: false,
+      errors: result.error.errors.map(err => err.message)
     };
   }
 };
@@ -145,9 +145,9 @@ export const safeValidateLogEntry = (data: unknown): { success: true; data: LogE
   if (result.success) {
     return { success: true, data: result.data };
   } else {
-    return { 
-      success: false, 
-      errors: result.error.errors.map(err => err.message) 
+    return {
+      success: false,
+      errors: result.error.errors.map(err => err.message)
     };
   }
 };
@@ -157,9 +157,9 @@ export const safeValidateTask = (data: unknown): { success: true; data: TaskForm
   if (result.success) {
     return { success: true, data: result.data };
   } else {
-    return { 
-      success: false, 
-      errors: result.error.errors.map(err => err.message) 
+    return {
+      success: false,
+      errors: result.error.errors.map(err => err.message)
     };
   }
 };
@@ -182,9 +182,9 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
   ];
 
   if (!allowedTypes.includes(file.type)) {
-    return { 
-      valid: false, 
-      error: 'Bestandstype niet ondersteund. Toegestane types: PDF, Word, JPEG, PNG, TXT' 
+    return {
+      valid: false,
+      error: 'Bestandstype niet ondersteund. Toegestane types: PDF, Word, JPEG, PNG, TXT'
     };
   }
 
@@ -194,7 +194,7 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
 // Date validation utilities
 export const validateDate = (date: string | Date): { valid: boolean; error?: string } => {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   if (isNaN(dateObj.getTime())) {
     return { valid: false, error: 'Ongeldige datum' };
   }
@@ -209,11 +209,11 @@ export const validateDate = (date: string | Date): { valid: boolean; error?: str
 // Email validation utility
 export const validateEmail = (email: string): { valid: boolean; error?: string } => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
   if (!email) {
     return { valid: true }; // Email is optional
   }
-  
+
   if (!emailRegex.test(email)) {
     return { valid: false, error: 'Ongeldig e-mailadres' };
   }
@@ -229,10 +229,10 @@ export const validatePhone = (phone: string): { valid: boolean; error?: string }
 
   // Dutch phone number format
   const phoneRegex = /^(\+31|0)[1-9][0-9]{8}$/;
-  
+
   if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
     return { valid: false, error: 'Ongeldig telefoonnummer' };
   }
 
   return { valid: true };
-}; 
+};

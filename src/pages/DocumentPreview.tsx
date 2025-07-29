@@ -317,4 +317,4 @@ const DocumentPreview: React.FC = () => {
   );
 };
 
-export default DocumentPreview; 
+export default DocumentPreview;

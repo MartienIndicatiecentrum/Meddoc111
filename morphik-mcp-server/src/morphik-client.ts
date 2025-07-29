@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 import FormData from 'form-data';
-import { 
-  MorphikConfig, 
-  FileUpload, 
-  UploadResponse, 
+import {
+  MorphikConfig,
+  FileUpload,
+  UploadResponse,
   BatchUploadResponse,
   QueryOptions,
   AgentResponse,
@@ -41,7 +41,7 @@ export class MorphikClient {
             status: error.response.status,
             data: error.response.data
           });
-          
+
           throw new MorphikError(
             error.response.data?.message || 'API request failed',
             error.response.status,
@@ -103,7 +103,7 @@ export class MorphikClient {
   ): Promise<BatchUploadResponse> {
     try {
       const formData = new FormData();
-      
+
       files.forEach((file) => {
         formData.append('files', file.content, {
           filename: file.path.split('/').pop(),

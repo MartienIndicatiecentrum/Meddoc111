@@ -6,13 +6,13 @@ interface SkeletonProps {
   height?: string;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  width = 'w-full', 
-  height = 'h-4' 
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = '',
+  width = 'w-full',
+  height = 'h-4'
 }) => {
   return (
-    <div 
+    <div
       className={`animate-pulse bg-gray-200 rounded ${width} ${height} ${className}`}
     />
   );
@@ -22,8 +22,8 @@ interface LogboekTableSkeletonProps {
   rows?: number;
 }
 
-export const LogboekTableSkeleton: React.FC<LogboekTableSkeletonProps> = ({ 
-  rows = 5 
+export const LogboekTableSkeleton: React.FC<LogboekTableSkeletonProps> = ({
+  rows = 5
 }) => {
   return (
     <div className="space-y-2">
@@ -93,8 +93,8 @@ interface LogboekCardSkeletonProps {
   cards?: number;
 }
 
-export const LogboekCardSkeleton: React.FC<LogboekCardSkeletonProps> = ({ 
-  cards = 3 
+export const LogboekCardSkeleton: React.FC<LogboekCardSkeletonProps> = ({
+  cards = 3
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -124,8 +124,8 @@ interface LogboekFormSkeletonProps {
   fields?: number;
 }
 
-export const LogboekFormSkeleton: React.FC<LogboekFormSkeletonProps> = ({ 
-  fields = 6 
+export const LogboekFormSkeleton: React.FC<LogboekFormSkeletonProps> = ({
+  fields = 6
 }) => {
   return (
     <div className="space-y-4">
@@ -166,4 +166,4 @@ export const LogboekFiltersSkeleton: React.FC<LogboekFiltersSkeletonProps> = () 
       </div>
     </div>
   );
-}; 
+};

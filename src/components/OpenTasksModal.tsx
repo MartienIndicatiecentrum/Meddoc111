@@ -60,4 +60,4 @@ const OpenTasksModal: React.FC<OpenTasksModalProps> = ({ clientId, open, onClose
   );
 };
 
-export default OpenTasksModal; 
+export default OpenTasksModal;

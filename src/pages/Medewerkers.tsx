@@ -3,13 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/layout/AppLayout';
 import { toast } from 'sonner';
-import { 
-  UserCheck, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Mail, 
-  Phone, 
+import {
+  UserCheck,
+  Plus,
+  Edit,
+  Trash2,
+  Mail,
+  Phone,
   Target,
   Calendar,
   Users,
@@ -167,7 +167,7 @@ const Medewerkers: React.FC = () => {
     mutationFn: async ({ id, actief }: { id: string; actief: boolean }) => {
       const { error } = await supabase
         .from('caregivers')
-        .update({ 
+        .update({
           actief: !actief,
           updated_at: new Date().toISOString()
         })
@@ -191,8 +191,8 @@ const Medewerkers: React.FC = () => {
     const matchesSearch = caregiver.naam.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          caregiver.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          caregiver.specialisatie?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterActive === 'all' || 
+
+    const matchesFilter = filterActive === 'all' ||
                          (filterActive === 'active' && caregiver.actief) ||
                          (filterActive === 'inactive' && !caregiver.actief);
 
@@ -314,7 +314,7 @@ const Medewerkers: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100">
@@ -328,7 +328,7 @@ const Medewerkers: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-purple-100">
@@ -380,7 +380,7 @@ const Medewerkers: React.FC = () => {
               {searchTerm || filterActive !== 'all' ? 'Geen medewerkers gevonden' : 'Nog geen medewerkers'}
             </h3>
             <p className="text-gray-600 mb-6">
-              {searchTerm || filterActive !== 'all' 
+              {searchTerm || filterActive !== 'all'
                 ? 'Probeer een andere zoekopdracht of filter'
                 : 'Voeg uw eerste medewerker toe om te beginnen'
               }
@@ -412,15 +412,15 @@ const Medewerkers: React.FC = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900">{caregiver.naam}</h3>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        caregiver.actief 
-                          ? 'bg-green-100 text-green-800' 
+                        caregiver.actief
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-600'
                       }`}>
                         {caregiver.actief ? 'Actief' : 'Inactief'}
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEditCaregiver(caregiver)}
@@ -446,21 +446,21 @@ const Medewerkers: React.FC = () => {
                       <span>{caregiver.specialisatie}</span>
                     </div>
                   )}
-                  
+
                   {caregiver.email && (
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       <span className="truncate">{caregiver.email}</span>
                     </div>
                   )}
-                  
+
                   {caregiver.telefoon && (
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4" />
                       <span>{caregiver.telefoon}</span>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <span>
@@ -587,7 +587,7 @@ const CaregiverForm: React.FC<CaregiverFormProps> = ({ caregiver, onClose, onSuc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       saveCaregiverMutation.mutate(formData);
     }
@@ -595,7 +595,7 @@ const CaregiverForm: React.FC<CaregiverFormProps> = ({ caregiver, onClose, onSuc
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));

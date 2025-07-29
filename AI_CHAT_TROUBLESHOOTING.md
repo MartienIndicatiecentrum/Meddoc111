@@ -96,10 +96,10 @@ The v7_startTransition warnings are future compatibility flags and don't affect 
    ```bash
    # Terminal 1
    npm run dev:backend
-   
+
    # Terminal 2
    npm run dev:rag
-   
+
    # Terminal 3
    npm run dev:frontend
    ```

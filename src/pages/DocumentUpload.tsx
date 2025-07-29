@@ -26,7 +26,7 @@ const DocumentUpload: React.FC = () => {
             Document Upload Center
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Upload your PDF documents to our AI-powered knowledge base. 
+            Upload your PDF documents to our AI-powered knowledge base.
             Once uploaded, you can chat with our AI assistant about the content of your documents.
           </p>
         </div>
@@ -43,12 +43,12 @@ const DocumentUpload: React.FC = () => {
                 <p className="text-gray-600 text-sm">Upload your document to our system</p>
               </div>
             </div>
-            
+
             <ArrowRight className="w-6 h-6 text-gray-400 hidden md:block" />
             <div className="md:hidden w-6 h-6 flex items-center justify-center">
               <div className="w-1 h-8 bg-gray-300 rounded"></div>
             </div>
-            
+
             <div className="flex items-center space-x-4 bg-white p-6 rounded-lg shadow-sm border">
               <div className="bg-green-100 p-3 rounded-full">
                 <FileText className="w-6 h-6 text-green-600" />
@@ -58,12 +58,12 @@ const DocumentUpload: React.FC = () => {
                 <p className="text-gray-600 text-sm">AI analyzes and indexes content</p>
               </div>
             </div>
-            
+
             <ArrowRight className="w-6 h-6 text-gray-400 hidden md:block" />
             <div className="md:hidden w-6 h-6 flex items-center justify-center">
               <div className="w-1 h-8 bg-gray-300 rounded"></div>
             </div>
-            
+
             <div className="flex items-center space-x-4 bg-white p-6 rounded-lg shadow-sm border">
               <div className="bg-purple-100 p-3 rounded-full">
                 <MessageCircle className="w-6 h-6 text-purple-600" />
@@ -127,7 +127,7 @@ const DocumentUpload: React.FC = () => {
               Advanced AI extracts and indexes key information from your PDFs for intelligent search and retrieval.
             </p>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="bg-green-100 p-3 rounded-full w-fit mb-4">
               <MessageCircle className="w-6 h-6 text-green-600" />
@@ -137,7 +137,7 @@ const DocumentUpload: React.FC = () => {
               Ask questions in plain language and get accurate answers based on your document content.
             </p>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="bg-purple-100 p-3 rounded-full w-fit mb-4">
               <Upload className="w-6 h-6 text-purple-600" />

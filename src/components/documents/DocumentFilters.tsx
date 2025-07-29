@@ -39,11 +39,11 @@ interface DocumentFiltersProps {
   documents?: Document[];
 }
 
-const DocumentFilters: React.FC<DocumentFiltersProps> = ({ 
-  search, 
-  onSearchChange, 
-  category, 
-  onCategoryChange, 
+const DocumentFilters: React.FC<DocumentFiltersProps> = ({
+  search,
+  onSearchChange,
+  category,
+  onCategoryChange,
   categories,
   selectedClient,
   onClientChange,
@@ -61,21 +61,21 @@ const DocumentFilters: React.FC<DocumentFiltersProps> = ({
   const folderCounts = React.useMemo(() => {
     const folderNames = folders.map(f => f.title);
     const counts: Record<string, number> = {};
-    
+
     // Count unknown documents (no category or category not matching any folder)
-    const unknownCount = documents.filter(doc => 
+    const unknownCount = documents.filter(doc =>
       doc.type !== 'folder' && (!doc.category || !folderNames.includes(doc.category))
     ).length;
     counts['UNKNOWN'] = unknownCount;
-    
+
     // Count documents for each folder
     folders.forEach(folder => {
-      const count = documents.filter(doc => 
+      const count = documents.filter(doc =>
         doc.type !== 'folder' && doc.category === folder.title
       ).length;
       counts[folder.id] = count;
     });
-    
+
     return counts;
   }, [documents, folders]);
 
@@ -297,7 +297,7 @@ const DocumentFilters: React.FC<DocumentFiltersProps> = ({
                   </span>
                 );
               }
-              
+
               if (selectedFolder === 'ALL') {
                 return (
                   <span

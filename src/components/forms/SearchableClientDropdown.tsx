@@ -44,7 +44,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
     setSearchTerm(newSearchTerm);
     setIsOpen(true);
     setHighlightedIndex(-1);
-    
+
     // If search term is empty, clear selection
     if (newSearchTerm === '') {
       onChange('');
@@ -72,25 +72,25 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < filteredClients.length - 1 ? prev + 1 : 0
         );
         break;
-      
+
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev > 0 ? prev - 1 : filteredClients.length - 1
         );
         break;
-      
+
       case 'Enter':
         e.preventDefault();
         if (highlightedIndex >= 0 && filteredClients[highlightedIndex]) {
           handleClientSelect(filteredClients[highlightedIndex]);
         }
         break;
-      
+
       case 'Escape':
         setIsOpen(false);
         setHighlightedIndex(-1);
@@ -150,7 +150,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
         <User className="w-4 h-4" />
         Cliënt *
       </label>
-      
+
       <div className="relative">
         <div className="relative">
           <input
@@ -165,10 +165,10 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
               error ? 'border-red-500' : 'border-gray-300'
             }`}
           />
-          
+
           {/* Search icon */}
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          
+
           {/* Clear button */}
           {searchTerm && (
             <button
@@ -179,9 +179,9 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
               <X className="w-4 h-4" />
             </button>
           )}
-          
+
           {/* Dropdown arrow */}
-          <ChevronDown 
+          <ChevronDown
             className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform ${
               isOpen ? 'rotate-180' : ''
             }`}
@@ -202,7 +202,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
                     {filteredClients.length} resultaten gevonden
                   </div>
                 )}
-                
+
                 {filteredClients.map((client, index) => (
                   <div
                     key={client.id}
@@ -239,7 +239,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
                             client.naam
                           )}
                         </div>
-                        
+
                         {/* Show additional client info if available */}
                         {(client.telefoon || client.email) && (
                           <div className="text-sm text-gray-500 mt-1">
@@ -252,7 +252,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
                           </div>
                         )}
                       </div>
-                      
+
                       {client.id === value && (
                         <div className="text-blue-600">
                           ✓

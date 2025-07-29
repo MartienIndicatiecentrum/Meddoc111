@@ -73,7 +73,7 @@ async function generateEmbeddings() {
 
   for (const doc of documents) {
     console.log(`📄 Processing: ${doc.title}`);
-    
+
     if (!doc.content || doc.content.trim().length < 10) {
       console.log(`   ⏭️  Skipping - content too short`);
       continue;
@@ -81,12 +81,12 @@ async function generateEmbeddings() {
 
     // Generate embedding
     const embedding = await generateEmbedding(doc.content);
-    
+
     if (embedding) {
       // Update document with embedding
       // Convert array to PostgreSQL vector format
       const vectorString = `[${embedding.join(',')}]`;
-      
+
       const { error: updateError } = await supabase
         .from('documents')
         .update({ vector_embedding: vectorString })

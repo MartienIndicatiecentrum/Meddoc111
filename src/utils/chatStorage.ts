@@ -28,7 +28,7 @@ export function generateChatId(documentSource: string, clientId?: string, docume
   const prefix = documentSource.substring(0, 3);
   const clientPart = clientId ? `_${clientId.substring(0, 8)}` : '';
   const docPart = documentId ? `_${documentId.substring(0, 8)}` : '';
-  
+
   return `${prefix}_${timestamp}_${random}${clientPart}${docPart}`;
 }
 
@@ -36,8 +36,8 @@ export function generateChatId(documentSource: string, clientId?: string, docume
  * Save chat session to localStorage
  */
 export function saveChatToStorage(
-  messages: Message[], 
-  chatId: string, 
+  messages: Message[],
+  chatId: string,
   documentSource: 'uploaded' | 'database' | 'morphik',
   selectedClient?: string,
   selectedDocument?: string
@@ -81,7 +81,7 @@ export function loadChatFromStorage(chatId: string): ChatSession | null {
     if (!stored) return null;
 
     const chatSession: ChatSession = JSON.parse(stored);
-    
+
     // Convert date strings back to Date objects
     chatSession.lastUpdated = new Date(chatSession.lastUpdated);
     chatSession.created = new Date(chatSession.created);
@@ -154,7 +154,7 @@ export function getRecentChatSessions(limit: number = 5): ChatSession[] {
 export function clearAllChatHistory(): void {
   try {
     const activeChats = getActiveChatSessions();
-    
+
     // Remove all individual chat sessions
     for (const chatId of activeChats) {
       localStorage.removeItem(CHAT_KEY_PREFIX + chatId);
@@ -180,7 +180,7 @@ export function getChatSummary(chatSession: ChatSession): string {
   const firstUserMessage = chatSession.messages.find(msg => msg.sender === 'user');
   if (firstUserMessage && firstUserMessage.content) {
     // Truncate to 50 characters
-    return firstUserMessage.content.length > 50 
+    return firstUserMessage.content.length > 50
       ? firstUserMessage.content.substring(0, 50) + '...'
       : firstUserMessage.content;
   }
@@ -193,7 +193,7 @@ export function getChatSummary(chatSession: ChatSession): string {
  */
 export function exportChatToText(chatSession: ChatSession): string {
   const lines: string[] = [];
-  
+
   lines.push(`# Chat Export - ${chatSession.created.toLocaleString('nl-NL')}`);
   lines.push(`Document Source: ${chatSession.documentSource}`);
   if (chatSession.selectedClient) {
@@ -207,7 +207,7 @@ export function exportChatToText(chatSession: ChatSession): string {
   for (const message of chatSession.messages) {
     const timestamp = new Date(message.timestamp).toLocaleTimeString('nl-NL');
     const sender = message.sender === 'user' ? 'Gebruiker' : 'AI Assistent';
-    
+
     lines.push(`[${timestamp}] ${sender}:`);
     lines.push(message.content);
     lines.push('');
@@ -224,13 +224,13 @@ export function exportChatToText(chatSession: ChatSession): string {
 function updateActiveChatsList(chatId: string): void {
   try {
     let activeChats = getActiveChatSessions();
-    
+
     // Remove if already exists (to move to front)
     activeChats = activeChats.filter(id => id !== chatId);
-    
+
     // Add to front
     activeChats.unshift(chatId);
-    
+
     // Limit to maximum number of sessions
     if (activeChats.length > MAX_CHAT_SESSIONS) {
       // Remove excess sessions
@@ -240,7 +240,7 @@ function updateActiveChatsList(chatId: string): void {
       }
       activeChats = activeChats.slice(0, MAX_CHAT_SESSIONS);
     }
-    
+
     localStorage.setItem(ACTIVE_CHATS_KEY, JSON.stringify(activeChats));
   } catch (error) {
     console.error('Error updating active chats list:', error);
@@ -254,10 +254,10 @@ function cleanupOldChats(): void {
   try {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - MAX_CHAT_AGE_DAYS);
-    
+
     const activeChats = getActiveChatSessions();
     const validChats: string[] = [];
-    
+
     for (const chatId of activeChats) {
       const session = loadChatFromStorage(chatId);
       if (session && session.lastUpdated > cutoffDate) {
@@ -267,7 +267,7 @@ function cleanupOldChats(): void {
         localStorage.removeItem(CHAT_KEY_PREFIX + chatId);
       }
     }
-    
+
     // Update active chats list
     localStorage.setItem(ACTIVE_CHATS_KEY, JSON.stringify(validChats));
   } catch (error) {

@@ -15,11 +15,10 @@ async function setupDatabase() {
   console.log('🚀 Database setup gestart...');
 
   try {
-    // Check if clients table exists
-    console.log('📋 Controleren of clients tabel bestaat...');
-    const { data: existingClients, error: checkError } = await supabase
+    // Check if clients already exist
+    const { data: _existingClients, error: checkError } = await supabase
       .from('clients')
-      .select('count')
+      .select('id')
       .limit(1);
 
     if (checkError && checkError.code === 'PGRST116') {
@@ -43,7 +42,7 @@ async function setupDatabase() {
 
     if (!clients || clients.length === 0) {
       console.log('📝 Geen clients gevonden, sample data toevoegen...');
-      
+
       // Insert sample clients
       const { data: newClients, error: insertError } = await supabase
         .from('clients')
@@ -181,4 +180,4 @@ async function addSampleData(clientId) {
   }
 }
 
-setupDatabase(); 
+setupDatabase();

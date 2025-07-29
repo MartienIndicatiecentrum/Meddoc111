@@ -28,7 +28,7 @@ let hasWarnings = false;
 // Check each required variable
 for (const [key, config] of Object.entries(requiredVars)) {
   const value = process.env[key];
-  
+
   if (!value) {
     if (config.optional) {
       console.log(`⚠️  Missing (optional): ${key}`);
@@ -93,12 +93,12 @@ if (hasErrors) {
 // Test database connection if variables are present
 if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.log('🔗 Testing Supabase connection...');
-  
+
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
-  
+
   supabase
     .from('documents')
     .select('count')

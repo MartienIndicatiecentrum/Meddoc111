@@ -22,17 +22,17 @@ export class DocumentProcessor {
 
   async processExistingDocument(documentId: string) {
     console.log('Processing document:', documentId);
-    
+
     try {
       // Generate embeddings for the document
       const result = await documentEmbeddingService.processDocument(documentId);
-      
+
       if (result.success) {
         console.log('Document processed successfully with embeddings');
       } else {
         console.error('Failed to process document:', result.error);
       }
-      
+
       return result;
     } catch (error) {
       console.error('Document processing error:', error);
@@ -46,12 +46,12 @@ export class DocumentProcessor {
     documentType?: string;
   }) {
     console.log('Processing new document:', metadata.title);
-    
+
     try {
       // Upload file to Supabase Storage
       const fileName = `${Date.now()}_${file.name}`;
       const filePath = `public/${fileName}`;
-      
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(filePath, file, {
@@ -107,12 +107,12 @@ export class DocumentProcessor {
   private async syncToMorphik(document: any, filePath: string) {
     try {
       console.log('Starting Morphik sync for document:', document.id);
-      
+
       // Get the public URL for the file
       const { data: publicUrlData } = supabase.storage
         .from('documents')
         .getPublicUrl(filePath);
-      
+
       if (!publicUrlData?.publicUrl) {
         console.error('Failed to get public URL for Morphik sync');
         return;

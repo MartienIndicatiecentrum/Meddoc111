@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Home, 
-  MessageSquare, 
-  UserCheck, 
-  Building2, 
+import {
+  Home,
+  MessageSquare,
+  UserCheck,
+  Building2,
   Stethoscope,
   Plus
 } from 'lucide-react';
@@ -35,7 +35,7 @@ export const LogboekHeader: React.FC<LogboekHeaderProps> = ({
           <Home className="h-4 w-4" />
           <span>Home</span>
         </Button>
-        
+
         <Button
           variant="default"
           size="sm"
@@ -45,7 +45,7 @@ export const LogboekHeader: React.FC<LogboekHeaderProps> = ({
           <Plus className="h-4 w-4" />
           <span>Nieuw bericht</span>
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -55,7 +55,7 @@ export const LogboekHeader: React.FC<LogboekHeaderProps> = ({
           <MessageSquare className="h-4 w-4" />
           <span>Debug localStorage</span>
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -66,7 +66,7 @@ export const LogboekHeader: React.FC<LogboekHeaderProps> = ({
           <span>Selecteer cliënt</span>
         </Button>
       </div>
-      
+
       {selectedClient && (
         <Card className="flex-1 max-w-md ml-4">
           <CardHeader className="pb-2">
@@ -85,4 +85,4 @@ export const LogboekHeader: React.FC<LogboekHeaderProps> = ({
       )}
     </div>
   );
-}; 
+};

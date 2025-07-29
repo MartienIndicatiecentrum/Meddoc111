@@ -115,7 +115,7 @@ const NieuwDocumentGekozenClientPage: React.FC = () => {
       setFile(e.target.files[0]);
       setShowPreview(false);
     }
-  } 
+  }
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -422,4 +422,4 @@ const NieuwDocumentGekozenClientPage: React.FC = () => {
   );
 };
 
-export default NieuwDocumentGekozenClientPage; 
+export default NieuwDocumentGekozenClientPage;

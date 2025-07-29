@@ -51,4 +51,4 @@ npm run dev
 ## ✅ Resultaat
 Na deze fix zou het logboek opslaan moeten werken!
 
-**Test het nu op**: http://localhost:3001/logboek 
+**Test het nu op**: http://localhost:3001/logboek

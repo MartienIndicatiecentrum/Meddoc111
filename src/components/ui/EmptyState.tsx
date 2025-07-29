@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  MessageSquare, 
-  Plus, 
-  Search, 
+import {
+  MessageSquare,
+  Plus,
+  Search,
   Filter,
   FileText,
   Inbox
@@ -90,7 +90,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <p className="text-sm text-gray-600">
           {description}
         </p>
-        
+
         {(action || secondaryAction) && (
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
             {action && (
@@ -102,7 +102,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
                 <span>{action.label}</span>
               </Button>
             )}
-            
+
             {secondaryAction && (
               <Button
                 variant="outline"
@@ -192,4 +192,4 @@ export const SearchEmptyState: React.FC<{
       } : undefined}
     />
   );
-}; 
+};

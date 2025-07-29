@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Eye, 
-  Edit, 
-  Trash2, 
+import {
+  Eye,
+  Edit,
+  Trash2,
   MessageSquare,
   User,
   Building2,
@@ -33,7 +33,7 @@ interface LogboekTableRowProps {
 // Icon mapping component
 const getTypeIcon = (type: string) => {
   const iconName = TYPE_ICONS[type as keyof typeof TYPE_ICONS] || 'FileText';
-  
+
   const iconMap = {
     FileText,
     MessageSquare,
@@ -83,7 +83,7 @@ export const LogboekTableRow = memo<LogboekTableRowProps>(({
   const sanitizedAction = sanitizeText(entry.action || '');
 
   return (
-    <div 
+    <div
       className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${
         isSelected ? 'bg-blue-50 border-blue-200' : ''
       }`}
@@ -146,7 +146,7 @@ export const LogboekTableRow = memo<LogboekTableRowProps>(({
             >
               <Eye className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -156,7 +156,7 @@ export const LogboekTableRow = memo<LogboekTableRowProps>(({
             >
               <Edit className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -173,4 +173,4 @@ export const LogboekTableRow = memo<LogboekTableRowProps>(({
   );
 });
 
-LogboekTableRow.displayName = 'LogboekTableRow'; 
+LogboekTableRow.displayName = 'LogboekTableRow';

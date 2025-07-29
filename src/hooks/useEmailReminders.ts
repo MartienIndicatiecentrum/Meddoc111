@@ -107,7 +107,7 @@ export const useEmailReminders = () => {
       };
 
       const success = await emailService.sendAppointmentReminder(testData);
-      
+
       if (success) {
         toast.success('Test email reminder verzonden');
       } else {

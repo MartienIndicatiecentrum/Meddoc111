@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { 
-  User, 
-  Calendar, 
-  MapPin, 
-  Building, 
-  FileText, 
-  Clock, 
+import {
+  User,
+  Calendar,
+  MapPin,
+  Building,
+  FileText,
+  Clock,
   AlertTriangle,
   CheckCircle,
   Circle,
@@ -135,11 +135,11 @@ export default function PGBProcessFlow({ clientId }) {
 
   const handleStatusChange = async (stapCode, nieuweStatus) => {
     if (optimisticStappen) return; // Voorkom dubbele updates
-    
-    setOptimisticStappen(prev => 
+
+    setOptimisticStappen(prev =>
       prev ? prev.map(s => s.code === stapCode ? { ...s, status: nieuweStatus } : s) : null
     );
-    
+
     await updateSingleStap(stapCode, nieuweStatus);
     setOptimisticStappen(null);
   };
@@ -147,7 +147,7 @@ export default function PGBProcessFlow({ clientId }) {
   const updateSingleStap = async (stapCode, nieuweStatus, customAfgehandeldOp) => {
     try {
       const afgehandeldOp = nieuweStatus === 'afgehandeld' ? (customAfgehandeldOp || new Date().toISOString()) : null;
-      
+
       const { error } = await supabase
         .from('proces_stappen')
         .upsert({
@@ -169,7 +169,7 @@ export default function PGBProcessFlow({ clientId }) {
       }
 
       // Update local state
-      setProcesStappen(prev => 
+      setProcesStappen(prev =>
         prev.map(s => s.code === stapCode ? { ...s, status: nieuweStatus, afgehandeld_op: afgehandeldOp } : s)
       );
 
@@ -270,7 +270,7 @@ export default function PGBProcessFlow({ clientId }) {
       // Update local state
       setOpmerkingen(prev => ({
         ...prev,
-        [stapCode]: prev[stapCode].map((op, i) => 
+        [stapCode]: prev[stapCode].map((op, i) =>
           i === index ? { ...op, opmerking } : op
         )
       }));
@@ -298,10 +298,10 @@ export default function PGBProcessFlow({ clientId }) {
 
   const toggleUrgent = (stapCode) => {
     setUrgentStappen(prev => {
-      const newUrgent = prev.includes(stapCode) 
+      const newUrgent = prev.includes(stapCode)
         ? prev.filter(code => code !== stapCode)
         : [...prev, stapCode];
-      
+
       // Save to localStorage
       localStorage.setItem(`${URGENT_KEY}_${clientId}`, JSON.stringify(newUrgent));
       return newUrgent;
@@ -453,15 +453,15 @@ export default function PGBProcessFlow({ clientId }) {
               const IconComponent = stap.icon || Circle;
               const isUrgent = urgentStappen.includes(stap.code);
               const isCompleted = stap.status === 'afgehandeld';
-              
+
               return (
-                <Card 
+                <Card
                   key={stap.code}
                   className={`relative transition-all duration-300 hover:shadow-lg ${
-                    isUrgent 
-                      ? 'border-red-300 bg-red-50 ring-2 ring-red-200' 
-                      : isCompleted 
-                      ? 'border-green-300 bg-green-50' 
+                    isUrgent
+                      ? 'border-red-300 bg-red-50 ring-2 ring-red-200'
+                      : isCompleted
+                      ? 'border-green-300 bg-green-50'
                       : 'border-gray-200 bg-white'
                   }`}
                 >
@@ -477,8 +477,8 @@ export default function PGBProcessFlow({ clientId }) {
                     {/* Step Header */}
                     <div className="flex items-start gap-3 mb-4">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white' 
+                        isCompleted
+                          ? 'bg-green-500 text-white'
                           : 'bg-blue-500 text-white'
                       }`}>
                         {idx + 1}
@@ -489,7 +489,7 @@ export default function PGBProcessFlow({ clientId }) {
                         </h3>
                         <div className="flex items-center gap-2">
                           <IconComponent className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          <Badge 
+                          <Badge
                             variant={isCompleted ? "default" : "secondary"}
                             className="text-xs"
                           >

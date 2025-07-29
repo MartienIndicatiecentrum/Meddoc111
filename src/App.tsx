@@ -108,7 +108,7 @@ class ErrorBoundary extends React.Component<
 // Wrapper component for client documents page
 const ClientDocumentsPageWrapper: React.FC = () => {
   const { clientId } = useParams<{ clientId: string }>();
-  
+
   if (!clientId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -133,55 +133,55 @@ const router = createBrowserRouter([
   // Main Routes
   { path: "/", element: <Dashboard /> },
   { path: "/dashboard", element: <Dashboard /> },
-  
+
   // Document Routes
   { path: "/documenten", element: <Documenten /> },
-  { 
-    path: "/documenten/:id", 
+  {
+    path: "/documenten/:id",
     element: (
       <Suspense fallback={<LoadingSpinner message="Document laden..." />}>
         <DocumentDetailPage />
       </Suspense>
     )
   },
-  
+
   // Client Routes
   { path: "/clienten", element: <Clienten /> },
   { path: "/clienten/:clientId/documenten", element: <ClientDocumentsPageWrapper /> },
-  
+
   // Task Routes
   { path: "/taken", element: <TakenPage /> },
   { path: "/lopende-zaken", element: <LopendeZaken /> },
   { path: "/logboek", element: <Logboek /> },
-  
+
   // Progress Flow Routes
   { path: "/progress-flow", element: <ProgressFlowPage /> },
-  
+
   // Planning Routes
   { path: "/planning", element: <Planning /> },
-  
+
   // Medewerkers Routes
   { path: "/medewerkers", element: <Medewerkers /> },
-  
+
   // Factuur Routes
   { path: "/factuur", element: <Factuur /> },
   { path: "/factuur-generator", element: <FactuurGeneratorPage /> },
   { path: "/factuur-pdf-sjabloon", element: <FactuurPdfSjabloonPage /> },
-  
+
   // File Upload Routes
   { path: "/file-upload", element: <FileUpload /> },
   { path: "/document-upload", element: <DocumentUpload /> },
   { path: "/ai-chat", element: <AIChat /> },
-  
+
   // Kalender Route
   { path: "/kalender", element: <Kalender /> },
-  
+
   // Overige routes
   { path: "/taken-verzekeraar", element: <TakenVerzekeraar /> },
-  
+
   // Admin Routes
-  { 
-    path: "/admin/email-reminders", 
+  {
+    path: "/admin/email-reminders",
     element: (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -194,13 +194,13 @@ const router = createBrowserRouter([
       </div>
     )
   },
-  
+
   // PGB Process Flow
   { path: "/pgb-proces-flow", element: <PGBProcesFlowPage /> },
-  
+
   // Development/Testing Routes
-  { 
-    path: "/ai-test", 
+  {
+    path: "/ai-test",
     element: (
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">AI Document Test</h1>
@@ -209,7 +209,7 @@ const router = createBrowserRouter([
     )
   },
   { path: "/test-ai-chat", element: <TestAIChat /> },
-  
+
   // Catch-all 404 Route
   { path: "*", element: <NotFound /> }
 ], {
@@ -229,13 +229,13 @@ const App: React.FC = () => {
           <Sonner />
           <div className="min-h-screen bg-gray-50">
             <RouterProvider router={router} />
-            
+
             {/* Global Components */}
             <ChatWindow />
-            
+
             {/* Stagewise Toolbar - Only in development */}
             {import.meta.env.DEV && (
-              <StagewiseToolbar 
+              <StagewiseToolbar
                 config={{
                   plugins: [ReactPlugin]
                 }}

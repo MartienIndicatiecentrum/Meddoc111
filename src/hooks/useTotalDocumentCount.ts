@@ -37,4 +37,4 @@ export const useTotalDocumentCount = () => {
   }, []);
 
   return { documentCount, loading, error };
-}; 
+};

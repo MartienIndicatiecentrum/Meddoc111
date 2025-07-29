@@ -39,7 +39,7 @@ Een geavanceerd document management en communicatie systeem voor de gezondheidsz
 
 ## 📋 Vereisten
 
-- Node.js 18+ 
+- Node.js 18+
 - npm 8+
 - Python 3.11+
 - Supabase account

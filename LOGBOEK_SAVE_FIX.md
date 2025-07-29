@@ -38,15 +38,15 @@ ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_status_check;
 
 -- Add flexible constraints that allow all the types we need
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check
     CHECK (from_type IN ('client', 'employee', 'insurer', 'family', 'verzekeraar'));
 
 -- Allow any type for the type field (including custom types)
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check
     CHECK (type IS NOT NULL AND length(trim(type)) > 0);
 
 -- Allow all status values we need
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check
     CHECK (status IN ('Geen urgentie', 'Licht urgent', 'Urgent', 'Reactie nodig', 'Afgehandeld', 'In behandeling'));
 
 -- 4. Update default values
@@ -84,15 +84,15 @@ $$ language 'plpgsql';
 
 -- 8. Create triggers for updated_at
 DROP TRIGGER IF EXISTS update_logboek_updated_at ON public.logboek;
-CREATE TRIGGER update_logboek_updated_at 
-    BEFORE UPDATE ON public.logboek 
-    FOR EACH ROW 
+CREATE TRIGGER update_logboek_updated_at
+    BEFORE UPDATE ON public.logboek
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_log_entry_documents_updated_at ON public.log_entry_documents;
-CREATE TRIGGER update_log_entry_documents_updated_at 
-    BEFORE UPDATE ON public.log_entry_documents 
-    FOR EACH ROW 
+CREATE TRIGGER update_log_entry_documents_updated_at
+    BEFORE UPDATE ON public.log_entry_documents
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -166,4 +166,4 @@ CREATE POLICY "Enable read access for authenticated users" ON public.logboek
 
 CREATE POLICY "Enable insert for authenticated users" ON public.logboek
     FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
-``` 
+```

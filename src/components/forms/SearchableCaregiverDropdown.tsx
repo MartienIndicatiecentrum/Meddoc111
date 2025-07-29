@@ -110,7 +110,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
     setIsOpen(true);
     setHighlightedIndex(-1);
     setShowAddForm(false);
-    
+
     // If search term is empty, clear selection
     if (newSearchTerm === '') {
       onChange('');
@@ -141,18 +141,18 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev < totalItems - 1 ? prev + 1 : 0
         );
         break;
-      
+
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex(prev =>
           prev > 0 ? prev - 1 : totalItems - 1
         );
         break;
-      
+
       case 'Enter':
         e.preventDefault();
         if (highlightedIndex >= 0) {
@@ -172,7 +172,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
           }
         }
         break;
-      
+
       case 'Escape':
         setIsOpen(false);
         setHighlightedIndex(-1);
@@ -255,7 +255,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
         <UserCheck className="w-4 h-4" />
         Medewerker
       </label>
-      
+
       <div className="relative">
         <div className="relative">
           <input
@@ -270,10 +270,10 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
               error ? 'border-red-500' : 'border-gray-300'
             }`}
           />
-          
+
           {/* Search icon */}
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          
+
           {/* Clear button */}
           {searchTerm && (
             <button
@@ -284,9 +284,9 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
               <X className="w-4 h-4" />
             </button>
           )}
-          
+
           {/* Dropdown arrow */}
-          <ChevronDown 
+          <ChevronDown
             className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform ${
               isOpen ? 'rotate-180' : ''
             }`}
@@ -337,7 +337,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
                     {filteredCaregivers.length} resultaten gevonden
                   </div>
                 )}
-                
+
                 {filteredCaregivers.map((caregiver, index) => (
                   <div
                     key={caregiver.id}
@@ -374,7 +374,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
                             caregiver.naam
                           )}
                         </div>
-                        
+
                         {/* Show additional caregiver info if available */}
                         {(caregiver.specialisatie || caregiver.email || caregiver.anders) && (
                           <div className="text-sm text-gray-500 mt-1">
@@ -390,7 +390,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
                           </div>
                         )}
                       </div>
-                      
+
                       {caregiver.id === value && (
                         <div className="text-blue-600">
                           ✓
@@ -442,7 +442,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Nieuwe Medewerker Toevoegen
             </h3>
-            
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Naam *
@@ -490,8 +490,8 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
               <select
                 value={newCaregiverData.specialisatie}
                 onChange={(e) => {
-                  setNewCaregiverData(prev => ({ 
-                    ...prev, 
+                  setNewCaregiverData(prev => ({
+                    ...prev,
                     specialisatie: e.target.value,
                     // Clear anders field if not selecting "Anders"
                     anders: e.target.value !== 'Anders' ? '' : prev.anders
@@ -527,7 +527,7 @@ const SearchableCaregiverDropdown: React.FC<SearchableCaregiverDropdownProps> = 
                 />
               </div>
             )}
-            
+
             <div className="flex gap-3">
               <button
                 onClick={() => {

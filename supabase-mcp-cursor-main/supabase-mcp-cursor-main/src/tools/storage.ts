@@ -56,4 +56,4 @@ export const runDownloadFileTool = async (supabase: SupabaseClient, args: z.infe
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(data) }],
   });
-}; 
+};

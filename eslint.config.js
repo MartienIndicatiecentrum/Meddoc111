@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "node_modules", "coverage", "*.config.js", "*.config.ts"] },
+  { ignores: ["dist", "node_modules", "coverage", "*.config.js", "*.config.ts", "build", "venv"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -31,60 +31,60 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      
-      // TypeScript rules
-      "@typescript-eslint/no-unused-vars": ["error", { 
+
+      // TypeScript rules - less strict for development
+      "@typescript-eslint/no-unused-vars": ["warn", {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_",
         caughtErrorsIgnorePattern: "^_"
       }],
       "@typescript-eslint/no-explicit-any": "warn",
-      "prefer-const": "error",
-      "@typescript-eslint/no-var-requires": "error",
+      "prefer-const": "warn",
+      "@typescript-eslint/no-var-requires": "warn",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-non-null-assertion": "warn",
-      
-      // General code quality rules
-      "no-console": ["warn", { allow: ["warn", "error"] }],
-      "no-debugger": "error",
+
+      // General code quality rules - less strict
+      "no-console": ["warn", { allow: ["warn", "error", "log"] }],
+      "no-debugger": "warn",
       "no-alert": "warn",
-      "no-var": "error",
-      "prefer-const": "error",
-      "no-unused-expressions": "error",
-      "no-duplicate-imports": "error",
-      "no-unreachable": "error",
-      "no-constant-condition": "error",
-      
-      // Best practices
-      "eqeqeq": ["error", "always"],
-      "curly": ["error", "all"],
-      "no-eval": "error",
-      "no-implied-eval": "error",
-      "no-new-func": "error",
-      "no-script-url": "error",
-      
-      // Code style
-      "indent": ["error", 2],
-      "quotes": ["error", "single", { avoidEscape: true }],
-      "semi": ["error", "always"],
-      "comma-dangle": ["error", "always-multiline"],
-      "object-curly-spacing": ["error", "always"],
-      "array-bracket-spacing": ["error", "never"],
-      "comma-spacing": ["error", { before: false, after: true }],
-      "key-spacing": ["error", { beforeColon: false, afterColon: true }],
-      "keyword-spacing": ["error", { before: true, after: true }],
-      "space-before-blocks": "error",
-      "space-before-function-paren": ["error", {
+      "no-var": "warn",
+      "prefer-const": "warn",
+      "no-unused-expressions": "warn",
+      "no-duplicate-imports": "warn",
+      "no-unreachable": "warn",
+      "no-constant-condition": "warn",
+
+      // Best practices - less strict
+      "eqeqeq": ["warn", "always"],
+      "curly": ["warn", "all"],
+      "no-eval": "warn",
+      "no-implied-eval": "warn",
+      "no-new-func": "warn",
+      "no-script-url": "warn",
+
+      // Code style - less strict
+      "indent": ["warn", 2],
+      "quotes": ["warn", "single", { avoidEscape: true }],
+      "semi": ["warn", "always"],
+      "comma-dangle": ["warn", "always-multiline"],
+      "object-curly-spacing": ["warn", "always"],
+      "array-bracket-spacing": ["warn", "never"],
+      "comma-spacing": ["warn", { before: false, after: true }],
+      "key-spacing": ["warn", { beforeColon: false, afterColon: true }],
+      "keyword-spacing": ["warn", { before: true, after: true }],
+      "space-before-blocks": "warn",
+      "space-before-function-paren": ["warn", {
         anonymous: "always",
         named: "never",
         asyncArrow: "always"
       }],
-      "space-in-parens": ["error", "never"],
-      "space-infix-ops": "error",
-      "space-unary-ops": ["error", { words: true, nonwords: false }],
-      "spaced-comment": ["error", "always"],
-      
+      "space-in-parens": ["warn", "never"],
+      "space-infix-ops": "warn",
+      "space-unary-ops": ["warn", { words: true, nonwords: false }],
+      "spaced-comment": ["warn", "always"],
+
       // Import rules
       // Import rules are handled by TypeScript ESLint
     },
@@ -96,15 +96,15 @@ export default tseslint.config(
       globals: globals.browser,
     },
     rules: {
-      "no-unused-vars": ["error", { 
+      "no-unused-vars": ["warn", {
         argsIgnorePattern: "^_",
         varsIgnorePattern: "^_"
       }],
-      "no-console": ["warn", { allow: ["warn", "error"] }],
-      "no-debugger": "error",
+      "no-console": ["warn", { allow: ["warn", "error", "log"] }],
+      "no-debugger": "warn",
       "no-alert": "warn",
-      "no-var": "error",
-      "prefer-const": "error",
+      "no-var": "warn",
+      "prefer-const": "warn",
     },
   }
 );

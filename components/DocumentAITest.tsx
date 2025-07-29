@@ -47,10 +47,10 @@ const DocumentAITest = () => {
 
       if (error) throw error;
       setDocuments(data || []);
-      setStatus(Loaded ${data?.length || 0} documents);
+      setStatus(`Loaded ${data?.length || 0} documents`);
     } catch (error) {
       console.error('Error loading documents:', error);
-      setError(Error loading documents: ${error.message});
+      setError(`Error loading documents: ${error.message}`);
     }
   };
 
@@ -66,7 +66,7 @@ const DocumentAITest = () => {
 
     try {
       const result = await documentProcessor.processNewDocument(selectedFile, selectedFile.name);
-      
+
       if (result.success) {
         setStatus('✅ Document uploaded and processed successfully!');
         setSelectedFile(null);
@@ -74,7 +74,7 @@ const DocumentAITest = () => {
       }
     } catch (error) {
       console.error('Error uploading document:', error);
-      setError(Error uploading document: ${error.message});
+      setError(`Error uploading document: ${error.message}`);
       setStatus('');
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ const DocumentAITest = () => {
 
     try {
       const result = await documentProcessor.processExistingDocument(documentId);
-      
+
       if (result.success) {
         setStatus('✅ Document processed for AI successfully!');
         await loadDocuments(); // Refresh the documents list
@@ -166,7 +166,7 @@ const DocumentAITest = () => {
     <div className="p-6 max-w-6xl mx-auto bg-gray-50 min-h-screen">
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Document AI Test Interface</h1>
-        
+
         {/* Connection Test */}
         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
           <h2 className="text-lg font-semibold mb-3">🔧 Connection Test</h2>
@@ -261,7 +261,7 @@ const DocumentAITest = () => {
               </div>
             ))}
           </div>
-          
+
           {documents.length === 0 && (
             <p className="text-gray-500 text-center py-4">No documents found. Upload a PDF to get started!</p>
           )}
@@ -270,7 +270,7 @@ const DocumentAITest = () => {
         {/* Question Interface */}
         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">🤖 Ask Questions About Your Documents</h2>
-          
+
           <div className="mb-3">
             <label className="block text-sm font-medium mb-2">Document Scope:</label>
             <select

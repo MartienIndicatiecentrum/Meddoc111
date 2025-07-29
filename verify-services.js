@@ -39,10 +39,10 @@ console.log(`${colors.bright}🔍 MedDoc AI Flow - Service Verification${colors.
 // Step 1: Check .env file
 function checkEnvFile() {
   console.log(`${colors.cyan}1. Checking environment configuration...${colors.reset}`);
-  
+
   const envPath = path.join(__dirname, '.env');
   const envExamplePath = path.join(__dirname, '.env.example');
-  
+
   if (fs.existsSync(envPath)) {
     console.log(`${colors.green}✅ .env file found${colors.reset}`);
     results.envFile = true;
@@ -53,21 +53,21 @@ function checkEnvFile() {
     }
     return false;
   }
-  
+
   // Check required variables
   const required = {
     'SUPABASE_URL': process.env.SUPABASE_URL,
     'SUPABASE_SERVICE_ROLE_KEY': process.env.SUPABASE_SERVICE_ROLE_KEY
   };
-  
+
   const optional = {
     'ANTHROPIC_API_KEY': process.env.ANTHROPIC_API_KEY,
     'PORT': process.env.PORT || '8081',
     'DEBUG': process.env.DEBUG || 'false'
   };
-  
+
   let hasAllRequired = true;
-  
+
   console.log('\n  Required variables:');
   for (const [key, value] of Object.entries(required)) {
     if (value) {
@@ -79,7 +79,7 @@ function checkEnvFile() {
       hasAllRequired = false;
     }
   }
-  
+
   console.log('\n  Optional variables:');
   for (const [key, value] of Object.entries(optional)) {
     if (value && value !== 'false' && value !== '8081') {
@@ -88,7 +88,7 @@ function checkEnvFile() {
       console.log(`  ${colors.yellow}⚠️  ${key}${colors.reset} = ${value || 'Not set'}`);
     }
   }
-  
+
   return hasAllRequired;
 }
 
@@ -97,7 +97,7 @@ async function checkPort(port, service) {
   return new Promise(async (resolve) => {
     const net = await import('net');
     const server = net.default.createServer();
-    
+
     server.once('error', (err) => {
       if (err.code === 'EADDRINUSE') {
         results.ports[port] = 'in-use';
@@ -107,26 +107,26 @@ async function checkPort(port, service) {
         resolve({ available: false, message: `Error checking port ${port}: ${err.message}` });
       }
     });
-    
+
     server.once('listening', () => {
       server.close();
       results.ports[port] = 'available';
       resolve({ available: true, message: `Port ${port} is available` });
     });
-    
+
     server.listen(port);
   });
 }
 
 async function checkPorts() {
   console.log(`\n${colors.cyan}2. Checking port availability...${colors.reset}`);
-  
+
   const ports = [
     { port: 3000, service: 'Frontend (Vite)' },
     { port: 8081, service: 'Backend (Node.js)' },
     { port: 5000, service: 'RAG Server (Python)' }
   ];
-  
+
   for (const { port, service } of ports) {
     const result = await checkPort(port);
     if (result.available) {
@@ -143,7 +143,7 @@ async function testEndpoint(url, service) {
     const timeout = setTimeout(() => {
       resolve({ success: false, message: 'Timeout - Service not responding' });
     }, 5000);
-    
+
     http.get(url, (res) => {
       clearTimeout(timeout);
       let data = '';
@@ -164,14 +164,14 @@ async function testEndpoint(url, service) {
 
 async function checkRunningServices() {
   console.log(`\n${colors.cyan}3. Testing running services...${colors.reset}`);
-  
+
   // Test backend
   console.log('\n  Backend Service:');
   const backendResult = await testEndpoint('http://localhost:8081/health', 'Backend');
   if (backendResult.success) {
     console.log(`  ${colors.green}✅ Backend is running${colors.reset}`);
     results.services.backend = true;
-    
+
     // Try to parse health data
     try {
       const health = JSON.parse(backendResult.data);
@@ -188,7 +188,7 @@ async function checkRunningServices() {
     console.log(`  ${colors.red}❌ Backend is not running${colors.reset} - ${backendResult.message}`);
     results.services.backend = false;
   }
-  
+
   // Test RAG server
   console.log('\n  RAG Server:');
   const ragResult = await testEndpoint('http://localhost:5001/health', 'RAG Server');
@@ -199,7 +199,7 @@ async function checkRunningServices() {
     console.log(`  ${colors.yellow}⚠️  RAG Server is not running${colors.reset} - ${ragResult.message}`);
     results.services.rag = false;
   }
-  
+
   // Test frontend
   console.log('\n  Frontend:');
   const frontendResult = await testEndpoint('http://localhost:3000', 'Frontend');
@@ -215,17 +215,17 @@ async function checkRunningServices() {
 // Step 4: Test Python installation
 async function checkPython() {
   console.log(`\n${colors.cyan}4. Checking Python installation...${colors.reset}`);
-  
+
   return new Promise((resolve) => {
     // Try the specific Python path first
     const pythonPath = 'C:\\Users\\shadow\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
     const python = spawn(pythonPath, ['--version']);
-    
+
     python.stdout.on('data', (data) => {
       console.log(`  ${colors.green}✅ Python installed:${colors.reset} ${data.toString().trim()}`);
       resolve(true);
     });
-    
+
     python.stderr.on('data', (data) => {
       const version = data.toString().trim();
       if (version.includes('Python')) {
@@ -236,16 +236,16 @@ async function checkPython() {
         resolve(false);
       }
     });
-    
+
     python.on('error', (err) => {
       // Fallback to system python
       const fallbackPython = spawn('python', ['--version']);
-      
+
       fallbackPython.stdout.on('data', (data) => {
         console.log(`  ${colors.green}✅ Python installed:${colors.reset} ${data.toString().trim()}`);
         resolve(true);
       });
-      
+
       fallbackPython.stderr.on('data', (data) => {
         const version = data.toString().trim();
         if (version.includes('Python')) {
@@ -256,7 +256,7 @@ async function checkPython() {
           resolve(false);
         }
       });
-      
+
       fallbackPython.on('error', (err) => {
         console.log(`  ${colors.red}❌ Python not found${colors.reset} - Please install Python 3.x`);
         resolve(false);
@@ -268,9 +268,9 @@ async function checkPython() {
 // Step 5: Generate recommendations
 function generateRecommendations() {
   console.log(`\n${colors.cyan}5. Recommendations:${colors.reset}\n`);
-  
+
   const issues = [];
-  
+
   // Check environment
   if (!results.envFile) {
     issues.push({
@@ -285,7 +285,7 @@ function generateRecommendations() {
       solution: 'Edit .env and add your Supabase URL and service role key'
     });
   }
-  
+
   // Check services
   if (!results.services.backend) {
     if (results.ports[8081] === 'in-use') {
@@ -302,7 +302,7 @@ function generateRecommendations() {
       });
     }
   }
-  
+
   if (!results.services.rag) {
     issues.push({
       severity: 'medium',
@@ -310,7 +310,7 @@ function generateRecommendations() {
       solution: 'Run: python advanced_rag_server.py'
     });
   }
-  
+
   if (!results.services.frontend) {
     issues.push({
       severity: 'high',
@@ -318,7 +318,7 @@ function generateRecommendations() {
       solution: 'Run: npm run dev:frontend'
     });
   }
-  
+
   // Display issues
   if (issues.length === 0) {
     console.log(`${colors.green}✅ All systems operational!${colors.reset}`);
@@ -328,7 +328,7 @@ function generateRecommendations() {
       const priority = { critical: 0, high: 1, medium: 2, warning: 3 };
       return priority[a.severity] - priority[b.severity];
     });
-    
+
     console.log('Issues found:\n');
     issues.forEach((issue, index) => {
       const severityColor = {
@@ -337,11 +337,11 @@ function generateRecommendations() {
         medium: colors.yellow,
         warning: colors.yellow
       };
-      
+
       console.log(`${index + 1}. ${severityColor[issue.severity]}[${issue.severity.toUpperCase()}]${colors.reset} ${issue.message}`);
       console.log(`   → ${colors.cyan}Solution:${colors.reset} ${issue.solution}\n`);
     });
-    
+
     console.log(`${colors.bright}Quick Start Commands:${colors.reset}`);
     console.log('1. Fix environment: npm run check:env');
     console.log('2. Start all services: npm run dev');
@@ -359,7 +359,7 @@ async function main() {
   await checkRunningServices();
   await checkPython();
   generateRecommendations();
-  
+
   // Save results for other scripts
   fs.writeFileSync(
     path.join(__dirname, '.service-check-results.json'),

@@ -21,7 +21,7 @@ if (fs.existsSync(envFile)) {
   const envContent = fs.readFileSync(envFile, 'utf8');
   const hasSupabaseUrl = envContent.includes('SUPABASE_URL=');
   const hasSupabaseKey = envContent.includes('SUPABASE_SERVICE_ROLE_KEY=');
-  
+
   if (hasSupabaseUrl && hasSupabaseKey) {
     console.log('✅ Environment variables configured');
   } else {

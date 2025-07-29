@@ -76,8 +76,8 @@ const ClientDocumentsPage: React.FC<ClientDocumentsPageProps> = ({ clientId }) =
                 <td className="px-6 py-4 whitespace-nowrap text-sm">{doc.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(doc.created_at).toLocaleDateString('nl-NL')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => {
                       console.log('🔍 Bekijk button clicked in ClientDocumentsPage, document:', doc);
@@ -92,7 +92,7 @@ const ClientDocumentsPage: React.FC<ClientDocumentsPageProps> = ({ clientId }) =
           </tbody>
         </table>
       )}
-      
+
       {/* Document Detail Modal */}
       <DocumentDetailModal
         open={!!selectedDocument}
@@ -102,7 +102,7 @@ const ClientDocumentsPage: React.FC<ClientDocumentsPageProps> = ({ clientId }) =
         }}
         document={selectedDocument}
       />
-      
+
       {/* Debug info for modal state */}
       {selectedDocument && (
         <div className="fixed bottom-4 right-4 bg-green-200 border border-green-400 p-3 rounded text-xs z-[70] max-w-sm">
@@ -112,7 +112,7 @@ const ClientDocumentsPage: React.FC<ClientDocumentsPageProps> = ({ clientId }) =
           <div>Document title: {selectedDocument.title}</div>
           <div>File path: {selectedDocument.file_path || 'ONTBREEKT'}</div>
           <div>Document type: {selectedDocument.type}</div>
-          <button 
+          <button
             onClick={() => setSelectedDocument(null)}
             className="mt-2 text-xs bg-green-600 text-white px-2 py-1 rounded"
           >
@@ -124,4 +124,4 @@ const ClientDocumentsPage: React.FC<ClientDocumentsPageProps> = ({ clientId }) =
   );
 };
 
-export default ClientDocumentsPage; 
+export default ClientDocumentsPage;

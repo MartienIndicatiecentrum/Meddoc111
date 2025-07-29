@@ -32,12 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     // Call optional error handler
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-    
+
     this.setState({
       error,
       errorInfo
@@ -73,7 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <p className="text-gray-600">
                 Er is een onverwachte fout opgetreden. Probeer de pagina te verversen of ga terug naar het hoofdmenu.
               </p>
-              
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="bg-gray-100 p-3 rounded text-xs">
                   <summary className="cursor-pointer font-medium mb-2">
@@ -85,7 +85,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   </pre>
                 </details>
               )}
-              
+
               <div className="flex space-x-2">
                 <Button
                   onClick={this.handleRetry}
@@ -94,7 +94,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="h-4 w-4" />
                   <span>Opnieuw proberen</span>
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   onClick={this.handleGoHome}
@@ -118,7 +118,7 @@ export class ErrorBoundary extends Component<Props, State> {
 export const useErrorHandler = () => {
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {
     console.error('Error caught by useErrorHandler:', error, errorInfo);
-    
+
     // You can add additional error handling logic here
     // For example, sending to an error reporting service
     if (process.env.NODE_ENV === 'production') {
@@ -128,4 +128,4 @@ export const useErrorHandler = () => {
   };
 
   return { handleError };
-}; 
+};

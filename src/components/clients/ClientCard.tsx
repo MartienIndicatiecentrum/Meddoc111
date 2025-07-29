@@ -45,10 +45,10 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
   const navigate = useNavigate();
   const initials = `${client.firstName[0] ?? ''}${client.lastName[0] ?? ''}`.toUpperCase();
   const { documentCount, loading: documentCountLoading } = useClientDocumentCount(client.id);
-  
+
   const statusInfo = statusConfig[client.care.status] || statusConfig.intake_pending;
   const careLevelInfo = careLevelConfig[client.care.careLevel] || careLevelConfig.wmo;
-  
+
   const age = new Date().getFullYear() - new Date(client.dateOfBirth).getFullYear();
   const nextAppointment = client.workflow.activeServices[0]?.nextScheduled;
 
@@ -70,7 +70,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
   };
 
   return (
-    <Card 
+    <Card
       className={`relative min-h-[320px] flex flex-col transition-all duration-200 cursor-pointer group ${
         isSelected ? 'ring-2 ring-blue-500 shadow-md' : 'hover:shadow-lg'
       } ${
@@ -115,7 +115,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button
               size="sm"
@@ -137,14 +137,14 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
               <User className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
               <span>{age} jaar • BSN: {client.bsn.slice(-4).padStart(7, '***-**-')}</span>
             </div>
-            
+
             <div className="flex items-center text-gray-600">
               <MapPin className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
               <span className="truncate" title={`${client.address.street} ${client.address.houseNumber}, ${client.address.city}`}>
                 {client.address.street} {client.address.houseNumber}, {client.address.city}
               </span>
             </div>
-            
+
             <div className="flex items-center text-gray-600">
               <Phone className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
               <span>{client.contact.phone || 'Geen telefoonnummer'}</span>
@@ -193,9 +193,9 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
           {/* Action buttons - Fixed at bottom */}
           <div className="flex items-center justify-between gap-2 mt-auto">
             <div className="flex gap-2 flex-nowrap justify-start">
-              <Button 
-                size="sm" 
-                variant="ghost" 
+              <Button
+                size="sm"
+                variant="ghost"
                 className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-600 min-w-0"
                 onClick={(e) => { e.stopPropagation(); onQuickAction('call', client.id); }}
                 disabled={!client.contact.phone}
@@ -203,9 +203,9 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
               >
                 <Phone className="w-3 h-3" />
               </Button>
-              <Button 
-                size="sm" 
-                variant="ghost" 
+              <Button
+                size="sm"
+                variant="ghost"
                 className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-600 min-w-0"
                 onClick={(e) => { e.stopPropagation(); onQuickAction('email', client.id); }}
                 disabled={!client.contact.email}
@@ -213,9 +213,9 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
               >
                 <Mail className="w-3 h-3" />
               </Button>
-              <Button 
-                size="sm" 
-                variant="ghost" 
+              <Button
+                size="sm"
+                variant="ghost"
                 className="h-7 px-2 text-xs hover:bg-green-50 hover:text-green-600 min-w-0"
                 onClick={(e) => { e.stopPropagation(); onEdit(client); }}
                 title="Bewerken"
@@ -223,11 +223,11 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
                 <BadgeCheck className="w-3 h-3" />
               </Button>
             </div>
-            
+
             <div className="flex gap-1">
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 className="h-7 px-2 text-xs"
                 onClick={(e) => { e.stopPropagation(); onViewDetails(client.id); }}
                 title="Details"
@@ -235,10 +235,10 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
                 <FileText className="w-3 h-3 mr-1" />
                 Details
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant="outline" 
+
+              <Button
+                size="sm"
+                variant="outline"
                 className="h-7 px-2 text-xs hover:bg-blue-50 hover:text-blue-600"
                 onClick={(e) => { e.stopPropagation(); navigate(`/clienten/${client.id}/documenten`); }}
                 title="Documenten"
@@ -253,11 +253,11 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onViewDe
                   </span>
                 )}
               </Button>
-              
+
               {onDelete && deleteMode === 'idle' && (
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
+                <Button
+                  size="sm"
+                  variant="ghost"
                   className="h-7 px-2 text-xs hover:bg-red-50 hover:text-red-600 min-w-0"
                   onClick={(e) => { e.stopPropagation(); setDeleteMode('confirm'); }}
                   title="Verwijderen"

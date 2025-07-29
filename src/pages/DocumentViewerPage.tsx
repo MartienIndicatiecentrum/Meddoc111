@@ -50,4 +50,4 @@ const DocumentViewerPage: React.FC = () => {
   );
 };
 
-export default DocumentViewerPage; 
+export default DocumentViewerPage;

@@ -80,33 +80,33 @@
 </head>
 <body>
     <h1>Client Names Integration Test</h1>
-    
+
     <div class="test-section">
         <h2>1. Environment Check</h2>
         <button onclick="checkEnvironment()">Check Environment Variables</button>
         <div id="env-status"></div>
     </div>
-    
+
     <div class="test-section">
         <h2>2. Supabase Connection Test</h2>
         <button onclick="testSupabaseConnection()">Test Database Connection</button>
         <div id="connection-status"></div>
     </div>
-    
+
     <div class="test-section">
         <h2>3. Fetch Client Names</h2>
         <button onclick="fetchClientNames()">Fetch Client Names from Database</button>
         <div id="client-status"></div>
         <div id="client-list" class="client-list" style="display: none;"></div>
     </div>
-    
+
     <div class="test-section">
         <h2>4. Test Smart Prompts</h2>
         <button onclick="testSmartPrompts()">Generate Smart Prompts with Client Names</button>
         <div id="prompt-status"></div>
         <div id="prompt-list"></div>
     </div>
-    
+
     <div class="test-section">
         <h2>5. Test Autocomplete</h2>
         <input type="text" id="test-input" placeholder="Type 'client ' to test autocomplete" style="width: 100%; padding: 10px; margin: 10px 0;">
@@ -117,19 +117,19 @@
         // Load environment variables
         const SUPABASE_URL = localStorage.getItem('SUPABASE_URL') || '';
         const SUPABASE_ANON_KEY = localStorage.getItem('SUPABASE_ANON_KEY') || '';
-        
+
         let clientNames = [];
-        
+
         function showStatus(elementId, message, type = 'info') {
             const element = document.getElementById(elementId);
             element.className = `status ${type}`;
             element.textContent = message;
         }
-        
+
         function checkEnvironment() {
             if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
                 showStatus('env-status', 'Error: Supabase credentials not found. Please set SUPABASE_URL and SUPABASE_ANON_KEY in localStorage.', 'error');
-                
+
                 // Provide instructions
                 const instructions = document.createElement('pre');
                 instructions.textContent = `To set credentials, run in console:
@@ -140,13 +140,13 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                 showStatus('env-status', 'Environment variables found!', 'success');
             }
         }
-        
+
         async function testSupabaseConnection() {
             if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
                 showStatus('connection-status', 'Please set environment variables first.', 'error');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
                     headers: {
@@ -154,7 +154,7 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 });
-                
+
                 if (response.ok) {
                     showStatus('connection-status', 'Successfully connected to Supabase!', 'success');
                 } else {
@@ -164,16 +164,16 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                 showStatus('connection-status', `Connection error: ${error.message}`, 'error');
             }
         }
-        
+
         async function fetchClientNames() {
             if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
                 showStatus('client-status', 'Please set environment variables first.', 'error');
                 return;
             }
-            
+
             try {
                 showStatus('client-status', 'Fetching client names...', 'info');
-                
+
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/clients?select=full_name,first_name,last_name&deleted_at=is.null&order=full_name.asc&limit=50`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -182,24 +182,24 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                         'Prefer': 'return=representation'
                     }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
-                
+
                 if (data && data.length > 0) {
                     // Extract unique client names
                     const names = data.map(client => client.full_name || `${client.first_name} ${client.last_name}`);
                     clientNames = [...new Set(names)].filter(name => name && name.trim());
-                    
+
                     showStatus('client-status', `Successfully fetched ${clientNames.length} client names!`, 'success');
-                    
+
                     // Display client list
                     const listDiv = document.getElementById('client-list');
                     listDiv.style.display = 'block';
-                    listDiv.innerHTML = '<h3>Client Names:</h3>' + 
+                    listDiv.innerHTML = '<h3>Client Names:</h3>' +
                         clientNames.map(name => `<div class="client-item">${name}</div>`).join('');
                 } else {
                     showStatus('client-status', 'No clients found in database.', 'info');
@@ -210,46 +210,46 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                 console.error('Full error:', error);
             }
         }
-        
+
         function testSmartPrompts() {
             if (clientNames.length === 0) {
                 showStatus('prompt-status', 'No client names available. Please fetch client names first.', 'error');
                 return;
             }
-            
+
             // Simulate smart prompt generation
             const templates = [
                 "Toon alle documenten van cliënt [naam]",
                 "Wat zijn de medicijnen van [naam]?",
                 "Wanneer moet de indicatie van [naam] verlengd worden?"
             ];
-            
+
             const prompts = templates.map(template => {
                 const randomClient = clientNames[Math.floor(Math.random() * clientNames.length)];
                 return template.replace('[naam]', randomClient);
             });
-            
+
             showStatus('prompt-status', 'Generated smart prompts with real client names:', 'success');
-            
+
             const listDiv = document.getElementById('prompt-list');
-            listDiv.innerHTML = '<h3>Example Prompts:</h3>' + 
+            listDiv.innerHTML = '<h3>Example Prompts:</h3>' +
                 prompts.map(prompt => `<div class="client-item">• ${prompt}</div>`).join('');
         }
-        
+
         // Autocomplete test
         const testInput = document.getElementById('test-input');
         const suggestionsDiv = document.getElementById('autocomplete-suggestions');
-        
+
         testInput.addEventListener('input', (e) => {
             const value = e.target.value;
             const clientMatch = value.match(/(?:client|cliënt)\s+([^,\s]*)$/i);
-            
+
             if (clientMatch && clientNames.length > 0) {
                 const searchTerm = clientMatch[1].toLowerCase();
-                const filtered = clientNames.filter(name => 
+                const filtered = clientNames.filter(name =>
                     name.toLowerCase().includes(searchTerm)
                 ).slice(0, 5);
-                
+
                 if (filtered.length > 0) {
                     suggestionsDiv.innerHTML = '<div class="status info">Suggestions:</div>' +
                         filtered.map(name => `<div class="client-item" onclick="selectClient('${name}')">${name}</div>`).join('');
@@ -261,7 +261,7 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
                 suggestionsDiv.style.display = 'none';
             }
         });
-        
+
         function selectClient(name) {
             const currentValue = testInput.value;
             const lastSpaceIndex = currentValue.lastIndexOf(' ') + 1;
@@ -269,7 +269,7 @@ localStorage.setItem('SUPABASE_ANON_KEY', 'your-anon-key');`;
             suggestionsDiv.style.display = 'none';
             testInput.focus();
         }
-        
+
         // Initialize
         checkEnvironment();
     </script>

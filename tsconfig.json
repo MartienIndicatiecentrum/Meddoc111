@@ -25,14 +25,14 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    
+
     // QUALITY: Enable additional checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
     "allowJs": false,
-    
+
     "types": [
       "jest",
       "@testing-library/jest-dom",

@@ -10,10 +10,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { clientService } from '@/services/clientService';
 import type { Client, LogEntryDocument, LogboekEntry as LogboekEntryType, FromType } from '@/types/database';
-import { 
-  X, 
-  Calendar as CalendarIcon, 
-  Search, 
+import {
+  X,
+  Calendar as CalendarIcon,
+  Search,
   Send,
   User,
   MessageCircle,
@@ -53,7 +53,7 @@ const Logboek: React.FC = () => {
   const [logEntries, setLogEntries] = useState<LogboekEntryType[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  
+
   // Filter states
   const [filterFrom, setFilterFrom] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -64,7 +64,7 @@ const Logboek: React.FC = () => {
   const [recentClients, setRecentClients] = useState<Client[]>([]);
   const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
   const [clientLogStatus, setClientLogStatus] = useState<{[key: string]: boolean}>({});
-  
+
   // New entry form states
   const [newEntry, setNewEntry] = useState({
     fromName: '',
@@ -77,7 +77,7 @@ const Logboek: React.FC = () => {
     needsResponse: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Document states for new entry form
   const [newEntryDocuments, setNewEntryDocuments] = useState<Array<{
     id: string;
@@ -133,16 +133,16 @@ const Logboek: React.FC = () => {
       const allClients = await clientService.getClients();
       console.log('Loaded clients:', allClients); // Debug log
       setClients(allClients);
-      
+
       // Laad recente clienten uit localStorage
       const savedRecentClients = localStorage.getItem('recentClients');
       console.log('Loading clients - localStorage savedRecentClients:', savedRecentClients);
-      
+
       if (savedRecentClients) {
         try {
           const recentClientIds = JSON.parse(savedRecentClients);
           console.log('Parsed recent client IDs:', recentClientIds);
-          
+
           const recentClients = recentClientIds
             .map((id: string) => {
               const client = allClients.find(client => client.id === id);
@@ -151,7 +151,7 @@ const Logboek: React.FC = () => {
             })
             .filter(Boolean)
             .slice(0, 5);
-          
+
           console.log('Final recent clients to set:', recentClients.map(c => c.name));
           setRecentClients(recentClients);
           console.log('Loaded recent clients from localStorage:', recentClients);
@@ -165,7 +165,7 @@ const Logboek: React.FC = () => {
         console.log('No recent clients in localStorage, using first 5 clients');
         setRecentClients(allClients.slice(0, 5));
       }
-      
+
       if (allClients.length > 0) {
         setSelectedClient(allClients[0]);
         console.log('Selected first client:', allClients[0]); // Debug log
@@ -213,7 +213,7 @@ const Logboek: React.FC = () => {
   // Filter clients based on search term
   const filteredClients = useMemo(() => {
     if (!clientSearchTerm) return clients;
-    return clients.filter(client => 
+    return clients.filter(client =>
       client.name.toLowerCase().includes(clientSearchTerm.toLowerCase())
     );
   }, [clients, clientSearchTerm]);
@@ -258,7 +258,7 @@ const Logboek: React.FC = () => {
     try {
       setLoading(true);
       const entries = await clientService.getClientLogEntries(clientId);
-      
+
       // Transform database entries to UI format and get document counts
       const transformedEntries: LogboekEntryType[] = await Promise.all(
         entries.map(async (entry) => {
@@ -283,7 +283,7 @@ const Logboek: React.FC = () => {
           };
         })
       );
-      
+
       setLogEntries(transformedEntries);
     } catch (error) {
       console.error('Error loading log entries:', error);
@@ -296,32 +296,32 @@ const Logboek: React.FC = () => {
     try {
       setLoading(true);
       console.log('Loading clients with log entries...');
-      
+
       // Get all log entries to find clients with entries
       const entries = await clientService.getAllLogEntries();
       console.log('All log entries from database:', entries);
-      
+
       // Get unique clients with active log entries (excluding completed statuses)
-      const activeEntries = entries.filter(entry => 
-        entry.status !== 'Afgehandeld' && 
+      const activeEntries = entries.filter(entry =>
+        entry.status !== 'Afgehandeld' &&
         entry.status !== 'Afgerond'
       );
-      
+
       // Get unique client IDs with active entries
       const clientIdsWithEntries = [...new Set(activeEntries.map(entry => entry.client_id))];
-      
+
       // Get client details for these clients
       const clientsWithEntries = await Promise.all(
         clientIdsWithEntries.map(async (clientId) => {
           const client = clients.find(c => c.id === clientId);
           if (!client) return null;
-          
+
           // Get the most recent entry for this client
           const clientEntries = activeEntries.filter(entry => entry.client_id === clientId);
-          const mostRecentEntry = clientEntries.sort((a, b) => 
+          const mostRecentEntry = clientEntries.sort((a, b) =>
             new Date(b.date).getTime() - new Date(a.date).getTime()
           )[0];
-          
+
           return {
             id: client.id,
             name: client.name,
@@ -335,7 +335,7 @@ const Logboek: React.FC = () => {
           };
         })
       );
-      
+
       // Filter out null values and sort by most recent entry
       const validClientsWithEntries = clientsWithEntries
         .filter(client => client !== null)
@@ -345,9 +345,9 @@ const Logboek: React.FC = () => {
           if (!b?.mostRecentEntry) return -1;
           return new Date(b.mostRecentEntry.date).getTime() - new Date(a.mostRecentEntry.date).getTime();
         });
-      
+
       console.log('Clients with active log entries:', validClientsWithEntries);
-      
+
       // Transform to log entries format for display
       const transformedEntries: LogboekEntryType[] = validClientsWithEntries.map(client => ({
         id: client!.id,
@@ -367,7 +367,7 @@ const Logboek: React.FC = () => {
         isUrgent: false,
         needsResponse: false
       }));
-      
+
       setLogEntries(transformedEntries);
     } catch (error) {
       console.error('Error loading clients with log entries:', error);
@@ -391,19 +391,19 @@ const Logboek: React.FC = () => {
   const loadClientLogStatus = useCallback(async () => {
     try {
       const statusMap: {[key: string]: boolean} = {};
-      
+
       // Check status for recent clients
       for (const client of recentClients) {
         statusMap[client.id] = await checkClientLogStatus(client.id);
       }
-      
+
       // Check status for filtered clients
       for (const client of filteredClients) {
         if (!statusMap[client.id]) {
           statusMap[client.id] = await checkClientLogStatus(client.id);
         }
       }
-      
+
       setClientLogStatus(statusMap);
     } catch (error) {
       console.error('Error loading client log status:', error);
@@ -421,13 +421,13 @@ const Logboek: React.FC = () => {
     console.log('handleAddEntry called');
     console.log('selectedClient:', selectedClient);
     console.log('newEntry:', newEntry);
-    
+
     if (!selectedClient) {
       console.error('No client selected');
       alert('Selecteer eerst een cliënt');
       return;
     }
-    
+
     if (!newEntry.description || newEntry.description.trim() === '') {
       alert('Vul een bericht in');
       return;
@@ -437,8 +437,8 @@ const Logboek: React.FC = () => {
 
     try {
       // Determine the final type value - use default if not selected
-      const finalType = newEntry.type === 'Anders' && newEntry.customType 
-        ? newEntry.customType 
+      const finalType = newEntry.type === 'Anders' && newEntry.customType
+        ? newEntry.customType
         : newEntry.type || 'Notitie';
 
       // Add document information to description if documents are uploaded
@@ -471,7 +471,7 @@ const Logboek: React.FC = () => {
 
       if (entry) {
         console.log('Log entry created successfully');
-        
+
               // Upload documents to Supabase if any exist
       if (newEntryDocuments.length > 0) {
         console.log('Uploading documents to Supabase...');
@@ -482,7 +482,7 @@ const Logboek: React.FC = () => {
             } catch (uploadError) {
               console.error('Error uploading document:', doc.name, uploadError);
               const errorMessage = uploadError instanceof Error ? uploadError.message : 'Onbekende fout';
-              
+
               // Provide more specific error messages
               if (errorMessage.includes('does not exist')) {
                 alert(`Fout bij uploaden van document ${doc.name}: Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.`);
@@ -496,11 +496,11 @@ const Logboek: React.FC = () => {
           }
           return null;
         });
-        
+
         const uploadedDocuments = await Promise.all(uploadPromises);
         console.log('Documents uploaded:', uploadedDocuments.filter(doc => doc !== null));
       }
-        
+
         // Reset form and reload entries
         setNewEntry({
           fromName: '',
@@ -517,20 +517,20 @@ const Logboek: React.FC = () => {
         setSelectedNewEntryDocument(null);
         setShowAddForm(false);
         loadLogEntries(selectedClient.id);
-        
+
         // Update recente clienten na het toevoegen van een bericht
         setRecentClients(prev => {
           const filtered = prev.filter(c => c.id !== selectedClient.id);
           const updated = [selectedClient, ...filtered].slice(0, 5);
-          
+
           // Sla recente clienten op in localStorage
           const recentClientIds = updated.map(c => c.id);
           localStorage.setItem('recentClients', JSON.stringify(recentClientIds));
           console.log('Saved recent clients to localStorage after adding entry:', recentClientIds);
-          
+
           return updated;
         });
-        
+
         alert('Bericht succesvol toegevoegd!');
       } else {
         console.error('No entry returned from createLogEntry');
@@ -598,7 +598,7 @@ const Logboek: React.FC = () => {
   const handleClientChange = useCallback((value: string) => {
     console.log('handleClientChange called with value:', value);
     console.log('Available clients:', clients);
-    
+
     if (value === 'all') {
       setSelectedClient(null);
       setShowAllRecent(true);
@@ -606,28 +606,28 @@ const Logboek: React.FC = () => {
     } else {
       const client = clients.find(c => c.id === value);
       console.log('Found client:', client);
-      
+
       if (client) {
         setSelectedClient(client);
         setShowAllRecent(false);
         console.log('Selected client:', client.name);
-        
+
         // Update recente clienten - voeg deze client toe aan het begin van de lijst
         setRecentClients(prev => {
           console.log('Previous recent clients:', prev.map(c => c.name));
           const filtered = prev.filter(c => c.id !== client.id);
           const updated = [client, ...filtered].slice(0, 5);
           console.log('Updated recent clients:', updated.map(c => c.name));
-          
+
           // Sla recente clienten op in localStorage
           const recentClientIds = updated.map(c => c.id);
           localStorage.setItem('recentClients', JSON.stringify(recentClientIds));
           console.log('Saved recent clients to localStorage:', recentClientIds);
-          
+
           // Debug: controleer localStorage direct
           const saved = localStorage.getItem('recentClients');
           console.log('localStorage after save:', saved);
-          
+
           return updated;
         });
       } else {
@@ -647,27 +647,27 @@ const Logboek: React.FC = () => {
       setSelectedClient(client);
       setShowAllRecent(false);
       console.log('Selected client:', client.name);
-      
+
       // Update recente clienten - voeg deze client toe aan het begin van de lijst
       setRecentClients(prev => {
         console.log('Previous recent clients:', prev.map(c => c.name));
         const filtered = prev.filter(c => c.id !== client.id);
         const updated = [client, ...filtered].slice(0, 5);
         console.log('Updated recent clients:', updated.map(c => c.name));
-        
+
         // Sla recente clienten op in localStorage
         const recentClientIds = updated.map(c => c.id);
         localStorage.setItem('recentClients', JSON.stringify(recentClientIds));
         console.log('Saved recent clients to localStorage:', recentClientIds);
-        
+
         // Debug: controleer localStorage direct
         const saved = localStorage.getItem('recentClients');
         console.log('localStorage after save:', saved);
-        
+
         return updated;
       });
     }
-    
+
     // Sluit de Popover na selectie
     setClientPopoverOpen(false);
   }, []);
@@ -685,7 +685,7 @@ const Logboek: React.FC = () => {
     });
     setIsEditing(false);
     setShowEntryModal(true);
-    
+
     // Load documents from database
     try {
       const documents = await clientService.getLogEntryDocuments(entry.id);
@@ -710,7 +710,7 @@ const Logboek: React.FC = () => {
 
   const handleSaveEdit = useCallback(async () => {
     if (!selectedEntry) return;
-    
+
     try {
       // Update in database
       await clientService.updateLogEntry(selectedEntry.id, {
@@ -718,19 +718,19 @@ const Logboek: React.FC = () => {
         description: editForm.description,
         status: editForm.status
       });
-      
+
       // Update local state
-      setLogEntries(prev => prev.map(entry => 
-        entry.id === selectedEntry.id 
-          ? { 
-              ...entry, 
+      setLogEntries(prev => prev.map(entry =>
+        entry.id === selectedEntry.id
+          ? {
+              ...entry,
               action: editForm.action,
               description: editForm.description,
               status: editForm.status
             }
           : entry
       ));
-      
+
       // Update selected entry
       setSelectedEntry(prev => prev ? {
         ...prev,
@@ -738,7 +738,7 @@ const Logboek: React.FC = () => {
         description: editForm.description,
         status: editForm.status
       } : null);
-      
+
       setIsEditing(false);
       console.log('Entry updated successfully');
     } catch (error) {
@@ -749,7 +749,7 @@ const Logboek: React.FC = () => {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
-  
+
   // Document states for modal
   const [documents, setDocuments] = useState<Array<{
     id: string;
@@ -760,7 +760,7 @@ const Logboek: React.FC = () => {
   }>>([]);
   const [uploading, setUploading] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
-  
+
   // Document preview modal states
   const [showDocumentPreview, setShowDocumentPreview] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<any>(null);
@@ -772,20 +772,20 @@ const Logboek: React.FC = () => {
 
   const confirmDelete = useCallback(async () => {
     if (!entryToDelete) return;
-    
+
     try {
       // Delete from database
       await clientService.deleteLogEntry(entryToDelete);
-      
+
       // Remove from local state
       setLogEntries(prev => prev.filter(entry => entry.id !== entryToDelete));
-      
+
       // Close modal if the deleted entry was selected
       if (selectedEntry && selectedEntry.id === entryToDelete) {
         setShowEntryModal(false);
         setSelectedEntry(null);
       }
-      
+
       console.log('Entry deleted successfully');
     } catch (error) {
       console.error('Error deleting entry:', error);
@@ -799,7 +799,7 @@ const Logboek: React.FC = () => {
   // Document handling functions
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     setUploading(true);
     try {
       // Check if we have a selected entry with client_id
@@ -815,19 +815,19 @@ const Logboek: React.FC = () => {
       }
 
       const uploadedDocuments = [];
-      
+
       for (const file of Array.from(files)) {
         try {
           // Get the client_id from selectedEntry or fallback to selectedClient
           const clientId = selectedEntry.client_id || selectedClient?.id;
-          
+
           // Upload document to Supabase using clientService
           const uploadedDoc = await clientService.uploadDocument(
-            file, 
-            clientId, 
+            file,
+            clientId,
             selectedEntry.id
           );
-          
+
           if (uploadedDoc) {
             uploadedDocuments.push({
               id: uploadedDoc.id,
@@ -836,13 +836,13 @@ const Logboek: React.FC = () => {
               size: uploadedDoc.file_size,
               url: uploadedDoc.public_url
             });
-            
+
             console.log('Document uploaded successfully:', uploadedDoc);
           }
         } catch (fileError) {
           console.error('Error uploading file:', file.name, fileError);
           const errorMessage = fileError instanceof Error ? fileError.message : 'Onbekende fout';
-          
+
           // Provide more specific error messages
           if (errorMessage.includes('does not exist')) {
             alert(`Fout bij uploaden van ${file.name}: Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.`);
@@ -853,14 +853,14 @@ const Logboek: React.FC = () => {
           }
         }
       }
-      
+
       // Update local state with uploaded documents
       setDocuments(prev => [...prev, ...uploadedDocuments]);
-      
+
       if (uploadedDocuments.length > 0) {
         toast.success(`${uploadedDocuments.length} document(en) succesvol geüpload!`);
       }
-      
+
     } catch (error) {
       console.error('Error uploading documents:', error);
       alert('Fout bij het uploaden van documenten');
@@ -890,7 +890,7 @@ const Logboek: React.FC = () => {
     try {
       // Delete from database and storage
       const success = await clientService.deleteDocument(documentId);
-      
+
       if (success) {
         // Remove from local state
         setDocuments(prev => prev.filter(doc => doc.id !== documentId));
@@ -911,7 +911,7 @@ const Logboek: React.FC = () => {
   // Document handling functions for new entry form
   const handleNewEntryFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     setNewEntryUploading(true);
     try {
       const newDocuments = Array.from(files).map((file, index) => ({
@@ -922,7 +922,7 @@ const Logboek: React.FC = () => {
         url: URL.createObjectURL(file),
         file: file
       }));
-      
+
       setNewEntryDocuments(prev => [...prev, ...newDocuments]);
       console.log('New entry documents added:', newDocuments);
     } catch (error) {
@@ -965,17 +965,17 @@ const Logboek: React.FC = () => {
   // Function to extract documents from description
   const extractDocumentsFromDescription = useCallback((description: string) => {
     const documents: Array<{id: string, name: string, size: string}> = [];
-    
+
     // Look for document patterns in description
     const lines = description.split('\n');
     let inDocumentSection = false;
-    
+
     lines.forEach((line, index) => {
       if (line.includes('📎 **BIJLAGEN:**')) {
         inDocumentSection = true;
         return;
       }
-      
+
       if (inDocumentSection && line.trim().startsWith('📎')) {
         const match = line.match(/📎 (.+?) \((\d+\.?\d*) MB\)/);
         if (match) {
@@ -987,29 +987,29 @@ const Logboek: React.FC = () => {
         }
       }
     });
-    
+
     return documents;
   }, []);
 
   const handleStatusChange = useCallback(async (entryId: string, newStatus: string) => {
     try {
       // Update in database
-      await clientService.updateLogEntry(entryId, { 
-        status: newStatus as 'Geen urgentie' | 'Licht urgent' | 'Urgent' | 'Reactie nodig' | 'Afgehandeld' | 'In behandeling' 
+      await clientService.updateLogEntry(entryId, {
+        status: newStatus as 'Geen urgentie' | 'Licht urgent' | 'Urgent' | 'Reactie nodig' | 'Afgehandeld' | 'In behandeling'
       });
-      
+
       // Update local state
-      setLogEntries(prev => prev.map(entry => 
-        entry.id === entryId 
+      setLogEntries(prev => prev.map(entry =>
+        entry.id === entryId
           ? { ...entry, status: newStatus as 'Geen urgentie' | 'Licht urgent' | 'Urgent' | 'Reactie nodig' | 'Afgehandeld' | 'In behandeling' }
           : entry
       ));
-      
+
       // Update selected entry if it's the same one
       if (selectedEntry && selectedEntry.id === entryId) {
         setSelectedEntry(prev => prev ? { ...prev, status: newStatus as 'Geen urgentie' | 'Licht urgent' | 'Urgent' | 'Reactie nodig' | 'Afgehandeld' | 'In behandeling' } : null);
       }
-      
+
       console.log(`Status updated to: ${newStatus}`);
     } catch (error) {
       console.error('Error updating status:', error);
@@ -1045,7 +1045,7 @@ const Logboek: React.FC = () => {
               <Home className="h-4 w-4" />
               Home
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -1061,7 +1061,7 @@ const Logboek: React.FC = () => {
               <Send className="h-4 w-4" />
               Nieuw bericht
             </Button>
-            
+
             <User className="h-5 w-5 text-gray-500" />
             <Button
               variant="outline"
@@ -1100,10 +1100,10 @@ const Logboek: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="max-h-60 overflow-y-auto">
                     {/* Alle recente berichten */}
-                    <div 
+                    <div
                       className="px-2 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
                       onClick={() => {
                         handleClientSelect(null);
@@ -1113,7 +1113,7 @@ const Logboek: React.FC = () => {
                       <span className="mr-2">📋</span>
                       Alle recente berichten
                     </div>
-                    
+
                     {/* Recente clienten sectie */}
                     {recentClients.length > 0 && (
                       <>
@@ -1137,7 +1137,7 @@ const Logboek: React.FC = () => {
                         ))}
                       </>
                     )}
-                    
+
                     {/* Alle clienten sectie */}
                     {filteredClients.length > 0 && (
                       <>
@@ -1164,7 +1164,7 @@ const Logboek: React.FC = () => {
                           ))}
                       </>
                     )}
-                    
+
                     {filteredClients.length === 0 && clientSearchTerm && (
                       <div className="px-2 py-1 text-sm text-gray-500">
                         Geen cliënten gevonden voor "{clientSearchTerm}"
@@ -1197,7 +1197,7 @@ const Logboek: React.FC = () => {
                 onChange={handleFilterFromChange}
               />
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Type</label>
               <Select value={filterType} onValueChange={handleFilterTypeChange}>
@@ -1224,7 +1224,7 @@ const Logboek: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
               <Select value={filterStatus} onValueChange={handleFilterStatusChange}>
@@ -1242,7 +1242,7 @@ const Logboek: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Datum</label>
               <Popover>
@@ -1269,7 +1269,7 @@ const Logboek: React.FC = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">Beschrijving</label>
               <Input
@@ -1279,7 +1279,7 @@ const Logboek: React.FC = () => {
               />
             </div>
           </div>
-          
+
           {/* Clear filters button */}
           <div className="flex justify-end">
             <Button
@@ -1312,7 +1312,7 @@ const Logboek: React.FC = () => {
                   onChange={(e) => handleNewEntryChange('fromName', e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Type afzender (optioneel)</label>
                 <Select value={newEntry.fromType} onValueChange={(value: 'client' | 'employee' | 'insurer' | 'family') => handleNewEntryChange('fromType', value)}>
@@ -1327,7 +1327,7 @@ const Logboek: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Type bericht (optioneel)</label>
                 <Select value={newEntry.type} onValueChange={(value: 'Notitie' | 'Vraag Verzekeraar' | 'Vraag Client' | 'Indicatie' | 'Taak' | 'Documenten afronden en opsturen' | 'Reactie client' | 'Reactie verzekeraar' | 'Reactie Opdrachtgever' | 'Mijn reactie' | 'Vervolgreactie client' | 'Vervolgreactie verzekeraar' | 'Vervolgreactie Opdrachtgever' | 'Algemene response' | 'Anders') => handleNewEntryChange('type', value)}>
@@ -1353,7 +1353,7 @@ const Logboek: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {/* Custom type field for "Anders" option */}
               {newEntry.type === 'Anders' && (
                 <div>
@@ -1365,7 +1365,7 @@ const Logboek: React.FC = () => {
                   />
                 </div>
               )}
-              
+
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">Actie (optioneel)</label>
                 <Input
@@ -1375,7 +1375,7 @@ const Logboek: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label className="text-sm font-medium text-gray-700 mb-2 block">Beschrijving (optioneel)</label>
               <Textarea
@@ -1385,7 +1385,7 @@ const Logboek: React.FC = () => {
                 rows={4}
               />
             </div>
-            
+
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -1395,7 +1395,7 @@ const Logboek: React.FC = () => {
                 />
                 <label htmlFor="urgent" className="text-sm font-medium text-gray-700">Urgent</label>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="needsResponse"
@@ -1411,7 +1411,7 @@ const Logboek: React.FC = () => {
               <div className="text-center">
                 <h3 className="text-lg font-bold text-blue-800 mb-2">📎 Documenten Uploaden</h3>
                 <p className="text-sm text-blue-600 mb-4">Voeg documenten toe aan dit bericht</p>
-                
+
                 <input
                   type="file"
                   multiple
@@ -1427,14 +1427,14 @@ const Logboek: React.FC = () => {
                   <Upload className="h-5 w-5" />
                   Bestanden Kiezen
                 </label>
-                
+
                 {newEntryUploading && (
                   <div className="flex items-center justify-center gap-2 text-sm text-blue-600 mt-3">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Uploaden...
                   </div>
                 )}
-                
+
                 {newEntryDocuments.length > 0 && (
                   <div className="mt-4 text-left">
                     <h4 className="font-bold text-blue-800 mb-2">Geüploade bestanden:</h4>
@@ -1471,10 +1471,10 @@ const Logboek: React.FC = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <Button 
-                onClick={handleAddEntry} 
+              <Button
+                onClick={handleAddEntry}
                 disabled={!selectedClient || isSubmitting}
               >
                 {isSubmitting ? (
@@ -1489,8 +1489,8 @@ const Logboek: React.FC = () => {
                   </>
                 )}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowAddForm(false)}
                 disabled={isSubmitting}
               >
@@ -1556,7 +1556,7 @@ const Logboek: React.FC = () => {
                         <div className={`flex items-center gap-0.5 ${
                           entry.from.type === 'employee' ? 'justify-start' : 'justify-end'
                         }`} style={{ minWidth: '200px' }}>
-                          {React.createElement(getIconForType(entry.from.type), { 
+                          {React.createElement(getIconForType(entry.from.type), {
                             className: `w-4 h-4 flex-shrink-0 ${
                               entry.from.color === 'blue' ? 'text-blue-600' :
                               entry.from.color === 'purple' ? 'text-purple-600' :
@@ -1596,8 +1596,8 @@ const Logboek: React.FC = () => {
                       </td>
                       <td className="py-1 px-2 align-middle">
                         <div className="flex items-center gap-2">
-                          <Select 
-                            value={entry.status} 
+                          <Select
+                            value={entry.status}
                             onValueChange={(value) => handleStatusChange(entry.id, value)}
                             onOpenChange={(open) => {
                               if (open) {
@@ -1677,7 +1677,7 @@ const Logboek: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              
+
               {filteredEntries.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   Geen logboek entries gevonden
@@ -1708,7 +1708,7 @@ const Logboek: React.FC = () => {
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-6">
                 {/* Header Info */}
@@ -1735,8 +1735,8 @@ const Logboek: React.FC = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-500">Status</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Select 
-                        value={selectedEntry.status} 
+                      <Select
+                        value={selectedEntry.status}
                         onValueChange={(value) => handleStatusChange(selectedEntry.id, value)}
                       >
                         <SelectTrigger className={`w-40 h-8 text-xs ${getStatusColor(selectedEntry.status)}`}>
@@ -1863,18 +1863,18 @@ const Logboek: React.FC = () => {
                       </label>
                     </div>
                   </div>
-                  
+
                   {uploading && (
                     <div className="flex items-center gap-2 text-sm text-blue-600 mb-3">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Documenten uploaden...
                     </div>
                   )}
-                  
+
                   {(() => {
                     const extractedDocs = extractDocumentsFromDescription(selectedEntry.description);
                     const allDocs = [...documents, ...extractedDocs];
-                    
+
                     if (allDocs.length === 0) {
                       return (
                         <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
@@ -1884,7 +1884,7 @@ const Logboek: React.FC = () => {
                         </div>
                       );
                     }
-                    
+
                     return (
                       <div className="space-y-2">
                         {allDocs.map((doc) => (
@@ -1936,7 +1936,7 @@ const Logboek: React.FC = () => {
                                             </div>
                     );
                   })()}
-                  
+
                   {/* Document Preview */}
                   {selectedDocument && (
                     <div className="mt-4 p-4 bg-white border rounded-lg">
@@ -1983,7 +1983,7 @@ const Logboek: React.FC = () => {
                 <Trash2 className="h-4 w-4" />
                 Verwijderen
               </Button>
-              
+
               {/* Right side - Edit and Close buttons */}
               <div className="flex gap-3">
                 {isEditing ? (
@@ -2053,7 +2053,7 @@ const Logboek: React.FC = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Content */}
             <div className="flex-1 overflow-hidden p-6">
               <div className="mb-4">
@@ -2062,7 +2062,7 @@ const Logboek: React.FC = () => {
                   {(previewDocument.size / 1024 / 1024).toFixed(1)} MB • {previewDocument.type}
                 </p>
               </div>
-              
+
               <div className="border rounded-lg overflow-hidden bg-gray-50">
                 {previewDocument.type.startsWith('image/') ? (
                   <div className="flex items-center justify-center p-8">
@@ -2120,14 +2120,14 @@ const Logboek: React.FC = () => {
                 <p className="text-sm text-gray-600">Deze actie kan niet ongedaan worden gemaakt</p>
               </div>
             </div>
-            
+
             <div className="mb-6">
               <p className="text-gray-700">
-                Weet je zeker dat je dit bericht wilt verwijderen? 
+                Weet je zeker dat je dit bericht wilt verwijderen?
                 Alle gegevens worden permanent verwijderd uit het systeem.
               </p>
             </div>
-            
+
             <div className="flex justify-end gap-3">
               <Button
                 variant="outline"
@@ -2154,4 +2154,4 @@ const Logboek: React.FC = () => {
   );
 };
 
-export default Logboek; 
+export default Logboek;

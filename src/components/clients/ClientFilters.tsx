@@ -35,7 +35,7 @@ const statusLabels: Record<ClientStatus, string> = {
 
 const careLevelLabels: Record<CareLevel, string> = {
   wlz_1: 'WLZ-1',
-  wlz_2: 'WLZ-2', 
+  wlz_2: 'WLZ-2',
   wlz_3: 'WLZ-3',
   wlz_4: 'WLZ-4',
   wlz_5: 'WLZ-5',

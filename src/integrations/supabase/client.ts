@@ -40,11 +40,11 @@ supabase.auth.onAuthStateChange((event, _session) => {
     // Clear any sensitive data from memory
     console.log('User signed out - clearing session data');
   }
-  
+
   if (event === 'TOKEN_REFRESHED') {
     console.log('Auth token refreshed successfully');
   }
-  
+
   if (event === 'SIGNED_IN') {
     console.log('User signed in successfully');
   }

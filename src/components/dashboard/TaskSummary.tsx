@@ -25,7 +25,7 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ tasks, max = 3 }) => {
     const today = new Date();
     const deadlineDate = new Date(deadline);
     const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return 'text-red-600 font-semibold'; // Overdue
     if (diffDays <= 3) return 'text-orange-600 font-medium'; // Due soon
     return 'text-gray-400'; // Normal
@@ -51,8 +51,8 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ tasks, max = 3 }) => {
       )}
       {tasks.length > max && (
         <div className="mt-2">
-          <Link 
-            to="/taken" 
+          <Link
+            to="/taken"
             className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
           >
             Bekijk alle {tasks.length} taken →

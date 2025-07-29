@@ -9,46 +9,46 @@
 <body>
     <h1>🔍 Logboek Test</h1>
     <p>Open de browser console (F12) om de test resultaten te zien.</p>
-    
+
     <button onclick="testLogboek()">Test Logboek Opslaan</button>
     <button onclick="testClients()">Test Clients Laden</button>
     <button onclick="testDatabase()">Test Database Connectie</button>
-    
+
     <div id="results"></div>
 
     <script>
         // Supabase configuratie
         const supabaseUrl = 'https://ltasjbgamoljvqoclgkf.supabase.co';
         const supabaseKey = 'your-anon-key-here'; // Vervang dit met je echte key
-        
+
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
+
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
             const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
             console.log(`%c[${timestamp}] ${message}`, `color: ${color}`);
-            
+
             const resultsDiv = document.getElementById('results');
             const div = document.createElement('div');
             div.style.color = color;
             div.textContent = `[${timestamp}] ${message}`;
             resultsDiv.appendChild(div);
         }
-        
+
         async function testDatabase() {
             log('🔍 Testing database connection...');
-            
+
             try {
                 const { data, error } = await supabase
                     .from('clients')
                     .select('id, name')
                     .limit(1);
-                
+
                 if (error) {
                     log(`❌ Database error: ${error.message}`, 'error');
                     return false;
                 }
-                
+
                 log(`✅ Database connected! Found ${data?.length || 0} clients`, 'success');
                 return true;
             } catch (error) {
@@ -56,53 +56,53 @@
                 return false;
             }
         }
-        
+
         async function testClients() {
             log('🔍 Testing clients loading...');
-            
+
             try {
                 const { data: clients, error } = await supabase
                     .from('clients')
                     .select('id, name')
                     .limit(5);
-                
+
                 if (error) {
                     log(`❌ Clients error: ${error.message}`, 'error');
                     return null;
                 }
-                
+
                 log(`✅ Found ${clients?.length || 0} clients`, 'success');
                 if (clients && clients.length > 0) {
                     log(`First client: ${clients[0].name}`, 'info');
                 }
-                
+
                 return clients;
             } catch (error) {
                 log(`❌ Clients failed: ${error.message}`, 'error');
                 return null;
             }
         }
-        
+
         async function testLogboek() {
             log('🔍 Testing logboek save...');
-            
+
             // Test database connection first
             const dbOk = await testDatabase();
             if (!dbOk) {
                 log('❌ Cannot test logboek - database connection failed', 'error');
                 return;
             }
-            
+
             // Get a client
             const clients = await testClients();
             if (!clients || clients.length === 0) {
                 log('❌ Cannot test logboek - no clients found', 'error');
                 return;
             }
-            
+
             const testClient = clients[0];
             log(`Using client: ${testClient.name}`, 'info');
-            
+
             // Try to create a logboek entry
             const testEntry = {
                 client_id: testClient.id,
@@ -116,21 +116,21 @@
                 is_urgent: false,
                 needs_response: false
             };
-            
+
             log('Attempting to create logboek entry...', 'info');
-            
+
             try {
                 const { data: createdEntry, error } = await supabase
                     .from('logboek')
                     .insert(testEntry)
                     .select()
                     .single();
-                
+
                 if (error) {
                     log(`❌ Create failed: ${error.message}`, 'error');
                     log(`Error code: ${error.code}`, 'error');
                     log(`Error details: ${error.details}`, 'error');
-                    
+
                     if (error.code === '23514') {
                         log('🔍 This is a constraint violation - database constraints are blocking the insert', 'error');
                         log('You need to run the SQL fix script in Supabase', 'error');
@@ -138,30 +138,30 @@
                         log('🔍 Permission denied - RLS policies are blocking the insert', 'error');
                         log('You need to disable RLS or create proper policies', 'error');
                     }
-                    
+
                     return;
                 }
-                
+
                 log('✅ Logboek entry created successfully!', 'success');
                 log(`Entry ID: ${createdEntry.id}`, 'success');
-                
+
                 // Clean up
                 const { error: deleteError } = await supabase
                     .from('logboek')
                     .delete()
                     .eq('id', createdEntry.id);
-                
+
                 if (deleteError) {
                     log(`⚠️ Cleanup failed: ${deleteError.message}`, 'error');
                 } else {
                     log('✅ Test data cleaned up', 'success');
                 }
-                
+
             } catch (error) {
                 log(`❌ Unexpected error: ${error.message}`, 'error');
             }
         }
-        
+
         // Auto-run database test on load
         window.addEventListener('load', () => {
             log('🚀 Logboek Test Page Loaded', 'success');
@@ -169,4 +169,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

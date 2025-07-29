@@ -167,7 +167,7 @@ serve(async (req) => {
               .from('notifications')
               .update({ sent_at: new Date().toISOString() })
               .eq('id', storedNotification.id);
-            
+
             sentCount++;
           }
         }

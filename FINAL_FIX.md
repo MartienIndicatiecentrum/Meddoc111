@@ -53,13 +53,13 @@ ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_from_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_type_check;
 ALTER TABLE public.logboek DROP CONSTRAINT IF EXISTS logboek_status_check;
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_from_type_check
     CHECK (from_type IN ('client', 'employee', 'insurer', 'family', 'verzekeraar'));
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_type_check
     CHECK (type IS NOT NULL AND length(trim(type)) > 0);
 
-ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check 
+ALTER TABLE public.logboek ADD CONSTRAINT logboek_status_check
     CHECK (status IN ('Geen urgentie', 'Licht urgent', 'Urgent', 'Reactie nodig', 'Afgehandeld', 'In behandeling'));
 
 -- Update defaults
@@ -99,4 +99,4 @@ ALTER TABLE public.logboek ALTER COLUMN from_color SET DEFAULT 'bg-gray-500';
 ## 🎯 Resultaat:
 Na het uitvoeren van alle stappen zou het automatisch opslaan van berichten en documenten moeten werken!
 
-**De applicatie draait al op http://localhost:3001 - probeer het nu!** 🚀 
+**De applicatie draait al op http://localhost:3001 - probeer het nu!** 🚀

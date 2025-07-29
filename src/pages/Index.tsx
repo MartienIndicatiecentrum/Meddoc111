@@ -159,7 +159,7 @@ const Index = () => {
         query = query.eq('client_id', selectedClientId);
       }
       const { data, error } = await query;
-      
+
       if (error) throw error;
 
       if (data) {
@@ -184,7 +184,7 @@ const Index = () => {
         query = query.eq('client_id', selectedClientId);
       }
       const { data, error } = await query;
-      
+
       if (error) throw error;
 
       if (data) {
@@ -204,7 +204,7 @@ const Index = () => {
           openstaand: 0,
           urgent: 0
         });
-        
+
         setStats(newStats);
       }
     } catch (error) {

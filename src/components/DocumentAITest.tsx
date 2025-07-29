@@ -12,12 +12,12 @@ const DocumentAITest: React.FC = () => {
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '24px', color: '#1f2937' }}>
         Document AI Test Interface
       </h1>
-      
+
       {/* Basic Test Section */}
-      <div style={{ 
-        padding: '16px', 
-        backgroundColor: '#dbeafe', 
-        borderRadius: '8px', 
+      <div style={{
+        padding: '16px',
+        backgroundColor: '#dbeafe',
+        borderRadius: '8px',
         marginBottom: '24px',
         border: '1px solid #93c5fd'
       }}>

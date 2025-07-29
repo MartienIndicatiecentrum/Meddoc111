@@ -59,7 +59,7 @@ async function testDocumentSearch(query) {
   }
 
   console.log(`Found ${results.length} matching documents:\n`);
-  
+
   results.forEach((doc, i) => {
     console.log(`${i + 1}. ${doc.title}`);
     console.log(`   Relevance: ${(doc.similarity * 100).toFixed(1)}%`);
@@ -71,7 +71,7 @@ async function testDocumentSearch(query) {
 // Test with different queries
 async function runTests() {
   console.log('🧪 Testing Document Search Functionality\n');
-  
+
   const testQueries = [
     'zorgplan',
     'Arkojan Arakelyan',

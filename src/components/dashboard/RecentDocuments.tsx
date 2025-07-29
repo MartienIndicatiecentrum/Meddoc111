@@ -43,7 +43,7 @@ const RecentDocuments: React.FC<RecentDocumentsProps> = ({ max = 5 }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'Zojuist';
     if (diffInHours < 24) return `${diffInHours} uur geleden`;
     if (diffInHours < 48) return 'Gisteren';
@@ -79,12 +79,12 @@ const RecentDocuments: React.FC<RecentDocumentsProps> = ({ max = 5 }) => {
       {!loading && !error && documents.length > 0 && (
         <div className="space-y-3">
           {documents.map(doc => (
-            <div 
-              key={doc.id} 
+            <div
+              key={doc.id}
               className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
             >
               <FileText className="w-4 h-4 text-blue-600 mt-1 flex-shrink-0" />
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="font-medium text-gray-900 text-sm truncate" title={doc.title}>
@@ -109,7 +109,7 @@ const RecentDocuments: React.FC<RecentDocumentsProps> = ({ max = 5 }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 {doc.client_name && (
                   <div className="flex items-center gap-2 mt-2">
                     <Avatar className="w-6 h-6">
@@ -126,7 +126,7 @@ const RecentDocuments: React.FC<RecentDocumentsProps> = ({ max = 5 }) => {
                     )}
                   </div>
                 )}
-                
+
                 {!doc.client_name && doc.category && (
                   <div className="mt-1">
                     <Badge variant="outline" className="text-xs px-1 py-0">

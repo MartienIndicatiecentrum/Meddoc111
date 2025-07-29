@@ -48,7 +48,7 @@ export class MorphikService {
    */
   async ensureClientFolder(clientId: string, clientName: string): Promise<string> {
     const folderName = this.generateFolderName(clientId, clientName);
-    
+
     try {
       // Check if folder exists
       const folderInfo = await this.invokeMorphikTool('morphik_get_folder_info', {
@@ -73,8 +73,8 @@ export class MorphikService {
    * Sync a document to Morphik
    */
   async syncDocument(
-    documentId: string, 
-    filePath: string, 
+    documentId: string,
+    filePath: string,
     clientId: string,
     metadata?: Record<string, any>
   ): Promise<MorphikSyncResult> {
@@ -161,7 +161,7 @@ export class MorphikService {
       const backendResponse = await fetch(`${backendUrl}/health`, {
         signal: AbortSignal.timeout(5000)
       });
-      
+
       if (!backendResponse.ok) {
         return {
           available: false,
@@ -179,9 +179,9 @@ export class MorphikService {
         signal: AbortSignal.timeout(10000)
       });
 
-      
+
       const responseTime = Date.now() - startTime;
-      
+
       if (morphikResponse.ok) {
         const healthData = await morphikResponse.json();
         return {
@@ -214,7 +214,7 @@ export class MorphikService {
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           return {
@@ -232,7 +232,7 @@ export class MorphikService {
           };
         }
       }
-      
+
       return {
         available: false,
         error: {
@@ -295,7 +295,7 @@ export class MorphikService {
       }
     } catch (error) {
       console.error('Error querying Morphik:', error);
-      
+
       // Get detailed service status for better error diagnosis
       try {
         const serviceStatus = await this.checkServiceStatus();
@@ -307,13 +307,13 @@ export class MorphikService {
       } catch (statusError) {
         console.error('Could not check service status:', statusError);
       }
-      
+
       // Fallback to enhanced error categorization
       let userMessage = 'Er is een fout opgetreden bij het verwerken van uw vraag.';
-      
+
       if (error instanceof Error) {
         const errorMsg = error.message.toLowerCase();
-        
+
         if (errorMsg.includes('failed to fetch') || errorMsg.includes('network')) {
           userMessage = 'Netwerkverbinding mislukt. Controleer uw internetverbinding en probeer het opnieuw.';
         } else if (errorMsg.includes('401') || errorMsg.includes('unauthorized') || errorMsg.includes('auth')) {
@@ -332,7 +332,7 @@ export class MorphikService {
           userMessage = 'CORS configuratie probleem. Contacteer uw systeembeheerder.';
         }
       }
-      
+
       throw new Error(userMessage);
     }
   }
@@ -408,7 +408,7 @@ export class MorphikService {
       .replace(/[^a-z0-9-_]/g, '-')
       .replace(/-+/g, '-')
       .substring(0, 50);
-    
+
     return `client-${clientId}-${sanitizedName}`;
   }
 
@@ -417,7 +417,7 @@ export class MorphikService {
     if (typeof window !== 'undefined' && (window as any).electronAPI?.invokeMCPTool) {
       return await (window as any).electronAPI.invokeMCPTool('morphik', toolName, args);
     }
-    
+
     // Direct API implementation for web applications
     try {
       return await this.callMorphikAPI(toolName, args);
@@ -429,7 +429,7 @@ export class MorphikService {
 
   private async callMorphikAPI(toolName: string, args: any): Promise<any> {
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
-    
+
     try {
       switch (toolName) {
         case 'morphik_agent_query':
@@ -487,7 +487,7 @@ export class MorphikService {
     if (!response.ok) {
       const errorData = await response.json();
       const errorMsg = errorData.message || `Morphik API error: ${response.status}`;
-      
+
       // Enhanced error messages based on error codes
       if (errorData.code === 'MORPHIK_NOT_CONFIGURED') {
         throw new Error('Morphik service is niet geconfigureerd. Contacteer uw systeembeheerder.');
@@ -496,7 +496,7 @@ export class MorphikService {
       } else if (errorData.code === 'SERVICE_UNAVAILABLE') {
         throw new Error('Morphik service is tijdelijk niet beschikbaar.');
       }
-      
+
       throw new Error(errorMsg);
     }
 
@@ -555,17 +555,17 @@ export class MorphikService {
   private async uploadFile(args: any, backendUrl: string): Promise<any> {
     // Create FormData for proper file upload
     const formData = new FormData();
-    
+
     if (args.file && args.file instanceof Blob) {
       formData.append('file', args.file, args.filename || 'document.pdf');
     } else {
       throw new Error('File upload requires a Blob or File object');
     }
-    
+
     if (args.folder) {
       formData.append('folder_name', args.folder);
     }
-    
+
     if (args.metadata) {
       formData.append('metadata', JSON.stringify(args.metadata));
     }
@@ -614,7 +614,7 @@ export class MorphikService {
 
   private async retrieveDocumentsAPI(args: any, backendUrl: string): Promise<any> {
     const queryParams = new URLSearchParams();
-    
+
     if (args.query) queryParams.append('query', args.query);
     if (args.folder) queryParams.append('folder_name', args.folder);
     if (args.limit) queryParams.append('limit', args.limit.toString());
@@ -665,8 +665,8 @@ export class MorphikService {
 
 
   private async updateSyncStatus(
-    documentId: string, 
-    status: string, 
+    documentId: string,
+    status: string,
     error?: string
   ): Promise<void> {
     await supabase

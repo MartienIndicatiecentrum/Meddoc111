@@ -62,7 +62,7 @@ const mockCaregivers: Caregiver[] = [
     status: 'available'
   },
   {
-    id: '2', 
+    id: '2',
     name: 'Tom van Dijk',
     specialization: 'WMO begeleiding',
     phone: '06-22222222',
@@ -224,7 +224,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         <h2 className="text-xl font-bold mb-4">
           {appointment ? 'Afspraak bewerken' : 'Nieuwe afspraak'}
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -493,7 +493,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           <Calendar className="w-4 h-4" />
           <span>{formatDate(appointment.date)}</span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4" />
           <span>{formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}</span>
@@ -632,10 +632,10 @@ const Planning: React.FC = () => {
   const filteredAppointments = useMemo(() => {
     const today = new Date();
     const selected = new Date(selectedDate);
-    
+
     return appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.date);
-      
+
       switch (viewMode) {
         case 'today':
           return appointmentDate.toDateString() === today.toDateString();
@@ -646,7 +646,7 @@ const Planning: React.FC = () => {
           weekEnd.setDate(weekStart.getDate() + 6);
           return appointmentDate >= weekStart && appointmentDate <= weekEnd;
         case 'month':
-          return appointmentDate.getMonth() === selected.getMonth() && 
+          return appointmentDate.getMonth() === selected.getMonth() &&
                  appointmentDate.getFullYear() === selected.getFullYear();
         default:
           return true;
@@ -673,10 +673,10 @@ const Planning: React.FC = () => {
 
   // Statistics
   const stats = useMemo(() => {
-    const today = filteredAppointments.filter(apt => 
+    const today = filteredAppointments.filter(apt =>
       new Date(apt.date).toDateString() === new Date().toDateString()
     );
-    
+
     return {
       total: filteredAppointments.length,
       today: today.length,
@@ -803,8 +803,8 @@ const Planning: React.FC = () => {
             <button
               onClick={() => setViewMode('today')}
               className={`px-3 py-2 rounded text-sm ${
-                viewMode === 'today' 
-                  ? 'bg-blue-600 text-white' 
+                viewMode === 'today'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -813,8 +813,8 @@ const Planning: React.FC = () => {
             <button
               onClick={() => setViewMode('week')}
               className={`px-3 py-2 rounded text-sm ${
-                viewMode === 'week' 
-                  ? 'bg-blue-600 text-white' 
+                viewMode === 'week'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -823,8 +823,64 @@ const Planning: React.FC = () => {
             <button
               onClick={() => setViewMode('month')}
               className={`px-3 py-2 rounded text-sm ${
-                viewMode === 'month' 
-                  ? 'bg-blue-600 text-white' 
+                viewMode === 'month'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
+              Deze maand
+            </button>
+          </div>
+        </div>
+
+        {/* Calendar View */}
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-6">
+          {Array.from({ length: 7 }).map((_, i) => {
+            const day = new Date(selectedDate);
+            day.setDate(day.getDate() + i);
+            return (
+              <div key={i} className="bg-gray-100 p-3 rounded-lg text-center text-sm font-semibold text-gray-800">
+                <p className="text-xs">{day.toLocaleDateString('nl-NL', { weekday: 'short' })}</p>
+                <p className="text-lg">{day.getDate()}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Appointment List */}
+        <div className="space-y-4">
+          {filteredAppointments.length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center text-gray-600">
+              Geen afspraken gevonden voor deze periode.
+            </div>
+          ) : (
+            filteredAppointments.map(appointment => (
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                client={clientMap[appointment.client_id]}
+                caregiver={caregiverMap[appointment.caregiver_id || '']}
+                onEdit={handleEditAppointment}
+                onDelete={handleDeleteAppointment}
+                onStatusChange={handleStatusChange}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      {showForm && (
+        <AppointmentForm
+          appointment={selectedAppointment}
+          clients={clients}
+          caregivers={mockCaregivers} // Use mockCaregivers for now
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+          isLoading={createMutation.isLoading || updateMutation.isLoading}
+        />
+      )}
+    </AppLayout>
+  );
+};
+
+export default Planning;

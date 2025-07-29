@@ -13,11 +13,11 @@ interface EnvConfig {
  */
 export function validateEnvironment(): EnvConfig {
   const env = import.meta.env;
-  
+
   // SECURITY: Check for required variables
   const requiredVars = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'] as const;
   const missing = requiredVars.filter(key => !env[key]);
-  
+
   if (missing.length > 0) {
     throw new Error(
       `SECURITY ERROR: Missing required environment variables:\n${missing.map(v => `- ${v}`).join('\n')}\n\n` +
@@ -25,10 +25,10 @@ export function validateEnvironment(): EnvConfig {
       'NEVER use SUPABASE_SERVICE_ROLE_KEY in frontend code!',
     );
   }
-  
+
   const supabaseUrl = env['VITE_SUPABASE_URL'] as string;
   const supabaseAnonKey = env['VITE_SUPABASE_ANON_KEY'] as string;
-  
+
   // SECURITY: Validate Supabase URL format
   if (!isValidSupabaseUrl(supabaseUrl)) {
     throw new Error(
@@ -37,7 +37,7 @@ export function validateEnvironment(): EnvConfig {
       `Received: ${supabaseUrl.substring(0, 20)}...`,
     );
   }
-  
+
   // SECURITY: Validate anon key format
   if (!isValidSupabaseAnonKey(supabaseAnonKey)) {
     throw new Error(
@@ -45,7 +45,7 @@ export function validateEnvironment(): EnvConfig {
       'The anon key should be a JWT token starting with "eyJ"',
     );
   }
-  
+
   // SECURITY: Check for accidentally exposed service role key
   if (supabaseAnonKey.includes('service_role') || supabaseAnonKey.length > 500) {
     throw new Error(
@@ -54,7 +54,7 @@ export function validateEnvironment(): EnvConfig {
       'Use VITE_SUPABASE_ANON_KEY instead.',
     );
   }
-  
+
   return {
     VITE_SUPABASE_URL: supabaseUrl,
     VITE_SUPABASE_ANON_KEY: supabaseAnonKey,

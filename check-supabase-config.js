@@ -30,4 +30,4 @@ try {
 } catch (error) {
   console.log('\n❌ Error creating Supabase client:', error.message);
   process.exit(1);
-} 
+}

@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  CheckCircle, 
-  Clock, 
-  AlertTriangle, 
+import {
+  CheckCircle,
+  Clock,
+  AlertTriangle,
   Play,
   Pause,
   X,
@@ -78,7 +78,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
     return priorityOptions.find(p => p.value === priority) || priorityOptions[0];
   };
 
-  const filteredDocuments = documents.filter(doc => 
+  const filteredDocuments = documents.filter(doc =>
     statusFilter === 'all' || doc.status === statusFilter
   );
 
@@ -116,10 +116,10 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
     setRecentUpdates(prev => [statusUpdate, ...prev.slice(0, 9)]);
 
     // Update document
-    onDocumentUpdate(docs => docs.map(doc => 
-      doc.id === documentId 
-        ? { 
-            ...doc, 
+    onDocumentUpdate(docs => docs.map(doc =>
+      doc.id === documentId
+        ? {
+            ...doc,
             status: newStatus as any,
             ...(newPriority && { priority: newPriority as any })
           }
@@ -168,7 +168,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
             Beheer document statussen en prioriteiten individueel of in bulk
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center space-x-2">
@@ -187,15 +187,15 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                 </SelectContent>
               </Select>
             </div>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               size="sm"
               onClick={handleSelectAll}
             >
               {selectedDocuments.length === filteredDocuments.length ? 'Deselecteer Alles' : 'Selecteer Alles'}
             </Button>
-            
+
             {selectedDocuments.length > 0 && (
               <>
                 <div className="flex items-center space-x-2">
@@ -211,7 +211,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                       ))}
                     </SelectContent>
                   </Select>
-                  
+
                   <Select value={bulkPriority} onValueChange={setBulkPriority}>
                     <SelectTrigger className="w-40">
                       <SelectValue placeholder="Nieuwe Prioriteit" />
@@ -224,7 +224,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                       ))}
                     </SelectContent>
                   </Select>
-                  
+
                   <Button onClick={handleBulkUpdate}>
                     Update ({selectedDocuments.length})
                   </Button>
@@ -257,7 +257,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                   const statusInfo = getStatusInfo(doc.status);
                   const priorityInfo = getPriorityInfo(doc.priority);
                   const StatusIcon = statusInfo.icon;
-                  
+
                   return (
                     <div key={doc.id} className="p-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors">
                       <div className="flex items-center space-x-4">
@@ -267,7 +267,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                           onChange={(e) => handleDocumentSelect(doc.id, e.target.checked)}
                           className="rounded border-gray-300"
                         />
-                        
+
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-medium text-gray-900">{doc.title}</h3>
@@ -281,7 +281,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                               </Badge>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-500">
                               {doc.created_at.toLocaleDateString('nl-NL')}
@@ -292,7 +292,7 @@ export const StatusManager: React.FC<StatusManagerProps> = ({ documents, onDocum
                                 </span>
                               )}
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                               <Select
                                 value={doc.status}

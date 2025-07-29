@@ -61,17 +61,17 @@ server.setRequestHandler('tools/list' as any, async () => {
 // Handler for calling tools
 server.setRequestHandler('tools/call' as any, async (request: any) => {
   const { name, arguments: args } = request.params;
-  
+
   const tool = allTools.find(t => t.name === name);
-  
+
   if (!tool) {
     throw new Error(`Tool not found: ${name}`);
   }
-  
+
   try {
     logger.info(`Executing tool: ${name}`, { args });
     const result = await (tool.handler as any)(args);
-    
+
     return {
       content: [
         {
@@ -82,7 +82,7 @@ server.setRequestHandler('tools/call' as any, async (request: any) => {
     };
   } catch (error) {
     logger.error(`Tool execution failed: ${name}`, { error });
-    
+
     return {
       content: [
         {
@@ -101,11 +101,11 @@ server.setRequestHandler('tools/call' as any, async (request: any) => {
 // Start the server
 async function main() {
   const transport = new StdioServerTransport();
-  
+
   logger.info('Starting Morphik MCP server...');
-  
+
   await server.connect(transport);
-  
+
   logger.info('Morphik MCP server started successfully');
 }
 

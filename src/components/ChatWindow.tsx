@@ -46,9 +46,9 @@ const ChatWindow = () => {
     const lower = text.toLowerCase();
     // Remove common question words to improve matching
     const cleanText = lower.replace(/wat is|wat zijn|wat was|welke|wanneer|wie is|hoe heet/g, '').trim();
-    
+
     console.log('[ChatWindow] Detecting field for query:', text, 'Clean text:', cleanText);
-    
+
     for (const field of CLIENT_FIELDS) {
       for (const label of field.labels) {
         if (lower.includes(label) || cleanText.includes(label)) {
@@ -103,14 +103,14 @@ const ChatWindow = () => {
     const field = detectClientField(input);
     if (field && clientId) {
       console.log('[ChatWindow] Fetching client field:', field, 'for client:', clientId);
-      
+
       try {
         const { data, error } = await supabase
           .from("clients")
           .select(`${field}, naam`)
           .eq("id", clientId)
           .single();
-          
+
         if (error) {
           console.error('[ChatWindow] Database error:', error);
           setMessages((msgs) => [
@@ -126,17 +126,17 @@ const ChatWindow = () => {
           const clientName = data.naam || 'Client';
           const fieldValue = data[field];
           let displayValue = fieldValue || "Niet ingevuld";
-          
+
           // Format dates nicely
           if (field === 'geboortedatum' && fieldValue) {
             const date = new Date(fieldValue);
-            displayValue = date.toLocaleDateString('nl-NL', { 
-              day: 'numeric', 
-              month: 'long', 
-              year: 'numeric' 
+            displayValue = date.toLocaleDateString('nl-NL', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
             });
           }
-          
+
           setMessages((msgs) => [
             ...msgs,
             { sender: "db", text: `${field} van ${clientName}: ${displayValue}` },
@@ -149,7 +149,7 @@ const ChatWindow = () => {
           { sender: "db", text: "Er is een onverwachte fout opgetreden." },
         ]);
       }
-      
+
       setLoading(false);
       setInput("");
       return;
@@ -163,7 +163,7 @@ const ChatWindow = () => {
         .select("*")
         .eq("id", clientId)
         .single();
-      
+
       if (error) {
         console.error('[ChatWindow] Error fetching client data:', error);
       } else {
@@ -171,40 +171,40 @@ const ChatWindow = () => {
       }
       clientData = data;
     }
-    
+
     console.log('[ChatWindow] Sending to AI endpoint with client context:', clientData ? 'Yes' : 'No');
-    
+
     try {
       const res = await fetch(AI_CHAT_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          query: input, 
-          userId: null, 
+        body: JSON.stringify({
+          query: input,
+          userId: null,
           documentId: null,
           clientId: clientId || null,
           clientData: clientData,
           context: clientData ? `Je hebt toegang tot gegevens van client ${clientData.naam}` : null
         }),
       });
-      
+
       if (!res.ok) {
         console.error('[ChatWindow] AI endpoint error:', res.status, res.statusText);
         throw new Error(`AI service returned ${res.status}`);
       }
-      
+
       const data = await res.json();
       console.log('[ChatWindow] AI response received:', data);
-      
+
       // Format response with sources if available
       let responseText = data.response || "Geen antwoord ontvangen.";
       if (data.sources && data.sources.length > 0) {
         responseText += "\n\n📄 Bronnen:";
-        data.sources.forEach((source: any) => {
+        data.sources.forEach((source: { title: string }) => {
           responseText += `\n• ${source.title}`;
         });
       }
-      
+
       setMessages((msgs) => [
         ...msgs,
         { sender: "ai", text: responseText },
@@ -216,12 +216,12 @@ const ChatWindow = () => {
         { sender: "ai", text: "Er is een fout opgetreden bij het verwerken van je vraag. Probeer het opnieuw." },
       ]);
     }
-    
+
     setLoading(false);
     setInput("");
   }
 
-  function handleReset() {
+  function _handleReset() {
     setMessages([]);
   }
 
@@ -293,4 +293,4 @@ const ChatWindow = () => {
   );
 };
 
-export default ChatWindow; 
+export default ChatWindow;

@@ -4,10 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Brain, 
-  Filter, 
+import {
+  Search,
+  Brain,
+  Filter,
   Calendar,
   FileText,
   Clock,
@@ -56,13 +56,13 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({ documents }) => {
 
   const handleSearch = async (searchQuery: string = query) => {
     if (!searchQuery.trim()) return;
-    
+
     setIsSearching(true);
-    
+
     try {
       // Simuleer AI search
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Mock search results met relevantie scoring
       const mockResults: SearchResult[] = documents.map(doc => ({
         document: doc,
@@ -70,14 +70,14 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({ documents }) => {
         summary: `Dit document bevat relevante informatie over ${searchQuery.toLowerCase()}. Automatisch gegenereerde samenvatting toont belangrijke details.`,
         keyPhrases: ['medisch rapport', 'patiënt gegevens', 'behandeling', 'diagnose']
       })).sort((a, b) => b.relevance - a.relevance);
-      
+
       setSearchResults(mockResults);
-      
+
       toast({
         title: "Zoekresultaten gevonden",
         description: `${mockResults.length} documenten gevonden voor "${searchQuery}"`,
       });
-      
+
     } catch (error) {
       toast({
         title: "Zoekfout",
@@ -120,7 +120,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({ documents }) => {
             Gebruik natural language queries om documenten te vinden met semantische zoekfunctionaliteit
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* Search Input */}
           <div className="space-y-4">
@@ -142,11 +142,11 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({ documents }) => {
                 Trefwoord
               </Button>
             </div>
-            
+
             <div className="flex space-x-2">
               <Input
                 placeholder={
-                  searchMode === 'semantic' 
+                  searchMode === 'semantic'
                     ? "Bijvoorbeeld: 'Toon me alle urgente documenten van deze week'"
                     : "Zoek op trefwoorden..."
                 }
@@ -155,7 +155,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({ documents }) => {
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 className="flex-1"
               />
-              <Button 
+              <Button
                 onClick={() => handleSearch()}
                 disabled={isSearching || !query.trim()}
                 className="bg-blue-600 hover:bg-blue-700"

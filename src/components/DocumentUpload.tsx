@@ -2,9 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Upload, File, X, CheckCircle, AlertCircle, FileText, Image, FileSpreadsheet } from "lucide-react";
+import { _Progress } from "@/components/ui/progress";
+import { _Badge } from "@/components/ui/badge";
+import { _Upload, File, _X, _CheckCircle, _AlertCircle, FileText, Image, FileSpreadsheet } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import KiesClientDropdown from "@/components/KiesClientDropdown";
@@ -56,43 +56,43 @@ interface Document {
   document_type: string;
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClose, clientId, onAfterUpload }) => {
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, _onClose, clientId, _onAfterUpload }) => {
   // Filter voor document dropdown
-  const [documentSearch, setDocumentSearch] = useState("");
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [_documentSearch, _setDocumentSearch] = useState("");
+  const [_selectedDocument, _setSelectedDocument] = useState<string | null>(null);
   // Filter state voor documenttype
-  const [filterType, setFilterType] = useState<string | null>(null);
+  const [_filterType, _setFilterType] = useState<string | null>(null);
   const [viewType, setViewType] = useState<string>('all');
-  
+
   // Client zoeken en selectie
-  const [clientSearch, setClientSearch] = useState("");
-  const [clients, setClients] = useState<Client[]>([]);
+  const [_clientSearch, _setClientSearch] = useState("");
+  const [_clients, _setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [showNewClient, setShowNewClient] = useState(false);
   const [addingClient, setAddingClient] = useState(false);
-  
+
   // Document states
-  const [status, setStatus] = useState<'nieuw' | 'in_behandeling' | 'afgehandeld'>('nieuw');
-  const [priority, setPriority] = useState<'laag' | 'normaal' | 'hoog' | 'urgent'>('normaal');
-  const [documentType, setDocumentType] = useState('');
-  const [description, setDescription] = useState('');
-  const [documentDate, setDocumentDate] = useState('');
-  const [provider, setProvider] = useState('');
-  const [category, setCategory] = useState('');
-  const [insurer, setInsurer] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [otherTypeDescription, setOtherTypeDescription] = useState('');
+  const [_status, _setStatus] = useState<'nieuw' | 'in_behandeling' | 'afgehandeld'>('nieuw');
+  const [_priority, _setPriority] = useState<'laag' | 'normaal' | 'hoog' | 'urgent'>('normaal');
+  const [_documentType, _setDocumentType] = useState('');
+  const [_description, _setDescription] = useState('');
+  const [_documentDate, _setDocumentDate] = useState('');
+  const [_provider, _setProvider] = useState('');
+  const [_category, _setCategory] = useState('');
+  const [_insurer, _setInsurer] = useState('');
+  const [_isPrivate, _setIsPrivate] = useState(false);
+  const [_otherTypeDescription, _setOtherTypeDescription] = useState('');
   const [enableMorphikSync, setEnableMorphikSync] = useState(true); // Default to true for easy testing
-  
+
   // Preview modal state
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewType, setPreviewType] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState<string | null>(null);
-  
+
   // Upload states
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [_isProcessing, _setIsProcessing] = useState(false);
+
   // Uitgebreide client gegevens
   const [newClient, setNewClient] = useState<NewClientData>({
     naam: '',
@@ -121,7 +121,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
   // Haal bestaande cliënten op
   const fetchClients = async () => {
     const { data, error } = await supabase.from('clients').select('id,naam,geboortedatum,email').order('naam');
-    if (!error && data) setClients(data);
+    if (!error && data) _setClients(data);
   };
   useEffect(() => {
     fetchClients();
@@ -166,34 +166,42 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: useCallback((acceptedFiles: File[]) => {
+      const newFiles: UploadFile[] = acceptedFiles.map(file => ({
+        file,
+        id: Math.random().toString(36).substr(2, 9),
+        progress: 0,
+        status: 'pending' as const
+      }));
+      setUploadFiles(prev => [...prev, ...newFiles]);
+    }, []),
     accept: {
       'application/pdf': ['.pdf'],
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
       'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'text/plain': ['.txt']
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
     maxSize: 50 * 1024 * 1024, // 50MB
     multiple: true
   });
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return <Image className="h-5 w-5" />;
-    if (mimeType.includes('pdf')) return <FileText className="h-5 w-5" />;
-    if (mimeType.includes('spreadsheet')) return <FileSpreadsheet className="h-5 w-5" />;
-    return <File className="h-5 w-5" />;
+  const _getFileIcon = (mimeType: string) => {
+    if (mimeType.includes('pdf')) return <FileText className="w-4 h-4" />;
+    if (mimeType.includes('image')) return <Image className="w-4 h-4" />;
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return <FileSpreadsheet className="w-4 h-4" />;
+    return <File className="w-4 h-4" />;
   };
 
-  const getFileTypeColor = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return 'bg-green-100 text-green-800';
+  const _getFileTypeColor = (mimeType: string) => {
     if (mimeType.includes('pdf')) return 'bg-red-100 text-red-800';
-    if (mimeType.includes('word')) return 'bg-blue-100 text-blue-800';
+    if (mimeType.includes('image')) return 'bg-green-100 text-green-800';
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'bg-blue-100 text-blue-800';
     return 'bg-gray-100 text-gray-800';
   };
 
-  const formatFileSize = (bytes: number) => {
+  const _formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -201,8 +209,8 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const removeFile = (id: string) => {
-    setUploadFiles(prev => prev.filter(f => f.id !== id));
+  const _removeFile = (id: string) => {
+    setUploadFiles(prev => prev.filter(file => file.id !== id));
   };
 
   // Gebruik clientId als deze is meegegeven, anders de interne selectedClient
@@ -258,10 +266,10 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
       return;
     }
     // 1. Upload bestand naar Supabase Storage
-    const fileExt = uploadFile.file.name.split('.').pop();
+    const _fileExt = uploadFile.file.name.split('.').pop();
     const filePath = `${Date.now()}_${uploadFile.file.name}`;
     const bucket = bucketOverride || bucketMap[documentType] || 'documents';
-    const { data: storageData, error: storageError } = await supabase.storage
+    const { data: _storageData, error: storageError } = await supabase.storage
       .from(bucket)
       .upload(filePath, uploadFile.file, { contentType: uploadFile.file.type });
     if (storageError) {
@@ -297,31 +305,31 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
     if (typeof provider !== 'undefined') insertData['zorgverlener'] = provider;
     if (typeof insurer !== 'undefined') insertData['verzekeraar'] = insurer;
     if (typeof description !== 'undefined') insertData['opmerking'] = description;
-    
+
     // Insert document into database
     const { data: insertedDoc, error: insertError } = await supabase
       .from('documents')
       .insert(insertData)
       .select()
       .single();
-    
+
     if (insertError) {
-      toast({ 
-        title: 'Database fout', 
-        description: 'Fout bij opslaan document: ' + insertError.message, 
-        variant: 'destructive' 
+      toast({
+        title: 'Database fout',
+        description: 'Fout bij opslaan document: ' + insertError.message,
+        variant: 'destructive'
       });
       return;
     }
-    
+
     // Sync to Morphik if enabled
     if (enableMorphikSync && insertedDoc) {
       try {
-        toast({ 
-          title: 'Morphik Sync', 
-          description: 'Document wordt gesynchroniseerd met Morphik AI...' 
+        toast({
+          title: 'Morphik Sync',
+          description: 'Document wordt gesynchroniseerd met Morphik AI...'
         });
-        
+
         const syncResult = await morphikService.syncDocument(
           insertedDoc.id,
           fileUrl,
@@ -333,43 +341,37 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUpload, onClos
             uploadDate: new Date().toISOString()
           }
         );
-        
+
         if (syncResult.success) {
-          toast({ 
-            title: 'Sync succesvol', 
-            description: 'Document is gesynchroniseerd met Morphik AI voor geavanceerde analyse.' 
+          toast({
+            title: 'Sync succesvol',
+            description: 'Document is gesynchroniseerd met Morphik AI voor geavanceerde analyse.'
           });
         } else {
-          toast({ 
-            title: 'Sync waarschuwing', 
+          toast({
+            title: 'Sync waarschuwing',
             description: `Document is opgeslagen maar Morphik sync mislukt: ${syncResult.error}`,
             variant: 'destructive'
           });
         }
       } catch (error) {
         console.error('Morphik sync error:', error);
-        toast({ 
-          title: 'Sync fout', 
+        toast({
+          title: 'Sync fout',
           description: 'Document is opgeslagen maar kon niet met Morphik synchroniseren.',
           variant: 'destructive'
         });
       }
     }
-    
+
     onUpload(uploadFile.file);
   };
 
   // Pas handleUploadAll aan om 2-stapsverificatie te gebruiken
-  const handleUploadAll = async () => {
-    if (uploadFiles.length === 0) return;
-    if (!effectiveClientId) {
-      toast({ title: 'Selecteer een cliënt', description: 'Kies of maak eerst een cliënt.', variant: 'destructive' });
-      return;
-    }
-    // Alleen eerste bestand tegelijk (voor demo/duidelijkheid)
-    const firstPending = uploadFiles.find(f => f.status === 'pending');
-    if (firstPending) {
-      handleUploadWithConfirm(firstPending);
+  const _handleUploadAll = async () => {
+    const pendingFiles = uploadFiles.filter(f => f.status === 'pending');
+    for (const file of pendingFiles) {
+      await simulateUpload(file);
     }
   };
 

@@ -28,10 +28,10 @@ export class ReminderScheduler {
     }
 
     console.log(`Starting reminder scheduler with ${intervalMinutes} minute intervals`);
-    
+
     // Run immediately on start
     this.processReminders();
-    
+
     // Set up recurring interval
     this.intervalId = setInterval(() => {
       this.processReminders();

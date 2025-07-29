@@ -45,10 +45,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { morphikService } from '@/services/morphikService';
-import { 
-  generateChatId, 
-  saveChatToStorage, 
-  loadChatFromStorage, 
+import {
+  generateChatId,
+  saveChatToStorage,
+  loadChatFromStorage,
   clearChatStorage,
   getRecentChatSessions,
   clearAllChatHistory,
@@ -60,14 +60,14 @@ import {
 const AIChat: React.FC = () => {
   // Existing state - will be loaded from storage if available
   const [messages, setMessages] = useState<Message[]>([]);
-  
+
   // New state for help dialog
   const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [hasSeenWelcome, setHasSeenWelcome] = useState(() => {
     // Check localStorage to see if user has seen welcome before
     return localStorage.getItem('ai-chat-welcome-seen') === 'true';
   });
-  
+
   // New state for enhanced UX
   const [soundEnabled, setSoundEnabled] = useState(() => {
     return localStorage.getItem('ai-chat-sound-enabled') !== 'false';
@@ -85,7 +85,7 @@ const AIChat: React.FC = () => {
 
   // NEW: Document source state
   const [documentSource, setDocumentSource] = useState<'uploaded' | 'database' | 'morphik'>('uploaded');
-  
+
   // NEW: Chat session management
   const [currentChatId, setCurrentChatId] = useState<string>(() => {
     // Generate initial chat ID based on document source
@@ -132,7 +132,7 @@ const AIChat: React.FC = () => {
         .select('naam, full_name, first_name, last_name')
         .eq('id', clientId)
         .single();
-      
+
       if (data && !error) {
         const name = data.naam || data.full_name || `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Naam onbekend';
         setSelectedClientName(name);
@@ -143,16 +143,16 @@ const AIChat: React.FC = () => {
   };
 
   const scrollToBottom = (instant = false) => {
-    messagesEndRef.current?.scrollIntoView({ 
+    messagesEndRef.current?.scrollIntoView({
       behavior: instant ? 'instant' : 'smooth',
       block: 'end'
     });
   };
-  
+
   // Sound effects
   const playSound = useCallback((type: 'send' | 'receive' | 'error') => {
     if (!soundEnabled) return;
-    
+
     try {
       const audio = new Audio();
       // Use data URLs for simple sounds
@@ -177,7 +177,7 @@ const AIChat: React.FC = () => {
       // Silently fail if audio doesn't work
     }
   }, [soundEnabled]);
-  
+
   // Copy message to clipboard
   const copyMessage = useCallback((messageId: string, content: string) => {
     navigator.clipboard.writeText(content);
@@ -199,7 +199,7 @@ const AIChat: React.FC = () => {
         localStorage.setItem('ai-chat-welcome-seen', 'true');
         setHasSeenWelcome(true);
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [hasSeenWelcome]);
@@ -223,7 +223,7 @@ const AIChat: React.FC = () => {
       fetchDatabaseStats();
     });
   }, []);
-  
+
   // Re-check service availability when switching modes
   useEffect(() => {
     if (documentSource === 'database') {
@@ -243,12 +243,12 @@ const AIChat: React.FC = () => {
       setIsLoadingChat(true);
       try {
         const savedChat = loadChatFromStorage(currentChatId);
-        
+
         if (savedChat && savedChat.messages.length > 0) {
           // Load existing chat
           setMessages(savedChat.messages);
           setDocumentSource(savedChat.documentSource);
-          
+
           // Update recent chats list
           setRecentChats(getRecentChatSessions(5));
         } else {
@@ -261,7 +261,7 @@ const AIChat: React.FC = () => {
             status: 'sent'
           };
           setMessages([welcomeMessage]);
-          
+
           // Update recent chats list
           setRecentChats(getRecentChatSessions(5));
         }
@@ -289,13 +289,13 @@ const AIChat: React.FC = () => {
     if (messages.length > 0 && !isLoadingChat) {
       // Save to storage with current context
       saveChatToStorage(
-        messages, 
-        currentChatId, 
-        documentSource, 
-        selectedClientId, 
+        messages,
+        currentChatId,
+        documentSource,
+        selectedClientId,
         selectedDocument
       );
-      
+
       // Update recent chats list
       setRecentChats(getRecentChatSessions(5));
     }
@@ -315,26 +315,26 @@ const AIChat: React.FC = () => {
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
       const response = await fetch(`${backendUrl}/health`);
-      
+
       if (!response.ok) {
         setServicesAvailable(prev => ({ ...prev, backend: false }));
         const data = await response.json();
         console.error('Backend health check failed:', data);
-        
+
         // Show error message if in database mode
         if (documentSource === 'database') {
           toast.error('Database service is unavailable. Please check your configuration.');
         }
         return;
       }
-      
+
       const data = await response.json();
       setDatabaseStats(data);
       setServicesAvailable(prev => ({ ...prev, backend: true }));
     } catch (error) {
       console.error('Error fetching database stats:', error);
       setServicesAvailable(prev => ({ ...prev, backend: false }));
-      
+
       if (error instanceof Error && error.message.includes('Failed to fetch')) {
         toast.error('Cannot connect to backend server. Please run: npm run backend');
       }
@@ -345,13 +345,13 @@ const AIChat: React.FC = () => {
   const fetchDocuments = async () => {
     try {
       const response = await fetch('/rag/documents');
-      
+
       if (!response.ok) {
         setServicesAvailable(prev => ({ ...prev, rag: false }));
         console.error('RAG server not available');
         return;
       }
-      
+
       const data = await response.json();
       if (data.documents) {
         setDocuments(data.documents);
@@ -360,7 +360,7 @@ const AIChat: React.FC = () => {
     } catch (error) {
       console.error('Error fetching documents:', error);
       setServicesAvailable(prev => ({ ...prev, rag: false }));
-      
+
       if (error instanceof Error && error.message.includes('Failed to fetch')) {
         if (documentSource === 'uploaded') {
           toast.error('Cannot connect to RAG server. Please run: python rag_server.py');
@@ -375,7 +375,7 @@ const AIChat: React.FC = () => {
       const status = await morphikService.checkServiceStatus();
       setServicesAvailable(prev => ({ ...prev, morphik: status.available }));
       setMorphikStatus(status);
-      
+
       if (!status.available && status.error) {
         console.warn('Morphik AI service not available:', status.error.message);
       }
@@ -394,10 +394,10 @@ const AIChat: React.FC = () => {
   // Fetch client names from Supabase database
   const fetchClientNames = async () => {
     if (isLoadingClients) return;
-    
+
     try {
       setIsLoadingClients(true);
-      
+
       // Fetch clients from Supabase, excluding soft deleted ones
       const { data, error } = await supabase
         .from('clients')
@@ -405,12 +405,12 @@ const AIChat: React.FC = () => {
         .is('deleted_at', null)
         .order('naam', { ascending: true })
         .limit(50); // Limit to prevent too many options
-      
+
       if (error) {
         console.error('Error fetching client names:', error);
         return;
       }
-      
+
       if (data && data.length > 0) {
         // Extract unique client names
         const names = data.map(client => client.naam);
@@ -447,7 +447,7 @@ const AIChat: React.FC = () => {
   // NEW: Enhanced message sending with dual system support
   const sendMessage = async (question: string): Promise<ChatResponse> => {
     const apiConfig = getApiConfig();
-    
+
     try {
       if (documentSource === 'morphik') {
         // Morphik AI format
@@ -513,13 +513,13 @@ const AIChat: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.error('Database query failed:', data);
-        
+
         // Provide specific error messages based on the error
         let errorMessage = 'Database query failed. ';
-        
+
         if (response.status === 500) {
           if (data.error?.includes('SUPABASE_URL')) {
             errorMessage += 'Database configuration is missing. Please check your environment variables.';
@@ -531,7 +531,7 @@ const AIChat: React.FC = () => {
         } else {
           errorMessage += data.error || 'Unknown error occurred.';
         }
-        
+
         return {
           answer: errorMessage,
           error: data.error
@@ -598,13 +598,13 @@ const AIChat: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
-    
+
     // Play send sound
     playSound('send');
-    
+
     // Update message status after a short delay
     setTimeout(() => {
-      setMessages(prev => prev.map(msg => 
+      setMessages(prev => prev.map(msg =>
         msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
       ));
     }, 300);
@@ -612,13 +612,13 @@ const AIChat: React.FC = () => {
     try {
       // Show typing indicator
       setIsTyping(true);
-      
+
       const response = await sendMessage(userMessage.content);
-      
+
       // Simulate typing effect
       const fullContent = response.answer;
       const typingDelay = Math.min(fullContent.length * 10, 2000); // Max 2 seconds
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
@@ -631,43 +631,43 @@ const AIChat: React.FC = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
-      
+
       // Typing animation
       let currentIndex = 0;
       const typingInterval = setInterval(() => {
         if (currentIndex < fullContent.length) {
           const chunkSize = Math.random() > 0.95 ? 3 : 1; // Occasionally type faster
           currentIndex = Math.min(currentIndex + chunkSize, fullContent.length);
-          setMessages(prev => prev.map(msg => 
-            msg.id === assistantMessage.id 
+          setMessages(prev => prev.map(msg =>
+            msg.id === assistantMessage.id
               ? { ...msg, content: fullContent.slice(0, currentIndex) }
               : msg
           ));
         } else {
           clearInterval(typingInterval);
-          setMessages(prev => prev.map(msg => 
-            msg.id === assistantMessage.id 
+          setMessages(prev => prev.map(msg =>
+            msg.id === assistantMessage.id
               ? { ...msg, isTyping: false, status: 'sent' }
               : msg
           ));
           playSound('receive');
         }
       }, 30);
-      
+
     } catch (error) {
       console.error('Error:', error);
       setIsTyping(false);
-      
+
       let errorContent = 'I apologize, but I encountered an error while processing your request. ';
-      
+
       if (error instanceof Error && error.message.includes('Failed to fetch')) {
-        errorContent += documentSource === 'database' 
-          ? 'Please make sure the backend server is running (npm run backend).' 
+        errorContent += documentSource === 'database'
+          ? 'Please make sure the backend server is running (npm run backend).'
           : 'Please make sure the RAG server is running (python rag_server.py).';
       } else {
         errorContent += 'Please try again.';
       }
-      
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
@@ -688,7 +688,7 @@ const AIChat: React.FC = () => {
     if (showClientSuggestions) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
+        setSelectedSuggestionIndex(prev =>
           Math.min(prev + 1, filteredClientNames.length - 1)
         );
       } else if (e.key === 'ArrowUp') {
@@ -718,7 +718,7 @@ const AIChat: React.FC = () => {
     // Generate new chat ID
     const newChatId = generateChatId(documentSource, selectedClientId, selectedDocument);
     setCurrentChatId(newChatId);
-    
+
     // Clear current messages
     let welcomeMessage = '';
     if (documentSource === 'uploaded') {
@@ -728,7 +728,7 @@ const AIChat: React.FC = () => {
     } else {
       welcomeMessage = 'Welkom bij Morphik AI! 🚀 Ik gebruik geavanceerde AI om uw documenten te analyseren. Stel uw vraag en ik zal de relevante informatie voor u vinden.';
     }
-    
+
     setMessages([
       {
         id: '1',
@@ -739,9 +739,9 @@ const AIChat: React.FC = () => {
         status: 'sent'
       }
     ]);
-    
+
     setMorphikChatId(null); // Reset Morphik chat ID
-    
+
     // Update recent chats
     setRecentChats(getRecentChatSessions(5));
     toast.success('Nieuw gesprek gestart');
@@ -757,7 +757,7 @@ const AIChat: React.FC = () => {
     setCurrentChatId(chatSession.id);
     setMessages(chatSession.messages);
     setDocumentSource(chatSession.documentSource);
-    
+
     // Restore context
     if (chatSession.selectedClient) {
       setSelectedClientId(chatSession.selectedClient);
@@ -765,7 +765,7 @@ const AIChat: React.FC = () => {
     if (chatSession.selectedDocument) {
       setSelectedDocument(chatSession.selectedDocument);
     }
-    
+
     toast.success('Gesprek geladen');
   };
 
@@ -773,12 +773,12 @@ const AIChat: React.FC = () => {
   const deleteChatSession = (chatId: string) => {
     clearChatStorage(chatId);
     setRecentChats(getRecentChatSessions(5));
-    
+
     // If we're deleting the current chat, start a new one
     if (chatId === currentChatId) {
       startNewChat();
     }
-    
+
     toast.success('Gesprek verwijderd');
   };
 
@@ -797,7 +797,7 @@ const AIChat: React.FC = () => {
 
     try {
       setIsLoading(true);
-      
+
       // Send to RAG server for processing
       await fetch('/rag/ingest', {
         method: 'POST',
@@ -840,13 +840,13 @@ const AIChat: React.FC = () => {
     // For database mode, we keep the actual client names
     // For uploaded mode, we keep the placeholders as they are
     setInputMessage(template);
-    
+
     // Focus the input and handle selection
     setTimeout(() => {
       const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
       if (textarea) {
         textarea.focus();
-        
+
         // Check if the template contains a real client name (not a placeholder)
         const clientNameMatch = clientNames.find(name => template.includes(name));
         if (clientNameMatch) {
@@ -928,10 +928,10 @@ const AIChat: React.FC = () => {
     } else {
       // Templates for database mode
       // Get a random client name from the fetched client names
-      const randomClientName = clientNames.length > 0 
+      const randomClientName = clientNames.length > 0
         ? clientNames[Math.floor(Math.random() * clientNames.length)]
         : '[naam]';
-      
+
       return [
         {
           label: "Dashboard",
@@ -941,7 +941,7 @@ const AIChat: React.FC = () => {
         },
         {
           label: "Cliënt zoeken",
-          prompt: clientNames.length > 0 
+          prompt: clientNames.length > 0
             ? `Toon alle documenten van cliënt ${randomClientName}`
             : "Toon alle documenten van cliënt [naam]",
           icon: "🔍",
@@ -1030,7 +1030,7 @@ const AIChat: React.FC = () => {
           "Welke actiepunten zijn er vastgelegd?"
         ]
       };
-      
+
       // Select one question from each of 5 different categories
       // This provides variety while covering different aspects
       const selectedCategories = ['algemeen', 'medisch', 'zorgplan', 'indicatie', 'pgb'];
@@ -1040,15 +1040,15 @@ const AIChat: React.FC = () => {
         const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
         return categoryQuestions[randomIndex];
       });
-      
+
       // Safeguard: Ensure no real client names in questions
-      const safeQuestions = questions.map(q => 
+      const safeQuestions = questions.map(q =>
         q.replace(/meneer\s+[A-Z][a-z]+/g, 'meneer [cliëntnaam]')
          .replace(/mevrouw\s+[A-Z][a-z]+/g, 'mevrouw [cliëntnaam]')
          .replace(/dhr\.\s+[A-Z][a-z]+/gi, 'dhr. [cliëntnaam]')
          .replace(/mw\.\s+[A-Z][a-z]+/gi, 'mw. [cliëntnaam]')
       );
-      
+
       return safeQuestions.slice(0, 4); // Return 4 questions
     } else {
       // Questions for database mode - organized by category
@@ -1103,7 +1103,7 @@ const AIChat: React.FC = () => {
           "Vergelijk dit kwartaal met vorig kwartaal"
         ]
       };
-      
+
       // Select questions from different categories for variety
       const selectedCategories = ['overzicht', 'clienten', 'urgentie', 'statistieken', 'zoeken'];
       const questions = selectedCategories.map(cat => {
@@ -1112,7 +1112,7 @@ const AIChat: React.FC = () => {
         const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
         return categoryQuestions[randomIndex];
       });
-      
+
       // Replace placeholders with real client names when available
       const processedQuestions = questions.map(q => {
         if (q.includes('[naam]') && clientNames.length > 0) {
@@ -1122,7 +1122,7 @@ const AIChat: React.FC = () => {
         }
         return q;
       });
-      
+
       return processedQuestions.slice(0, 5); // Return 5 questions for database mode
     }
   };
@@ -1130,13 +1130,13 @@ const AIChat: React.FC = () => {
   // Setup Guide Component
   const SetupGuide = () => {
     const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
-    
+
     const copyCommand = (command: string, id: string) => {
       navigator.clipboard.writeText(command);
       setCopiedCommand(id);
       setTimeout(() => setCopiedCommand(null), 2000);
     };
-    
+
     return (
       <div className="max-w-4xl mx-auto p-6">
         <Alert className="mb-6 border-red-200 bg-red-50">
@@ -1146,11 +1146,11 @@ const AIChat: React.FC = () => {
             The AI Chat requires backend services to be running. Follow the steps below to get started.
           </AlertDescription>
         </Alert>
-        
+
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Quick Start Guide</h2>
-            
+
             <div className="space-y-4">
               {/* Step 1: Check Environment */}
               <div className="border-l-4 border-blue-500 pl-4">
@@ -1171,7 +1171,7 @@ const AIChat: React.FC = () => {
                   </Button>
                 </div>
               </div>
-              
+
               {/* Step 2: Configure Environment */}
               <div className="border-l-4 border-blue-500 pl-4">
                 <h3 className="font-medium text-lg mb-2">2. Configure Environment Variables</h3>
@@ -1194,7 +1194,7 @@ const AIChat: React.FC = () => {
                   <p className="text-sm text-gray-600">Then edit .env and add your Supabase credentials</p>
                 </div>
               </div>
-              
+
               {/* Step 3: Start Services */}
               <div className="border-l-4 border-green-500 pl-4">
                 <h3 className="font-medium text-lg mb-2">3. Start All Services</h3>
@@ -1216,7 +1216,7 @@ const AIChat: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Service Status */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Service Status</h2>
@@ -1231,7 +1231,7 @@ const AIChat: React.FC = () => {
                   <span className="text-sm text-red-600">Not running</span>
                 )}
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 rounded-full ${servicesAvailable.rag ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -1242,7 +1242,7 @@ const AIChat: React.FC = () => {
                   <span className="text-sm text-red-600">Not running</span>
                 )}
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 rounded-full ${servicesAvailable.morphik ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -1263,7 +1263,7 @@ const AIChat: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Additional Help */}
           <div className="bg-blue-50 rounded-lg p-6">
             <h3 className="font-medium text-lg mb-2 text-blue-900">Need More Help?</h3>
@@ -1290,7 +1290,7 @@ const AIChat: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 {morphikStatus.error?.type === 'auth' && (
                   <div>
                     <p className="font-medium">Authenticatie probleem:</p>
@@ -1301,7 +1301,7 @@ const AIChat: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 {morphikStatus.error?.type === 'network' && (
                   <div>
                     <p className="font-medium">Netwerk probleem:</p>
@@ -1312,7 +1312,7 @@ const AIChat: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 {morphikStatus.error?.type === 'api' && (
                   <div>
                     <p className="font-medium">API probleem:</p>
@@ -1323,7 +1323,7 @@ const AIChat: React.FC = () => {
                     </ul>
                   </div>
                 )}
-                
+
                 <div className="mt-4 p-3 bg-red-100 rounded">
                   <p className="text-xs">
                     <strong>Status details:</strong> {morphikStatus.error?.details || 'Geen details beschikbaar'}
@@ -1336,19 +1336,19 @@ const AIChat: React.FC = () => {
       </div>
     );
   };
-  
+
   // Help Dialog Component
   const HelpDialog = () => {
     if (!showHelpDialog) return null;
-    
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Backdrop */}
-        <div 
+        <div
           className="absolute inset-0 bg-black bg-opacity-50 animate-in fade-in duration-200"
           onClick={() => setShowHelpDialog(false)}
         />
-        
+
         {/* Dialog */}
         <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] flex flex-col
           animate-in zoom-in-95 duration-200">
@@ -1367,7 +1367,7 @@ const AIChat: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Body */}
           <div className="flex-1 p-6 overflow-y-auto">
             <div className="space-y-6">
@@ -1391,7 +1391,7 @@ const AIChat: React.FC = () => {
                   </ul>
                 </div>
               </div>
-              
+
               {/* Document vs Database Mode */}
               <div>
                 <h3 className="text-lg font-medium mb-3 flex items-center space-x-2">
@@ -1419,7 +1419,7 @@ const AIChat: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Tips Section */}
               <div>
                 <h3 className="text-lg font-medium mb-3 flex items-center space-x-2">
@@ -1447,7 +1447,7 @@ const AIChat: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Footer */}
           <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-gray-50">
             <button
@@ -1461,9 +1461,9 @@ const AIChat: React.FC = () => {
       </div>
     );
   };
-  
+
   // Check if we should show setup guide
-  const showSetupGuide = (documentSource === 'database' && !servicesAvailable.backend) || 
+  const showSetupGuide = (documentSource === 'database' && !servicesAvailable.backend) ||
                         (documentSource === 'uploaded' && !servicesAvailable.rag);
 
   if (showSetupGuide) {
@@ -1480,7 +1480,7 @@ const AIChat: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Setup Guide */}
           <div className="flex-1 overflow-y-auto">
             <SetupGuide />
@@ -1495,7 +1495,7 @@ const AIChat: React.FC = () => {
       <TooltipProvider>
         {/* Help Dialog */}
         <HelpDialog />
-        
+
         <div className="flex flex-col h-full bg-gray-50">
           {/* Header with Document Source Toggle */}
           <div className="flex-shrink-0 bg-white border-b border-gray-200 px-6 py-4">
@@ -1505,14 +1505,14 @@ const AIChat: React.FC = () => {
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900">AI Document Assistent</h1>
                   <p className="text-sm text-gray-600">
-                    {documentSource === 'uploaded' 
-                      ? 'Stel vragen over uw geüploade documenten' 
+                    {documentSource === 'uploaded'
+                      ? 'Stel vragen over uw geüploade documenten'
                       : 'Doorzoek de medische database'
                     }
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 {/* Sound Toggle */}
                 <Tooltip>
@@ -1532,7 +1532,7 @@ const AIChat: React.FC = () => {
                     <p>{soundEnabled ? 'Geluiden uitschakelen' : 'Geluiden inschakelen'}</p>
                   </TooltipContent>
                 </Tooltip>
-                
+
                 {/* Help Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1557,7 +1557,7 @@ const AIChat: React.FC = () => {
                   <span className="text-sm font-medium">Uploaded</span>
                   {documentSource === 'uploaded' && <span className="text-xs bg-blue-400 px-2 py-0.5 rounded-full">{documents.length}</span>}
                 </div>
-                
+
                 <div className={`flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer ${
                   documentSource === 'database' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-200'
                 }`} onClick={() => setDocumentSource('database')}>
@@ -1567,7 +1567,7 @@ const AIChat: React.FC = () => {
                     <span className="text-xs bg-green-400 px-2 py-0.5 rounded-full">{databaseStats.documentCount}</span>
                   )}
                 </div>
-                
+
                 <div className={`flex items-center space-x-2 px-2 py-1 rounded-md transition-colors cursor-pointer ${
                   documentSource === 'morphik' ? 'bg-purple-500 text-white' : 'text-gray-600 hover:bg-gray-200'
                 }`} onClick={() => setDocumentSource('morphik')}>
@@ -1580,7 +1580,7 @@ const AIChat: React.FC = () => {
               </div>
 
               {/* Service Status Indicator */}
-              {(documentSource === 'uploaded' && !servicesAvailable.rag) || 
+              {(documentSource === 'uploaded' && !servicesAvailable.rag) ||
                (documentSource === 'database' && !servicesAvailable.backend) ? (
                 <div className="flex items-center space-x-2 px-3 py-1 bg-red-100 text-red-700 rounded-lg">
                   <span className="text-xs font-medium">Service Offline</span>
@@ -1637,7 +1637,7 @@ const AIChat: React.FC = () => {
                             </button>
                           </div>
                         </div>
-                        
+
                         <div className="p-2">
                           {recentChats.map((chat) => (
                             <div
@@ -1646,7 +1646,7 @@ const AIChat: React.FC = () => {
                                 chat.id === currentChatId ? 'border-blue-500 bg-blue-50' : 'border-transparent'
                               }`}
                             >
-                              <div 
+                              <div
                                 className="flex-1 min-w-0"
                                 onClick={() => {
                                   loadChatSession(chat);
@@ -1667,11 +1667,11 @@ const AIChat: React.FC = () => {
                                 </p>
                                 <div className="flex items-center space-x-2 mt-1">
                                   <p className="text-xs text-gray-500">
-                                    {chat.lastUpdated.toLocaleString('nl-NL', { 
-                                      month: 'short', 
-                                      day: 'numeric', 
-                                      hour: '2-digit', 
-                                      minute: '2-digit' 
+                                    {chat.lastUpdated.toLocaleString('nl-NL', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
                                     })}
                                   </p>
                                   <span className="text-xs text-gray-400">•</span>
@@ -1680,7 +1680,7 @@ const AIChat: React.FC = () => {
                                   </p>
                                 </div>
                               </div>
-                              
+
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -1707,7 +1707,7 @@ const AIChat: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Label className="text-sm font-medium text-gray-700">Filter op cliënt:</Label>
                 <div className="flex-1 max-w-md">
-                  <KiesClientDropdown 
+                  <KiesClientDropdown
                     value={selectedClientId || ''}
                     onSelect={(clientId) => {
                       console.log('Client selected (onSelect):', clientId);
@@ -1755,7 +1755,7 @@ const AIChat: React.FC = () => {
                 <p className="text-sm text-gray-600 mb-4">
                   Selecteer document om vragen over te stellen:
                 </p>
-                
+
                 {/* Document Selection */}
                 <div className="relative">
                   <button
@@ -1763,7 +1763,7 @@ const AIChat: React.FC = () => {
                     className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md bg-white text-left hover:bg-gray-50"
                   >
                     <span className="text-sm">
-                      {selectedDocument 
+                      {selectedDocument
                         ? documents.find(d => d.id === selectedDocument)?.title || 'Select document'
                         : 'Select document'
                       }
@@ -1869,13 +1869,13 @@ const AIChat: React.FC = () => {
             <div className="w-80 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
               <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">Database Overview</h2>
-                
+
                 <div className="space-y-3">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <div className="text-sm text-blue-600 font-medium">Total Documents</div>
                     <div className="text-2xl font-bold text-blue-900">{databaseStats.documentCount}</div>
                   </div>
-                  
+
                   <div className="bg-green-50 p-3 rounded-lg">
                     <div className="text-sm text-green-600 font-medium">Database Status</div>
                     <div className="text-sm font-bold text-green-900 capitalize">{databaseStats.status}</div>
@@ -1932,7 +1932,7 @@ const AIChat: React.FC = () => {
               {!isLoadingChat && messages.map((message, index) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} 
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}
                     animate-in fade-in slide-in-from-bottom-2 duration-300`}
                   style={{
                     animationDelay: `${index * 50}ms`,
@@ -1993,7 +1993,7 @@ const AIChat: React.FC = () => {
                             </p>
                           </div>
                         )}
-                        
+
                         {message.sources && message.sources.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-gray-200 animate-in fade-in duration-500">
                             <p className="text-xs font-medium text-gray-600 mb-2">Bronnen:</p>
@@ -2024,7 +2024,7 @@ const AIChat: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                           <div className="flex items-center space-x-2">
                             <span>{message.timestamp.toLocaleTimeString()}</span>
@@ -2043,12 +2043,12 @@ const AIChat: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Copy button - only for assistant messages */}
                       {message.type === 'assistant' && message.content && !message.isTyping && (
                         <button
                           onClick={() => copyMessage(message.id, message.content)}
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity 
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity
                             p-1.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-800"
                         >
                           {copiedMessageId === message.id ? (
@@ -2062,7 +2062,7 @@ const AIChat: React.FC = () => {
                   </div>
                 </div>
               ))}
-              
+
               {/* Enhanced typing indicator */}
               {isTyping && (
                 <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -2075,11 +2075,11 @@ const AIChat: React.FC = () => {
                     <div className="bg-white border border-gray-200 rounded-lg px-4 py-3">
                       <div className="flex items-center space-x-3">
                         <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" 
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                                style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" 
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                                style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" 
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                                style={{ animationDelay: '300ms' }}></div>
                         </div>
                         <span className="text-sm text-gray-600">
@@ -2090,7 +2090,7 @@ const AIChat: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -2116,9 +2116,9 @@ const AIChat: React.FC = () => {
                       <button
                         key={index}
                         onClick={() => handleTemplateClick(template.prompt)}
-                        className="group relative flex-shrink-0 px-3 py-1.5 text-xs bg-gradient-to-r from-gray-50 to-gray-100 
-                          hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:text-blue-700 rounded-full 
-                          border border-gray-200 hover:border-blue-300 transition-all duration-200 
+                        className="group relative flex-shrink-0 px-3 py-1.5 text-xs bg-gradient-to-r from-gray-50 to-gray-100
+                          hover:from-blue-50 hover:to-blue-100 text-gray-700 hover:text-blue-700 rounded-full
+                          border border-gray-200 hover:border-blue-300 transition-all duration-200
                           hover:scale-105 hover:shadow-sm transform active:scale-95"
                         style={{
                           animationDelay: `${index * 50}ms`,
@@ -2137,7 +2137,7 @@ const AIChat: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="p-4">
                 <div className="flex space-x-3">
                   <div className="flex-1 relative">
@@ -2146,18 +2146,18 @@ const AIChat: React.FC = () => {
                       onChange={(e) => {
                         const value = e.target.value;
                         setInputMessage(value);
-                        
+
                         // Check if user is typing after "cliënt" or "client"
                         const cursorPosition = e.target.selectionStart;
                         const textBeforeCursor = value.substring(0, cursorPosition);
                         const clientMatch = textBeforeCursor.match(/(?:cliënt|client)\s+([^,\s]*)$/i);
-                        
+
                         if (clientMatch && clientNames.length > 0 && documentSource === 'database') {
                           const searchTerm = clientMatch[1].toLowerCase();
-                          const filtered = clientNames.filter(name => 
+                          const filtered = clientNames.filter(name =>
                             name.toLowerCase().includes(searchTerm)
                           ).slice(0, 5); // Limit to 5 suggestions
-                          
+
                           setFilteredClientNames(filtered);
                           setShowClientSuggestions(filtered.length > 0);
                           setSelectedSuggestionIndex(0);
@@ -2172,17 +2172,17 @@ const AIChat: React.FC = () => {
                           handleKeyPress(e);
                         }
                       }}
-                      placeholder={documentSource === 'database' 
-                        ? "Stel uw vraag in gewoon Nederlands, bijvoorbeeld: 'Hoeveel nieuwe cliënten hebben we deze maand?' of 'Welke indicaties verlopen binnenkort?'" 
+                      placeholder={documentSource === 'database'
+                        ? "Stel uw vraag in gewoon Nederlands, bijvoorbeeld: 'Hoeveel nieuwe cliënten hebben we deze maand?' of 'Welke indicaties verlopen binnenkort?'"
                         : "Stel uw vraag over het document in gewoon Nederlands, bijvoorbeeld: 'Wat is de diagnose?' of 'Welke medicatie wordt voorgeschreven?'"
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                        resize-none placeholder:text-sm transition-all duration-200 
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                        resize-none placeholder:text-sm transition-all duration-200
                         hover:border-gray-400 focus:shadow-lg"
                       rows={2}
                       disabled={isLoading}
                     />
-                    
+
                     {/* Client name suggestions dropdown */}
                     {showClientSuggestions && (
                       <div className="absolute bottom-full mb-2 left-0 w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -2197,7 +2197,7 @@ const AIChat: React.FC = () => {
                                 const newMessage = inputMessage.substring(0, cursorPosition) + name;
                                 setInputMessage(newMessage);
                                 setShowClientSuggestions(false);
-                                
+
                                 // Focus back on textarea
                                 const textarea = document.querySelector('textarea');
                                 if (textarea) {
@@ -2214,9 +2214,9 @@ const AIChat: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {inputMessage.length === 0 && (
-                      <div className="absolute bottom-2 right-2 text-xs text-gray-400 flex items-center space-x-1 
+                      <div className="absolute bottom-2 right-2 text-xs text-gray-400 flex items-center space-x-1
                         animate-in fade-in duration-300">
                         <MessageSquare className="w-3 h-3" />
                         <span>Typ uw vraag of klik op een voorbeeld</span>

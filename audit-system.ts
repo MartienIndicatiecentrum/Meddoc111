@@ -140,7 +140,7 @@ interface AuditReport {
   phases: {
     immediate: AuditIssue[];     // CRITICAL: direct actie vereist
     shortTerm: AuditIssue[];     // HIGH: binnen 1-2 weken
-    mediumTerm: AuditIssue[];    // MEDIUM: binnen 1-2 maanden  
+    mediumTerm: AuditIssue[];    // MEDIUM: binnen 1-2 maanden
     longTerm: AuditIssue[];      // LOW/INFO: toekomstige verbeteringen
   };
   categories: Record<string, AuditIssue[]>;
@@ -205,10 +205,10 @@ class ComprehensiveAuditor {
    */
   async runCompleteAudit(): Promise<void> {
     console.log('🔍 Starting comprehensive app audit (Security + Quality + Performance + UX)...');
-    
+
     await this.ensureReportDirectory();
     await this.loadPackageJson();
-    
+
     // === SECURITY AUDITS ===
     await this.auditDependencyVulnerabilities();
     await this.auditSecretExposure();
@@ -220,7 +220,7 @@ class ComprehensiveAuditor {
     await this.auditAuthenticationSecurity();
     await this.auditDataValidation();
     await this.auditCryptographyUsage();
-    
+
     // === CODE QUALITY AUDITS ===
     await this.auditTypeScriptQuality();
     await this.auditCodeComplexity();
@@ -229,7 +229,7 @@ class ComprehensiveAuditor {
     await this.auditImportStructure();
     await this.auditNamingConventions();
     await this.auditDesignPatterns();
-    
+
     // === PERFORMANCE AUDITS ===
     await this.auditBundleSize();
     await this.auditImageOptimization();
@@ -237,36 +237,36 @@ class ComprehensiveAuditor {
     await this.auditRenderPerformance();
     await this.auditCachingStrategies();
     await this.auditMemoryUsage();
-    
+
     // === ACCESSIBILITY AUDITS ===
     await this.auditAccessibilityCompliance();
     await this.auditKeyboardNavigation();
     await this.auditScreenReaderSupport();
     await this.auditColorContrast();
-    
+
     // === SEO AUDITS ===
     await this.auditSEOStructure();
     await this.auditMetadata();
     await this.auditStructuredData();
     await this.auditSitemap();
-    
+
     // === TESTING AUDITS ===
     await this.auditTestCoverage();
     await this.auditTestQuality();
     await this.auditE2ETests();
-    
+
     // === ARCHITECTURE AUDITS ===
     await this.auditProjectStructure();
     await this.auditDependencyArchitecture();
     await this.auditComponentArchitecture();
     await this.auditStateManagement();
-    
+
     // === UX/UI AUDITS ===
     await this.auditUserExperience();
     await this.auditResponsiveDesign();
     await this.auditLoadingStates();
     await this.auditErrorHandling();
-    
+
     // === TECH STACK AUDITS ===
     await this.auditCurrentTechStack();
     await this.auditTechStackModernity();
@@ -274,41 +274,41 @@ class ComprehensiveAuditor {
     await this.auditTechStackPerformance();
     await this.auditTechStackScalability();
     await this.generateTechStackRecommendations();
-    
+
     // === MAINTENANCE AUDITS ===
     await this.auditDocumentation();
     await this.auditVersioning();
     await this.auditCI_CD();
-    
+
     await this.generateComprehensiveReport();
     console.log('✅ Comprehensive audit completed!');
   }
 
   // === TECH STACK ANALYSIS METHODS ===
-  
+
   private async auditCurrentTechStack(): Promise<void> {
     console.log('🔍 Analyzing current tech stack...');
-    
+
     // Analyze package.json dependencies
     const dependencies = { ...this.packageJson.dependencies, ...this.packageJson.devDependencies };
-    
+
     // Detect framework
     let framework = 'Unknown';
     if (dependencies['next']) framework = 'Next.js';
     else if (dependencies['react']) framework = 'React';
     else if (dependencies['vue']) framework = 'Vue.js';
     else if (dependencies['angular']) framework = 'Angular';
-    
+
     // Detect database/backend
     let database = 'Unknown';
     if (dependencies['@supabase/supabase-js']) database = 'Supabase';
     else if (dependencies['prisma']) database = 'Prisma';
     else if (dependencies['mongoose']) database = 'MongoDB';
     else if (dependencies['pg']) database = 'PostgreSQL';
-    
+
     // Check for outdated dependencies
     const outdatedDeps = await this.checkOutdatedDependencies();
-    
+
     // Analyze tech stack health
     this.addIssue({
       id: 'tech-stack-analysis',
@@ -340,7 +340,7 @@ class ComprehensiveAuditor {
 
   private async auditTechStackModernity(): Promise<void> {
     console.log('🔍 Auditing tech stack modernity...');
-    
+
     const modernityChecks = [
       // Next.js version check
       {
@@ -349,7 +349,7 @@ class ComprehensiveAuditor {
         recommended: '14.x',
         isModern: this.isVersionModern(this.packageJson.dependencies?.['next'], '13.0.0')
       },
-      // React version check  
+      // React version check
       {
         check: 'React version',
         current: this.packageJson.dependencies?.['react'],
@@ -384,7 +384,7 @@ class ComprehensiveAuditor {
 
   private async auditTechStackSecurity(): Promise<void> {
     console.log('🔍 Auditing tech stack security implications...');
-    
+
     // Check for security-critical packages
     const securityCritical = [
       'express', 'fastify', 'koa', // Server frameworks
@@ -413,10 +413,10 @@ class ComprehensiveAuditor {
 
   private async auditTechStackPerformance(): Promise<void> {
     console.log('🔍 Auditing tech stack performance characteristics...');
-    
+
     // Bundle size analysis
     const heavyPackages = await this.identifyHeavyPackages();
-    
+
     heavyPackages.forEach(pkg => {
       this.addIssue({
         id: `heavy-package-${pkg.name}`,
@@ -434,7 +434,7 @@ class ComprehensiveAuditor {
     // Check for performance-oriented packages
     const performancePackages = {
       'next/dynamic': 'Code splitting',
-      'react-query': 'Data fetching optimization', 
+      'react-query': 'Data fetching optimization',
       'swr': 'Data fetching optimization',
       'react-virtualized': 'List virtualization',
       'react-window': 'List virtualization'
@@ -459,7 +459,7 @@ class ComprehensiveAuditor {
 
   private async generateTechStackRecommendations(): Promise<void> {
     console.log('🔍 Generating tech stack recommendations...');
-    
+
     // Supabase specific recommendations
     if (this.packageJson.dependencies?.['@supabase/supabase-js']) {
       this.addIssue({
@@ -492,7 +492,7 @@ class ComprehensiveAuditor {
 
     // State management recommendations
     const stateManagement = ['zustand', 'redux', 'jotai', 'valtio'];
-    const hasStateManagement = stateManagement.some(pkg => 
+    const hasStateManagement = stateManagement.some(pkg =>
       this.packageJson.dependencies?.[pkg]
     );
 
@@ -546,17 +546,17 @@ class ComprehensiveAuditor {
   }
 
   // === EXISTING SECURITY METHODS ===
-  
+
   private async auditDependencyVulnerabilities(): Promise<void> {
     console.log('🔍 Auditing dependency vulnerabilities...');
-    
+
     try {
-      const npmAuditResult = execSync('npm audit --json', { 
-        cwd: this.projectRoot, 
-        encoding: 'utf8' 
+      const npmAuditResult = execSync('npm audit --json', {
+        cwd: this.projectRoot,
+        encoding: 'utf8'
       });
       const auditData = JSON.parse(npmAuditResult);
-      
+
       if (auditData.vulnerabilities) {
         Object.entries(auditData.vulnerabilities).forEach(([pkg, vuln]: [string, any]) => {
           this.addIssue({

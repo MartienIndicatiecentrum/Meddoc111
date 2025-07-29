@@ -17,19 +17,22 @@ const __dirname = dirname(__filename);
 
 // Optional dependencies for file upload
 let multer, FormData;
-try {
-  const multerModule = await import('multer');
-  const formDataModule = await import('form-data');
-  multer = multerModule.default;
-  FormData = formDataModule.default;
-  console.log('✅ File upload dependencies loaded (multer, form-data)');
-} catch (error) {
-  console.warn('⚠️  multer or form-data not installed. File upload features will be disabled.');
-  console.warn('   Run: npm install multer form-data');
+
+async function initializeServer() {
+  try {
+    const multerModule = await import('multer');
+    const formDataModule = await import('form-data');
+    multer = multerModule.default;
+    FormData = formDataModule.default;
+    console.log('✅ File upload dependencies loaded (multer, form-data)');
+  } catch (error) {
+    console.warn('⚠️  multer or form-data not installed. File upload features will be disabled.');
+    console.warn('   Run: npm install multer form-data');
+  }
 }
 
 // Configure multer for memory storage (temporary) - only if available
-const upload = multer ? multer({ 
+const upload = multer ? multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB limit
@@ -89,7 +92,7 @@ class DocumentQueries {
       let query = this.supabase
         .from('documents')
         .select('id, title, content, document_type, created_at, client_id, client_name, naam, file_path, status');
-      
+
       // If clientId is provided, filter by it
       if (clientId) {
         query = query.eq('client_id', clientId);
@@ -97,11 +100,11 @@ class DocumentQueries {
         // Otherwise search by client name
         query = query.or(`client_name.ilike.%${searchTerm}%,naam.ilike.%${searchTerm}%,"Naam client".ilike.%${searchTerm}%,Naamclient.ilike.%${searchTerm}%`);
       }
-      
+
       const { data, error } = await query
         .order('created_at', { ascending: false })
         .limit(limit);
-      
+
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -113,28 +116,28 @@ class DocumentQueries {
   async getDocumentsByClientId(clientId, limit = 50) {
     try {
       console.log('🔎 Searching documents for client_id:', clientId);
-      
+
       // First, get the client name from the clients table
       const { data: clientData, error: clientError } = await this.supabase
         .from('clients')
         .select('naam, full_name, first_name, last_name')
         .eq('id', clientId)
         .single();
-      
+
       if (clientError) {
         console.error('⚠️ Error fetching client:', clientError);
       }
-      
-      const clientName = clientData?.naam || clientData?.full_name || 
+
+      const clientName = clientData?.naam || clientData?.full_name ||
                         `${clientData?.first_name || ''} ${clientData?.last_name || ''}`.trim();
-      
+
       console.log('👤 Client name:', clientName);
-      
+
       // Search by both client_id AND client name
       let query = this.supabase
         .from('documents')
         .select('id, title, content, document_type, created_at, client_id, client_name, naam, file_path, status');
-      
+
       if (clientName) {
         // Search by ID or name
         query = query.or(`client_id.eq.${clientId},client_name.ilike.%${clientName}%,naam.ilike.%${clientName}%,"Naam client".ilike.%${clientName}%`);
@@ -142,23 +145,23 @@ class DocumentQueries {
         // Fallback to just ID
         query = query.eq('client_id', clientId);
       }
-      
+
       // Filter out documents without content
       const { data, error } = await query
         .not('content', 'is', null)
         .neq('content', '')
         .order('created_at', { ascending: false })
         .limit(limit);
-      
+
       if (error) {
         console.error('❌ Error in getDocumentsByClientId:', error);
         throw error;
       }
-      
+
       console.log('✅ Documents found:', data?.length || 0);
       console.log('📄 Documents with content:', data?.filter(d => d.content)?.length || 0);
       console.log('📏 Content sample length:', data?.[0]?.content?.length || 0);
-      
+
       if (data && data.length > 0) {
         console.log('📄 First document sample:', {
           id: data[0].id,
@@ -169,7 +172,7 @@ class DocumentQueries {
           content_length: data[0].content?.length || 0
         });
       }
-      
+
       return data || [];
     } catch (error) {
       console.error('Error getting documents by client ID:', error);
@@ -181,19 +184,19 @@ class DocumentQueries {
   async getAllDocumentsByClientId(clientId, limit = 50) {
     try {
       console.log('🔎 Getting ALL documents for client_id:', clientId);
-      
+
       const { data, error } = await this.supabase
         .from('documents')
         .select('id, title, content, document_type, created_at, client_id, client_name, naam, file_path, status')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false })
         .limit(limit);
-      
+
       if (error) throw error;
-      
+
       console.log('📃 Total documents found:', data?.length || 0);
       console.log('📝 Documents with content:', data?.filter(d => d.content)?.length || 0);
-      
+
       return data || [];
     } catch (error) {
       console.error('Error getting all documents by client ID:', error);
@@ -245,9 +248,9 @@ class DocumentQueries {
       const { data, error } = await this.supabase
         .from('documents')
         .select('client_name, naam, "Naam client", Naamclient');
-      
+
       if (error) throw error;
-      
+
       // Groepeer per cliënt
       const clientStats = {};
       (data || []).forEach(doc => {
@@ -276,16 +279,16 @@ class DocumentQueries {
         .from('documents')
         .select('*')
         .gte('created_at', dateThreshold.toISOString());
-      
+
       // Apply client filter if provided
       if (clientId) {
         query = query.eq('client_id', clientId);
       }
-      
+
       const { data, error } = await query
         .order('created_at', { ascending: false })
         .limit(limit);
-      
+
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -300,15 +303,15 @@ class DocumentQueries {
         .from('documents')
         .select('*')
         .or('priority.eq.hoog,urgent.eq.true,status.eq.urgent');
-      
+
       // Apply client filter if provided
       if (clientId) {
         query = query.eq('client_id', clientId);
       }
-      
+
       const { data, error } = await query
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -322,9 +325,9 @@ class DocumentQueries {
       const { data, error } = await this.supabase
         .from('documents')
         .select('client_name, naam, "Naam client", Naamclient');
-      
+
       if (error) throw error;
-      
+
       // Unieke cliëntnamen extraheren
       const clients = new Set();
       (data || []).forEach(doc => {
@@ -333,7 +336,7 @@ class DocumentQueries {
           clients.add(clientName.trim());
         }
       });
-      
+
       return Array.from(clients).sort();
     } catch (error) {
       console.error('Error getting all clients:', error);
@@ -353,7 +356,7 @@ class EnhancedChatbotService {
     let supabaseData = null;
     let context = '';
     let queryType = 'unknown';
-    
+
     console.log('🔍 Processing query with clientId:', clientId);
     console.log('📝 Query:', query);
     console.log('🆙 Query Type Detection:', {
@@ -379,18 +382,18 @@ class EnhancedChatbotService {
         console.log('📁 Fetching documents for client:', clientId);
         supabaseData = await this.documentQueries.getDocumentsByClientId(clientId);
         console.log('📊 Found documents with content:', supabaseData.length);
-        
+
         // If no documents with content found, try getting all documents
         if (supabaseData.length === 0) {
           console.log('🔄 No documents with content, fetching all documents...');
           supabaseData = await this.documentQueries.getAllDocumentsByClientId(clientId);
           console.log('📄 Total documents found:', supabaseData.length);
         }
-        
+
         queryType = 'client_filter';
         context = `Gevonden ${supabaseData.length} documenten voor de geselecteerde cliënt.`;
       }
-      
+
       // STATISTIEKEN EN OVERZICHTEN
       else if (this.isStatsQuery(lowerQuery)) {
         if (lowerQuery.includes('dashboard') || lowerQuery.includes('overzicht')) {
@@ -410,14 +413,14 @@ class EnhancedChatbotService {
           context = `Er zijn in totaal ${stats.total} documenten in het systeem.`;
         }
       }
-      
+
       // URGENTE DOCUMENTEN
       else if (this.isUrgentQuery(lowerQuery)) {
         supabaseData = await this.documentQueries.getUrgentDocuments(clientId);
         queryType = 'urgent_documents';
         context = `Gevonden ${supabaseData.length} urgente of hoge prioriteit documenten${clientId ? ' voor de geselecteerde cliënt' : ''}.`;
       }
-      
+
       // RECENTE DOCUMENTEN
       else if (this.isRecentQuery(lowerQuery)) {
         const days = this.extractDaysFromQuery(query) || 7;
@@ -425,27 +428,27 @@ class EnhancedChatbotService {
         queryType = 'recent_documents';
         context = `Gevonden ${supabaseData.length} documenten van de afgelopen ${days} dagen${clientId ? ' voor de geselecteerde cliënt' : ''}.`;
       }
-      
+
       // ALLE CLIËNTEN
       else if (this.isAllClientsQuery(lowerQuery)) {
         supabaseData = await this.documentQueries.getAllClients();
         queryType = 'all_clients';
         context = `Lijst van alle ${supabaseData.length} cliënten in het systeem.`;
       }
-      
+
       // FALLBACK - ALGEMENE STATISTIEKEN
       else {
         if (clientId) {
           // If client is selected, show client-specific data
           console.log('📦 General query with client filter:', clientId);
           supabaseData = await this.documentQueries.getDocumentsByClientId(clientId);
-          
+
           // If no documents with content found, try getting all documents
           if (supabaseData.length === 0) {
             console.log('🔄 No documents with content, fetching all documents...');
             supabaseData = await this.documentQueries.getAllDocumentsByClientId(clientId);
           }
-          
+
           queryType = 'client_general';
           context = `Algemene informatie voor de geselecteerde cliënt. ${supabaseData.length} documenten gevonden.`;
         } else {
@@ -467,24 +470,24 @@ class EnhancedChatbotService {
   // Query detection methods
   isClientSearchQuery(query) {
     return query.includes('cliënt') && (
-      query.includes('zoek') || query.includes('documenten van') || 
+      query.includes('zoek') || query.includes('documenten van') ||
       query.includes('toon') || query.includes('geef') || query.includes('vind')
     );
   }
 
   isStatsQuery(query) {
-    return query.includes('hoeveel') || query.includes('statistiek') || 
+    return query.includes('hoeveel') || query.includes('statistiek') ||
            query.includes('overzicht') || query.includes('dashboard') ||
            query.includes('meeste') || query.includes('top');
   }
 
   isUrgentQuery(query) {
-    return query.includes('urgent') || query.includes('prioriteit') || 
+    return query.includes('urgent') || query.includes('prioriteit') ||
            query.includes('hoog') || query.includes('spoed');
   }
 
   isRecentQuery(query) {
-    return query.includes('recent') || query.includes('nieuwe') || 
+    return query.includes('recent') || query.includes('nieuwe') ||
            query.includes('vandaag') || query.includes('gisteren') ||
            query.includes('afgelopen') || query.includes('laatste');
   }
@@ -500,7 +503,7 @@ class EnhancedChatbotService {
       /(?:documenten)\s+(.+?)(?:\s|$)/i,
       /(?:toon|geef|zoek)\s+(.+?)(?:\s|$)/i
     ];
-    
+
     for (const pattern of patterns) {
       const match = query.match(pattern);
       if (match && match[1]) {
@@ -513,10 +516,10 @@ class EnhancedChatbotService {
   extractDaysFromQuery(query) {
     const dayMatch = query.match(/(\d+)\s*dag/i);
     if (dayMatch) return parseInt(dayMatch[1]);
-    
+
     const weekMatch = query.match(/(\d+)\s*week/i);
     if (weekMatch) return parseInt(weekMatch[1]) * 7;
-    
+
     return null;
   }
 
@@ -542,8 +545,8 @@ ${doc.content.substring(0, 2000)}${doc.content.length > 2000 ? '...' : ''}
 `)
           .join('\n\n---\n\n');
       }
-      
-      let prompt = `Je bent een AI assistent voor documentbeheer in het Nederlands. 
+
+      let prompt = `Je bent een AI assistent voor documentbeheer in het Nederlands.
 
 Gebruikersvraag: "${userMessage}"
 Context: ${context}
@@ -591,15 +594,15 @@ Geef een behulpzaam, gestructureerd antwoord in het Nederlands.`;
       case 'client_general':
         return `Documenten data: ${JSON.stringify(data?.slice(0, 10), null, 2)}
         Formatteer als een nette lijst met documenttypes en datums.`;
-        
+
       case 'dashboard':
         return `Dashboard data: ${JSON.stringify(data, null, 2)}
         Maak een overzichtelijk dashboard met key metrics.`;
-        
+
       case 'client_stats':
         return `Top cliënten: ${JSON.stringify(data?.slice(0, 10), null, 2)}
         Toon top 10 cliënten met aantal documenten.`;
-        
+
       default:
         return `Data: ${JSON.stringify(data?.slice ? data.slice(0, 5) : data, null, 2)}`;
     }
@@ -613,7 +616,7 @@ Geef een behulpzaam, gestructureerd antwoord in het Nederlands.`;
         if (!Array.isArray(data) || data.length === 0) {
           return `⚠️ **Geen documenten gevonden voor deze cliënt**\n\nDit kan betekenen dat:\n• Er nog geen documenten zijn geüpload voor deze cliënt\n• De documenten niet correct gekoppeld zijn aan de cliënt\n• De cliënt mogelijk onder een andere naam geregistreerd staat\n\nProbeer een andere cliënt te selecteren of upload nieuwe documenten voor deze cliënt.`;
         }
-        
+
         // Check if we have documents with content
         const docsWithContent = data.filter(d => d.content);
         if (docsWithContent.length > 0) {
@@ -622,41 +625,41 @@ Geef een behulpzaam, gestructureerd antwoord in het Nederlands.`;
             const preview = doc.content.substring(0, 200).replace(/\n/g, ' ');
             return `📄 **${doc.title}** (${doc.document_type || 'Document'})\n   *${new Date(doc.created_at).toLocaleDateString('nl-NL')}*\n   ${preview}...`;
           }).join('\n\n');
-          
+
           return `📋 **Documenten met inhoud gevonden (${docsWithContent.length} van ${data.length}):**\n\n${summary}\n\n🔍 **Stel een specifieke vraag over deze documenten**, bijvoorbeeld:\n• "Wat staat er in het behandelplan?"\n• "Welke medicatie wordt voorgeschreven?"\n• "Wat zijn de belangrijkste punten?"`;
         } else {
           return `⚠️ **Documenten gevonden maar zonder leesbare inhoud**\n\nGevonden: ${data.length} documenten\nMet inhoud: 0 documenten\n\nDit betekent dat de documenten wel geüpload zijn, maar de tekst niet is geëxtraheerd.\nMogelijke oorzaken:\n• PDF's zijn niet correct verwerkt bij upload\n• Documenten bevatten alleen afbeeldingen\n• De content extractie is mislukt\n\n**Actie vereist:** Document processing moet opnieuw worden uitgevoerd.`;
         }
-        
+
       case 'dashboard':
         return `📊 **Dashboard Overzicht:**\n\n• Totaal documenten: ${data?.total || 0}\n• Vandaag toegevoegd: ${data?.today || 0}\n• Urgente documenten: ${data?.urgent || 0}\n• In behandeling: ${data?.inProgress || 0}\n• Afgehandeld: ${data?.completed || 0}`;
-        
+
       case 'client_stats':
         if (Array.isArray(data) && data.length > 0) {
-          return `👥 **Top Cliënten:**\n\n${data.slice(0, 10).map((client, index) => 
+          return `👥 **Top Cliënten:**\n\n${data.slice(0, 10).map((client, index) =>
             `${index + 1}. ${client.client_name} - ${client.document_count} documenten`
           ).join('\n')}`;
         }
         return "Geen cliëntstatistieken beschikbaar.";
-        
+
       case 'urgent_documents':
         return `🚨 **Urgente Documenten (${Array.isArray(data) ? data.length : 0}):**\n\n${context}`;
-        
+
       case 'recent_documents':
         return `🕒 **Recente Documenten (${Array.isArray(data) ? data.length : 0}):**\n\n${context}`;
-        
+
       case 'all_clients':
         if (Array.isArray(data) && data.length > 0) {
           return `👥 **Alle Cliënten (${data.length}):**\n\n${data.slice(0, 20).join(', ')}${data.length > 20 ? '\n\n... en nog ' + (data.length - 20) + ' meer.' : ''}`;
         }
         return "Geen cliënten gevonden.";
-        
+
       case 'document_count':
         return `📊 Er zijn **${data?.total || 0}** documenten in het systeem.`;
-        
+
       case 'error':
         return "❌ Er is een technische fout opgetreden. Probeer het later opnieuw.";
-        
+
       default:
         // If client filter is active but no specific query type matched
         if (context.includes('geselecteerde cliënt') && (!Array.isArray(data) || data.length === 0)) {
@@ -673,7 +676,7 @@ const chatbotService = new EnhancedChatbotService(supabase);
 
 // Routes
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     status: '🚀 MedDoc AI Chatbot Server Running',
     timestamp: new Date().toISOString(),
     port: PORT,
@@ -689,11 +692,11 @@ app.get('/health', async (req, res) => {
     const { data, error, count } = await supabase
       .from('documents')
       .select('*', { count: 'exact', head: true });
-    
+
     if (error) {
       throw new Error(`Database connection failed: ${error.message}`);
     }
-    
+
     res.json({
       status: 'healthy',
       database: 'connected',
@@ -769,19 +772,19 @@ app.get('/api/diagnostic', async (req, res) => {
         .from('documents')
         .select('id')
         .limit(1);
-      
+
       if (tablesError) {
         diagnostics.checks.database.status = 'error';
         diagnostics.checks.database.error = tablesError.message;
         diagnostics.status = 'error';
       } else {
         diagnostics.checks.database.status = 'connected';
-        
+
         // Try to get document count
         const { count } = await supabase
           .from('documents')
           .select('*', { count: 'exact', head: true });
-        
+
         diagnostics.checks.database.documentCount = count || 0;
         diagnostics.status = 'operational';
       }
@@ -797,7 +800,7 @@ app.get('/api/diagnostic', async (req, res) => {
     const missingEnvVars = Object.entries(diagnostics.checks.envVars)
       .filter(([key, value]) => value === 'missing' && key !== 'ANTHROPIC_API_KEY')
       .map(([key]) => key);
-    
+
     if (missingEnvVars.length > 0) {
       diagnostics.instructions = {
         error: 'Missing required environment variables',
@@ -831,16 +834,16 @@ app.get('/api/diagnostic', async (req, res) => {
 app.get('/api/debug/client-documents/:clientId', async (req, res) => {
   try {
     const { clientId } = req.params;
-    
+
     const { data, error } = await supabase
       .from('documents')
       .select('id, title, content, document_type, created_at')
       .eq('client_id', clientId)
       .order('created_at', { ascending: false })
       .limit(10);
-    
+
     if (error) throw error;
-    
+
     const stats = {
       clientId,
       totalDocuments: data?.length || 0,
@@ -852,7 +855,7 @@ app.get('/api/debug/client-documents/:clientId', async (req, res) => {
         contentPreview: d.content?.substring(0, 100) || 'No content'
       }))
     };
-    
+
     res.json(stats);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -880,7 +883,7 @@ app.post('/mcp/chatbot.query', async (req, res) => {
 
     // Process query with enhanced service
     const result = await chatbotService.processUserQuery(query, clientId);
-    
+
     // Generate intelligent response
     const response = await chatbotService.generateIntelligentResponse(
       query,
@@ -915,17 +918,17 @@ app.post('/mcp/chatbot.query', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error processing query:', error);
-    
+
     // Provide more detailed error response
     let errorMessage = 'Er is een fout opgetreden bij het verwerken van je vraag.';
     let statusCode = 500;
-    
+
     if (error.message.includes('Database')) {
       errorMessage = 'Database connection error. Please check your Supabase configuration.';
     } else if (error.message.includes('not initialized')) {
       errorMessage = 'Service not properly initialized. Please restart the server.';
     }
-    
+
     res.status(statusCode).json({
       success: false,
       error: error.message,
@@ -942,15 +945,15 @@ app.post('/mcp/chatbot.query', async (req, res) => {
 const checkMorphikConfig = (req, res, next) => {
   const morphikApiKey = process.env.MORPHIK_API_KEY;
   const morphikApiUrl = process.env.MORPHIK_API_URL || 'https://api.morphik.ai';
-  
+
   if (!morphikApiKey) {
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Morphik API not configured',
       message: 'MORPHIK_API_KEY is missing in environment variables',
       code: 'MORPHIK_NOT_CONFIGURED'
     });
   }
-  
+
   req.morphikConfig = { apiKey: morphikApiKey, apiUrl: morphikApiUrl };
   next();
 };
@@ -958,7 +961,7 @@ const checkMorphikConfig = (req, res, next) => {
 // Enhanced error handler for Morphik responses
 const handleMorphikError = (error, res) => {
   console.error('❌ Morphik API error:', error);
-  
+
   if (error.code === 'ECONNREFUSED') {
     return res.status(503).json({
       error: 'Cannot connect to Morphik service',
@@ -966,7 +969,7 @@ const handleMorphikError = (error, res) => {
       code: 'SERVICE_UNAVAILABLE'
     });
   }
-  
+
   if (error.code === 'ETIMEDOUT') {
     return res.status(504).json({
       error: 'Morphik request timeout',
@@ -974,7 +977,7 @@ const handleMorphikError = (error, res) => {
       code: 'GATEWAY_TIMEOUT'
     });
   }
-  
+
   res.status(500).json({
     error: 'Internal proxy error',
     message: 'Er is een fout opgetreden bij het doorsturen van de aanvraag',
@@ -987,12 +990,12 @@ const handleMorphikError = (error, res) => {
 app.post('/api/morphik/agent', checkMorphikConfig, async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
-    
+
     console.log(`🤖 Proxying Morphik agent query`);
-    
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
-    
+
     try {
       const response = await fetch(`${apiUrl}/agent`, {
         method: 'POST',
@@ -1004,16 +1007,16 @@ app.post('/api/morphik/agent', checkMorphikConfig, async (req, res) => {
         body: JSON.stringify(req.body),
         signal: controller.signal
       });
-      
+
       clearTimeout(timeout);
-      
+
       const data = await response.json();
-      
+
       // Log successful requests in development
       if (process.env.NODE_ENV === 'development') {
         console.log(`✅ Morphik agent response: ${response.status}`);
       }
-      
+
       res.status(response.status).json(data);
     } catch (fetchError) {
       clearTimeout(timeout);
@@ -1036,7 +1039,7 @@ app.get('/api/morphik/folders/:name', checkMorphikConfig, async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
     const { name } = req.params;
-    
+
     const response = await fetch(`${apiUrl}/folders/${encodeURIComponent(name)}`, {
       method: 'GET',
       headers: {
@@ -1044,15 +1047,15 @@ app.get('/api/morphik/folders/:name', checkMorphikConfig, async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
-    
+
     if (response.status === 404) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'Folder not found',
         message: `Map '${name}' niet gevonden`,
         code: 'FOLDER_NOT_FOUND'
       });
     }
-    
+
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
@@ -1063,7 +1066,7 @@ app.get('/api/morphik/folders/:name', checkMorphikConfig, async (req, res) => {
 app.post('/api/morphik/folders', checkMorphikConfig, async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
-    
+
     const response = await fetch(`${apiUrl}/folders`, {
       method: 'POST',
       headers: {
@@ -1072,7 +1075,7 @@ app.post('/api/morphik/folders', checkMorphikConfig, async (req, res) => {
       },
       body: JSON.stringify(req.body)
     });
-    
+
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
@@ -1084,17 +1087,17 @@ app.post('/api/morphik/folders', checkMorphikConfig, async (req, res) => {
 app.get('/api/morphik/retrieve/docs', checkMorphikConfig, async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
-    
+
     // Validate and sanitize query parameters
     const allowedParams = ['query', 'folder_name', 'limit', 'offset', 'filters'];
     const queryParams = new URLSearchParams();
-    
+
     allowedParams.forEach(param => {
       if (req.query[param] !== undefined) {
         queryParams.append(param, req.query[param]);
       }
     });
-    
+
     const response = await fetch(`${apiUrl}/retrieve/docs?${queryParams}`, {
       method: 'GET',
       headers: {
@@ -1102,7 +1105,7 @@ app.get('/api/morphik/retrieve/docs', checkMorphikConfig, async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
-    
+
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
@@ -1115,7 +1118,7 @@ app.get('/api/morphik/documents/:id/status', checkMorphikConfig, async (req, res
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
     const { id } = req.params;
-    
+
     if (!id || id === 'undefined') {
       return res.status(400).json({
         error: 'Invalid document ID',
@@ -1123,7 +1126,7 @@ app.get('/api/morphik/documents/:id/status', checkMorphikConfig, async (req, res
         code: 'INVALID_DOCUMENT_ID'
       });
     }
-    
+
     const response = await fetch(`${apiUrl}/documents/${id}/status`, {
       method: 'GET',
       headers: {
@@ -1131,7 +1134,7 @@ app.get('/api/morphik/documents/:id/status', checkMorphikConfig, async (req, res
         'Content-Type': 'application/json'
       }
     });
-    
+
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
@@ -1144,7 +1147,7 @@ app.get('/api/morphik/health', checkMorphikConfig, async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
     const startTime = Date.now();
-    
+
     // Try a simple API call to check connectivity
     const response = await fetch(`${apiUrl}/folders`, {
       method: 'GET',
@@ -1154,9 +1157,9 @@ app.get('/api/morphik/health', checkMorphikConfig, async (req, res) => {
       },
       signal: AbortSignal.timeout(5000) // 5s timeout
     });
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     res.json({
       status: response.ok ? 'healthy' : 'unhealthy',
       responseTime: `${responseTime}ms`,
@@ -1180,7 +1183,7 @@ if (upload) {
   app.post('/api/morphik/ingest/file', checkMorphikConfig, upload.single('file'), async (req, res) => {
     try {
       const { apiKey, apiUrl } = req.morphikConfig;
-    
+
     if (!req.file) {
       return res.status(400).json({
         error: 'No file provided',
@@ -1188,32 +1191,32 @@ if (upload) {
         code: 'FILE_REQUIRED'
       });
     }
-    
+
     console.log(`📄 Uploading file to Morphik: ${req.file.originalname} (${req.file.size} bytes)`);
-    
+
     // Create FormData for multipart upload
     const formData = new FormData();
     formData.append('file', req.file.buffer, {
       filename: req.file.originalname,
       contentType: req.file.mimetype
     });
-    
+
     // Add additional fields from body
     if (req.body.folder_name) {
       formData.append('folder_name', req.body.folder_name);
     }
-    
+
     if (req.body.metadata) {
-      formData.append('metadata', 
-        typeof req.body.metadata === 'string' 
-          ? req.body.metadata 
+      formData.append('metadata',
+        typeof req.body.metadata === 'string'
+          ? req.body.metadata
           : JSON.stringify(req.body.metadata)
       );
     }
-    
+
     // Get form headers (includes boundary)
     const formHeaders = formData.getHeaders();
-    
+
     const response = await fetch(`${apiUrl}/ingest/file`, {
       method: 'POST',
       headers: {
@@ -1222,15 +1225,15 @@ if (upload) {
       },
       body: formData
     });
-    
+
     const data = await response.json();
-    
+
     if (response.ok) {
       console.log(`✅ File uploaded successfully: ${data.document_id}`);
     } else {
       console.error(`❌ File upload failed: ${response.status}`);
     }
-    
+
     res.status(response.status).json(data);
   } catch (error) {
     handleMorphikError(error, res);
@@ -1252,7 +1255,7 @@ if (upload) {
   app.post('/api/morphik/ingest/files', checkMorphikConfig, upload.array('files', 10), async (req, res) => {
   try {
     const { apiKey, apiUrl } = req.morphikConfig;
-    
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         error: 'No files provided',
@@ -1260,11 +1263,11 @@ if (upload) {
         code: 'FILES_REQUIRED'
       });
     }
-    
+
     console.log(`📄 Uploading ${req.files.length} files to Morphik`);
-    
+
     const formData = new FormData();
-    
+
     // Add all files
     req.files.forEach((file, index) => {
       formData.append('files', file.buffer, {
@@ -1272,14 +1275,14 @@ if (upload) {
         contentType: file.mimetype
       });
     });
-    
+
     // Add additional fields
     if (req.body.folder_name) {
       formData.append('folder_name', req.body.folder_name);
     }
-    
+
     const formHeaders = formData.getHeaders();
-    
+
     const response = await fetch(`${apiUrl}/ingest/files`, {
       method: 'POST',
       headers: {
@@ -1288,7 +1291,7 @@ if (upload) {
       },
       body: formData
     });
-    
+
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
@@ -1308,9 +1311,11 @@ if (upload) {
 
 // Start server
 app.listen(PORT, async () => {
+  await initializeServer(); // Initialize dependencies first
+  
   console.log(`🚀 MedDoc AI Chatbot Server running on http://localhost:${PORT}`);
   console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
+
   // Test database connection
   try {
     const { count } = await supabase
@@ -1320,14 +1325,14 @@ app.listen(PORT, async () => {
   } catch (error) {
     console.error('❌ Supabase connection error:', error.message);
   }
-  
+
   // Check Claude API
   if (process.env.NEXT_PUBLIC_CLAUDE_API_KEY) {
     console.log('🤖 Claude API: Configured');
   } else {
     console.log('⚠️  Claude API: Not configured (using fallback responses)');
   }
-  
+
   // Check Morphik configuration
   if (process.env.MORPHIK_API_KEY) {
     console.log('🔗 Morphik API: Configured');
@@ -1337,7 +1342,7 @@ app.listen(PORT, async () => {
   } else {
     console.log('⚠️  Morphik API: Not configured');
   }
-  
+
   console.log('\n🎯 Ready to chat! Try these endpoints:');
   console.log(`   GET  http://localhost:${PORT}/ - Server status`);
   console.log(`   GET  http://localhost:${PORT}/health - Health check`);

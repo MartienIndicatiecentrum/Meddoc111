@@ -28,7 +28,7 @@ export default function PGBProcesFlowPage() {
               Terug naar Taken
             </button>
           </Link>
-          
+
           {/* Client Selection */}
           <Autocomplete
             options={clients}
@@ -36,10 +36,10 @@ export default function PGBProcesFlowPage() {
             value={clients.find(c => c.id === selectedClientId) || null}
             onChange={(_, newValue) => setSelectedClientId(newValue ? newValue.id : null)}
             renderInput={(params) => (
-              <TextField 
-                {...params} 
-                label="Selecteer cliënt" 
-                variant="outlined" 
+              <TextField
+                {...params}
+                label="Selecteer cliënt"
+                variant="outlined"
                 size="small"
                 placeholder="Kies een cliënt om het proces te bekijken..."
                 sx={{
@@ -81,4 +81,4 @@ export default function PGBProcesFlowPage() {
       </div>
     </AppLayout>
   );
-} 
+}

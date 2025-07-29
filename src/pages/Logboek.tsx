@@ -472,25 +472,34 @@ const Logboek: React.FC = () => {
       if (entry) {
         console.log('Log entry created successfully');
         
-        // Upload documents to Supabase if any exist
-        if (newEntryDocuments.length > 0) {
-          console.log('Uploading documents to Supabase...');
-          const uploadPromises = newEntryDocuments.map(async (doc) => {
-            if (doc.file) {
-              try {
-                return await clientService.uploadDocument(doc.file, selectedClient.id, entry.id);
-              } catch (uploadError) {
-                console.error('Error uploading document:', doc.name, uploadError);
-                alert(`Fout bij uploaden van document ${doc.name}: ${uploadError instanceof Error ? uploadError.message : 'Onbekende fout'}`);
-                return null;
+              // Upload documents to Supabase if any exist
+      if (newEntryDocuments.length > 0) {
+        console.log('Uploading documents to Supabase...');
+        const uploadPromises = newEntryDocuments.map(async (doc) => {
+          if (doc.file) {
+            try {
+              return await clientService.uploadDocument(doc.file, selectedClient.id, entry.id);
+            } catch (uploadError) {
+              console.error('Error uploading document:', doc.name, uploadError);
+              const errorMessage = uploadError instanceof Error ? uploadError.message : 'Onbekende fout';
+              
+              // Provide more specific error messages
+              if (errorMessage.includes('does not exist')) {
+                alert(`Fout bij uploaden van document ${doc.name}: Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.`);
+              } else if (errorMessage.includes('foreign key constraint')) {
+                alert(`Fout bij uploaden van document ${doc.name}: Database probleem. Neem contact op met de beheerder.`);
+              } else {
+                alert(`Fout bij uploaden van document ${doc.name}: ${errorMessage}`);
               }
+              return null;
             }
-            return null;
-          });
-          
-          const uploadedDocuments = await Promise.all(uploadPromises);
-          console.log('Documents uploaded:', uploadedDocuments.filter(doc => doc !== null));
-        }
+          }
+          return null;
+        });
+        
+        const uploadedDocuments = await Promise.all(uploadPromises);
+        console.log('Documents uploaded:', uploadedDocuments.filter(doc => doc !== null));
+      }
         
         // Reset form and reload entries
         setNewEntry({
@@ -832,7 +841,16 @@ const Logboek: React.FC = () => {
           }
         } catch (fileError) {
           console.error('Error uploading file:', file.name, fileError);
-          alert(`Fout bij uploaden van ${file.name}: ${fileError instanceof Error ? fileError.message : 'Onbekende fout'}`);
+          const errorMessage = fileError instanceof Error ? fileError.message : 'Onbekende fout';
+          
+          // Provide more specific error messages
+          if (errorMessage.includes('does not exist')) {
+            alert(`Fout bij uploaden van ${file.name}: Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.`);
+          } else if (errorMessage.includes('foreign key constraint')) {
+            alert(`Fout bij uploaden van ${file.name}: Database probleem. Neem contact op met de beheerder.`);
+          } else {
+            alert(`Fout bij uploaden van ${file.name}: ${errorMessage}`);
+          }
         }
       }
       

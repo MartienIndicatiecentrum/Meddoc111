@@ -408,6 +408,35 @@ export const clientService = {
     try {
       console.log('Uploading document:', file.name, 'for client:', clientId, 'logEntryId:', logEntryId);
       
+      // Validate inputs
+      if (!clientId) {
+        throw new ServiceError('Client ID is required for document upload');
+      }
+      
+      // If logEntryId is provided, verify it exists
+      if (logEntryId) {
+        const { data: logEntry, error: logEntryError } = await supabase
+          .from('logboek')
+          .select('id')
+          .eq('id', logEntryId)
+          .single();
+        
+        if (logEntryError || !logEntry) {
+          throw new ServiceError(`Log entry with ID ${logEntryId} does not exist. Please save the log entry first before uploading documents.`);
+        }
+      }
+      
+      // Verify client exists
+      const { data: client, error: clientError } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('id', clientId)
+        .single();
+      
+      if (clientError || !client) {
+        throw new ServiceError(`Client with ID ${clientId} does not exist`);
+      }
+      
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `logboek-documents/${clientId}/${fileName}`;
       
@@ -428,7 +457,7 @@ export const clientService = {
         .from('documents')
         .getPublicUrl(filePath);
       
-      // Save document info to database
+      // Save document info to database using the safe function
       const documentData = {
         log_entry_id: logEntryId,
         client_id: clientId,
@@ -441,11 +470,48 @@ export const clientService = {
       
       console.log('Saving document to database:', documentData);
       
-      const { data: dbData, error: dbError } = await supabase
-        .from('log_entry_documents')
-        .insert(documentData)
-        .select()
-        .single();
+      // Use the safe function if logEntryId is provided, otherwise use direct insert
+      let dbData, dbError;
+      
+      if (logEntryId) {
+        // Use the safe function for better error handling
+        const { data, error } = await supabase.rpc('safe_insert_log_entry_document', {
+          p_log_entry_id: logEntryId,
+          p_client_id: clientId,
+          p_file_name: file.name,
+          p_file_path: filePath,
+          p_file_size: file.size,
+          p_file_type: file.type,
+          p_public_url: urlData.publicUrl
+        });
+        
+        if (error) {
+          dbError = error;
+        } else {
+          // Fetch the created document
+          const { data: fetchedDoc, error: fetchError } = await supabase
+            .from('log_entry_documents')
+            .select('*')
+            .eq('id', data)
+            .single();
+          
+          if (fetchError) {
+            dbError = fetchError;
+          } else {
+            dbData = fetchedDoc;
+          }
+        }
+      } else {
+        // Direct insert without log entry (for standalone documents)
+        const { data, error } = await supabase
+          .from('log_entry_documents')
+          .insert(documentData)
+          .select()
+          .single();
+        
+        dbData = data;
+        dbError = error;
+      }
       
       if (dbError) {
         console.error('Database save error:', dbError);

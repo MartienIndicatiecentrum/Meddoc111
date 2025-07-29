@@ -607,7 +607,7 @@ class EnhancedChatbotService {
     queryType
   ) {
     // Als we geen Claude API key hebben, geef een eenvoudige response
-    if (!process.env.NEXT_PUBLIC_CLAUDE_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return this.getFallbackResponse(queryType, context, supabaseData);
     }
 
@@ -653,7 +653,7 @@ Geef een behulpzaam, gestructureerd antwoord in het Nederlands.`;
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.NEXT_PUBLIC_CLAUDE_API_KEY,
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
@@ -775,7 +775,7 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString(),
     port: PORT,
     supabase: 'Connected',
-    claude: process.env.NEXT_PUBLIC_CLAUDE_API_KEY
+    claude: process.env.ANTHROPIC_API_KEY
       ? 'Ready'
       : 'Not configured (using fallback responses)',
   });
@@ -1477,7 +1477,7 @@ app.listen(PORT, async () => {
   }
 
   // Check Claude API
-  if (process.env.NEXT_PUBLIC_CLAUDE_API_KEY) {
+  if (process.env.ANTHROPIC_API_KEY) {
     console.log('🤖 Claude API: Configured');
   } else {
     console.log('⚠️  Claude API: Not configured (using fallback responses)');

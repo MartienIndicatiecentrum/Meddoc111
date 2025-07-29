@@ -1,9 +1,18 @@
 // auto-start-services.js - Automatically start backend services
-const { spawn } = require('child_process');
-const net = require('net');
-const path = require('path');
-const fs = require('fs');
-require('dotenv').config();
+import { spawn } from 'child_process';
+import net from 'net';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -17,10 +26,10 @@ const colors = {
 
 // Check if port is in use
 async function isPortInUse(port) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const server = net.createServer();
 
-    server.once('error', (err) => {
+    server.once('error', err => {
       if (err.code === 'EADDRINUSE') {
         resolve(true);
       } else {
@@ -41,13 +50,15 @@ async function isPortInUse(port) {
 async function waitForService(url, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const http = require('http');
+      const http = await import('http');
       const response = await new Promise((resolve, reject) => {
-        http.get(url, (res) => {
-          resolve(res.statusCode === 200);
-        }).on('error', () => {
-          resolve(false);
-        });
+        http
+          .get(url, res => {
+            resolve(res.statusCode === 200);
+          })
+          .on('error', () => {
+            resolve(false);
+          });
       });
 
       if (response) return true;
@@ -68,7 +79,9 @@ async function ensureServiceRunning(config) {
   const inUse = await isPortInUse(port);
 
   if (inUse) {
-    console.log(`${color}✓${colors.reset} ${name} already running on port ${port}`);
+    console.log(
+      `${color}✓${colors.reset} ${name} already running on port ${port}`
+    );
     return true;
   }
 
@@ -82,7 +95,7 @@ async function ensureServiceRunning(config) {
     detached: true,
     stdio: 'ignore',
     shell: isWindows,
-    cwd: process.cwd()
+    cwd: process.cwd(),
   });
 
   proc.unref();
@@ -94,7 +107,9 @@ async function ensureServiceRunning(config) {
       console.log(`${color}✓${colors.reset} ${name} is ready`);
       return true;
     } else {
-      console.log(`${colors.yellow}⚠${colors.reset} ${name} started but not responding`);
+      console.log(
+        `${colors.yellow}⚠${colors.reset} ${name} started but not responding`
+      );
       return false;
     }
   } else {
@@ -106,7 +121,9 @@ async function ensureServiceRunning(config) {
 }
 
 async function main() {
-  console.log(`${colors.bright}🚀 Auto-starting backend services...${colors.reset}\n`);
+  console.log(
+    `${colors.bright}🚀 Auto-starting backend services...${colors.reset}\n`
+  );
 
   // Check environment first
   const envPath = path.join(__dirname, '.env');
@@ -114,8 +131,13 @@ async function main() {
     console.warn(`${colors.yellow}⚠️  No .env file found${colors.reset}`);
     console.log('   Services may not work properly without configuration.');
     console.log('   Run "npm run check:env" for setup help.\n');
-  } else if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn(`${colors.yellow}⚠️  Missing required environment variables${colors.reset}`);
+  } else if (
+    !process.env.SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    console.warn(
+      `${colors.yellow}⚠️  Missing required environment variables${colors.reset}`
+    );
     console.log('   Backend API will not work without Supabase credentials.');
     console.log('   Run "npm run check:env" for setup help.\n');
   }
@@ -128,16 +150,16 @@ async function main() {
       command: 'node',
       args: ['server.js'],
       checkUrl: 'http://localhost:8081/health',
-      color: colors.green
+      color: colors.green,
     },
     {
       name: 'RAG Server',
-      port: 5000,
+      port: 5001,
       command: 'python',
-      args: ['advanced_rag_server.py'],
+      args: ['rag_server.py'],
       checkUrl: 'http://localhost:5001/health',
-      color: colors.yellow
-    }
+      color: colors.yellow,
+    },
   ];
 
   // Check for Python before trying to start RAG server
@@ -161,14 +183,16 @@ async function main() {
     console.log(`\n${colors.green}✅ All services ready!${colors.reset}`);
     process.exit(0);
   } else {
-    console.log(`\n${colors.yellow}⚠️  Some services may not be fully ready${colors.reset}`);
+    console.log(
+      `\n${colors.yellow}⚠️  Some services may not be fully ready${colors.reset}`
+    );
     process.exit(1);
   }
 }
 
 // Check if Python is installed
 function checkPythonInstallation() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const python = spawn('python', ['--version']);
 
     python.on('error', () => {
@@ -179,7 +203,7 @@ function checkPythonInstallation() {
       resolve(true);
     });
 
-    python.stderr.on('data', (data) => {
+    python.stderr.on('data', data => {
       // Python sometimes outputs version to stderr
       if (data.toString().includes('Python')) {
         resolve(true);
@@ -192,7 +216,7 @@ function checkPythonInstallation() {
 }
 
 // Run only if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(err => {
     console.error(`${colors.red}Error:${colors.reset}`, err.message);
     process.exit(1);

@@ -285,14 +285,14 @@ def get_document_content(document_id):
         return jsonify({"error": "Document not found"}), 404
 
 if __name__ == '__main__':
-    print("🚀 Starting Vercel-optimized RAG Server...")
-    print("📚 Server will be available at: http://localhost:5000")
-    print("🔍 Health check: http://localhost:5000/health")
-    print("📄 Available endpoints:")
+    print("Starting Vercel-optimized RAG Server...")
+    print("Server will be available at: http://localhost:5000")
+    print("Health check: http://localhost:5000/health")
+    print("Available endpoints:")
     print("   POST /ingest - Process new documents")
     print("   POST /chat - Answer questions with OpenAI")
     print("   GET /documents - List processed documents")
     print("   GET /health - Health check")
-    print("\n✅ Lightweight server ready for Vercel deployment!")
+    print("\nLightweight server ready for Vercel deployment!")
     
     app.run(host='localhost', port=5001, debug=True) 

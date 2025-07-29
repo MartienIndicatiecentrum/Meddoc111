@@ -237,14 +237,14 @@ def delete_document(document_id):
         return jsonify({"error": "Document not found"}), 404
 
 if __name__ == '__main__':
-    print("🚀 Starting RAG Server for MedDoc AI Flow...")
-    print("📚 Server will be available at: http://localhost:5000")
-    print("🔍 Health check: http://localhost:5000/health")
-    print("📄 Available endpoints:")
+    print("Starting RAG Server for MedDoc AI Flow...")
+    print("Server will be available at: http://localhost:5000")
+    print("Health check: http://localhost:5000/health")
+    print("Available endpoints:")
     print("   POST /ingest - Process new documents")
     print("   POST /chat - Answer questions")
     print("   GET /documents - List processed documents")
     print("   GET /health - Health check")
-    print("\n✅ Server is ready to receive requests from your React app!")
+    print("\nServer is ready to receive requests from your React app!")
     
     app.run(host='localhost', port=5001, debug=True)

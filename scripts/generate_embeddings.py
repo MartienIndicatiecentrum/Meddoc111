@@ -16,17 +16,17 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Check of alle environment variables zijn ingesteld
 if not SUPABASE_URL:
-    print("❌ Error: SUPABASE_URL environment variable is not set")
+    print("Error: SUPABASE_URL environment variable is not set")
     print("Set it with: set SUPABASE_URL=your_supabase_url")
     sys.exit(1)
 
 if not SUPABASE_SERVICE_ROLE_KEY:
-    print("❌ Error: SUPABASE_SERVICE_ROLE_KEY environment variable is not set")
+    print("Error: SUPABASE_SERVICE_ROLE_KEY environment variable is not set")
     print("Set it with: set SUPABASE_SERVICE_ROLE_KEY=your_service_role_key")
     sys.exit(1)
 
 if not OPENAI_API_KEY:
-    print("❌ Error: OPENAI_API_KEY environment variable is not set")
+    print("Error: OPENAI_API_KEY environment variable is not set")
     print("Set it with: set OPENAI_API_KEY=your_openai_api_key")
     sys.exit(1)
 
@@ -109,17 +109,17 @@ def process_documents():
         if embedding:
             # Update document
             if update_document_embedding(doc['id'], embedding):
-                print("  ✅ Embedding generated and saved")
+                print("  Embedding generated and saved")
             else:
-                print("  ❌ Failed to save embedding")
+                print("  Failed to save embedding")
         else:
-            print("  ❌ Failed to generate embedding")
+            print("  Failed to generate embedding")
         
         # Rate limiting - OpenAI allows 3 requests per minute for free tier
         time.sleep(0.5)
 
 if __name__ == "__main__":
-    print("🚀 Starting embedding generation for documents...")
+    print("Starting embedding generation for documents...")
     print(f"Using Supabase URL: {SUPABASE_URL}")
     process_documents()
-    print("\n✅ Done!")
+    print("\nDone!")

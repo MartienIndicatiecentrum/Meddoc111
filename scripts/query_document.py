@@ -10,7 +10,7 @@ query = {
 
 try:
     res = requests.post("http://localhost:5000/query", json=query)
-    print(f"✅ Statuscode: {res.status_code}")
+    print(f"Statuscode: {res.status_code}")
     print(res.json())
 except Exception as e:
-    print("❌ Fout bij het stellen van de vraag:", str(e))
+    print("Fout bij het stellen van de vraag:", str(e))

@@ -7,9 +7,15 @@ import { useEffect } from 'react';
 export function useSkipToContent() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Tab' && e.target instanceof HTMLElement && e.target.id === 'skip-to-content') {
+      if (
+        e.key === 'Tab' &&
+        e.target instanceof HTMLElement &&
+        e.target.id === 'skip-to-content'
+      ) {
         const main = document.getElementById('main-content');
-        if (main) main.focus();
+        if (main) {
+          main.focus();
+        }
       }
     };
     window.addEventListener('keydown', handler);

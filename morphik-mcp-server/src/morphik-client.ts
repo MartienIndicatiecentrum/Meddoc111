@@ -10,7 +10,7 @@ import {
   RetrieveOptions,
   MorphikDocument,
   FolderInfo,
-  ProcessingStatus
+  ProcessingStatus,
 } from './types.js';
 import { logger, MorphikError, retryWithBackoff } from './utils.js';
 
@@ -23,10 +23,10 @@ export class MorphikClient {
     this.api = axios.create({
       baseURL: config.apiUrl,
       headers: {
-        'Authorization': `Bearer ${config.apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
       },
-      timeout: 60000
+      timeout: 60000,
     });
 
     this.setupInterceptors();
@@ -39,7 +39,7 @@ export class MorphikClient {
         if (error.response) {
           logger.error('Morphik API error', {
             status: error.response.status,
-            data: error.response.data
+            data: error.response.data,
           });
 
           throw new MorphikError(
@@ -48,7 +48,11 @@ export class MorphikClient {
             error.response.data
           );
         } else if (error.request) {
-          throw new MorphikError('No response from Morphik API', 0, error.request);
+          throw new MorphikError(
+            'No response from Morphik API',
+            0,
+            error.request
+          );
         } else {
           throw new MorphikError('Request setup failed', 0, error.message);
         }
@@ -56,15 +60,12 @@ export class MorphikClient {
     );
   }
 
-  async uploadFile(
-    file: FileUpload,
-    folder?: string
-  ): Promise<UploadResponse> {
+  async uploadFile(file: FileUpload, folder?: string): Promise<UploadResponse> {
     try {
       const formData = new FormData();
       formData.append('file', file.content, {
         filename: file.path.split('/').pop(),
-        contentType: file.mimeType
+        contentType: file.mimeType,
       });
 
       if (file.metadata) {
@@ -78,21 +79,21 @@ export class MorphikClient {
       const response = await retryWithBackoff(() =>
         this.api.post('/ingest/file', formData, {
           headers: {
-            ...formData.getHeaders()
-          }
+            ...formData.getHeaders(),
+          },
         })
       );
 
       return {
         success: true,
         documentId: response.data.document_id,
-        message: response.data.message
+        message: response.data.message,
       };
     } catch (error) {
       logger.error('Failed to upload file', { error, file: file.path });
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -104,10 +105,10 @@ export class MorphikClient {
     try {
       const formData = new FormData();
 
-      files.forEach((file) => {
+      files.forEach(file => {
         formData.append('files', file.content, {
           filename: file.path.split('/').pop(),
-          contentType: file.mimeType
+          contentType: file.mimeType,
         });
       });
 
@@ -121,8 +122,8 @@ export class MorphikClient {
       const response = await retryWithBackoff(() =>
         this.api.post('/ingest/files', formData, {
           headers: {
-            ...formData.getHeaders()
-          }
+            ...formData.getHeaders(),
+          },
         })
       );
 
@@ -130,15 +131,18 @@ export class MorphikClient {
         success: true,
         uploadedCount: response.data.uploaded_count || files.length,
         failedCount: 0,
-        results: response.data.results || []
+        results: response.data.results || [],
       };
     } catch (error) {
-      logger.error('Failed to upload files', { error, fileCount: files.length });
+      logger.error('Failed to upload files', {
+        error,
+        fileCount: files.length,
+      });
       return {
         success: false,
         uploadedCount: 0,
         failedCount: files.length,
-        results: []
+        results: [],
       };
     }
   }
@@ -176,7 +180,7 @@ export class MorphikClient {
         response: response.data.response || response.data.text,
         sources: response.data.sources,
         chatId: response.data.chat_id,
-        metadata: response.data.metadata
+        metadata: response.data.metadata,
       };
     } catch (error) {
       logger.error('Agent query failed', { error, query });

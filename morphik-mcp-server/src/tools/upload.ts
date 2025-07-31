@@ -6,7 +6,7 @@ import {
   getFilesInDirectory,
   getMimeType,
   extractMetadataFromPath,
-  logger
+  logger,
 } from '../utils.js';
 import path from 'path';
 
@@ -20,19 +20,19 @@ export function createUploadTools(client: MorphikClient): Tool[] {
         properties: {
           filePath: {
             type: 'string',
-            description: 'Path to the file to upload'
+            description: 'Path to the file to upload',
           },
           folder: {
             type: 'string',
-            description: 'Optional folder name to organize the document'
+            description: 'Optional folder name to organize the document',
           },
           metadata: {
             type: 'object',
             description: 'Optional metadata to attach to the document',
-            additionalProperties: true
-          }
+            additionalProperties: true,
+          },
         },
-        required: ['filePath']
+        required: ['filePath'],
       },
       handler: async (args: any) => {
         try {
@@ -48,7 +48,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
             path: filePath,
             content: fileBuffer,
             mimeType,
-            metadata: { ...pathMetadata, ...metadata }
+            metadata: { ...pathMetadata, ...metadata },
           };
 
           const result = await client.uploadFile(fileUpload, folder);
@@ -58,7 +58,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
             return {
               success: true,
               documentId: result.documentId,
-              message: `File ${path.basename(filePath)} uploaded successfully`
+              message: `File ${path.basename(filePath)} uploaded successfully`,
             };
           } else {
             throw new Error(result.error || 'Upload failed');
@@ -67,10 +67,10 @@ export function createUploadTools(client: MorphikClient): Tool[] {
           logger.error('File upload failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
+      },
     },
 
     {
@@ -81,29 +81,29 @@ export function createUploadTools(client: MorphikClient): Tool[] {
         properties: {
           folderPath: {
             type: 'string',
-            description: 'Path to the folder to upload'
+            description: 'Path to the folder to upload',
           },
           targetFolder: {
             type: 'string',
-            description: 'Target folder name in Morphik'
+            description: 'Target folder name in Morphik',
           },
           includeSubfolders: {
             type: 'boolean',
             description: 'Include files from subfolders (default: true)',
-            default: true
+            default: true,
           },
           fileExtensions: {
             type: 'array',
             items: { type: 'string' },
-            description: 'Filter by file extensions (e.g., [".pdf", ".txt"])'
+            description: 'Filter by file extensions (e.g., [".pdf", ".txt"])',
           },
           metadata: {
             type: 'object',
             description: 'Metadata to attach to all documents',
-            additionalProperties: true
-          }
+            additionalProperties: true,
+          },
         },
-        required: ['folderPath', 'targetFolder']
+        required: ['folderPath', 'targetFolder'],
       },
       handler: async (args: any) => {
         try {
@@ -111,7 +111,7 @@ export function createUploadTools(client: MorphikClient): Tool[] {
             folderPath,
             targetFolder,
             fileExtensions = [],
-            metadata = {}
+            metadata = {},
           } = args;
 
           logger.info(`Uploading folder: ${folderPath} to ${targetFolder}`);
@@ -131,13 +131,13 @@ export function createUploadTools(client: MorphikClient): Tool[] {
               success: true,
               message: 'No files found to upload',
               uploadedCount: 0,
-              failedCount: 0
+              failedCount: 0,
             };
           }
 
           // Prepare file uploads
           const fileUploads: FileUpload[] = await Promise.all(
-            files.map(async (filePath) => {
+            files.map(async filePath => {
               const fileBuffer = await readFileAsBuffer(filePath);
               const mimeType = getMimeType(filePath);
               const pathMetadata = extractMetadataFromPath(filePath);
@@ -151,8 +151,8 @@ export function createUploadTools(client: MorphikClient): Tool[] {
                   ...pathMetadata,
                   ...metadata,
                   relativePath,
-                  sourceFolderPath: folderPath
-                }
+                  sourceFolderPath: folderPath,
+                },
               };
             })
           );
@@ -169,7 +169,9 @@ export function createUploadTools(client: MorphikClient): Tool[] {
             totalUploaded += result.uploadedCount;
             totalFailed += result.failedCount;
 
-            logger.info(`Batch ${Math.floor(i / batchSize) + 1} complete: ${result.uploadedCount} uploaded, ${result.failedCount} failed`);
+            logger.info(
+              `Batch ${Math.floor(i / batchSize) + 1} complete: ${result.uploadedCount} uploaded, ${result.failedCount} failed`
+            );
           }
 
           return {
@@ -177,16 +179,16 @@ export function createUploadTools(client: MorphikClient): Tool[] {
             message: `Uploaded ${totalUploaded} files, ${totalFailed} failed`,
             uploadedCount: totalUploaded,
             failedCount: totalFailed,
-            totalFiles: files.length
+            totalFiles: files.length,
           };
         } catch (error) {
           logger.error('Folder upload failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
-    }
+      },
+    },
   ];
 }

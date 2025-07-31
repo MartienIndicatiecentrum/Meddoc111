@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { ChevronDown, X } from "lucide-react";
+import React, { useEffect, useState, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { ChevronDown, X } from 'lucide-react';
 
 type Client = {
   id: string;
@@ -23,10 +23,14 @@ interface KiesClientDropdownProps {
   value?: string;
 }
 
-const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onClientSelect, value }) => {
+const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({
+  onSelect,
+  onClientSelect,
+  value,
+}) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,10 +45,12 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
     const fetchClients = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from("clients")
-        .select("id,naam,geboortedatum,email,adres,telefoon,woonplaats,postcode,verzekeraar,polisnummer,bsn,notities")
+        .from('clients')
+        .select(
+          'id,naam,geboortedatum,email,adres,telefoon,woonplaats,postcode,verzekeraar,polisnummer,bsn,notities'
+        )
         .is('deleted_at', null)
-        .order("naam");
+        .order('naam');
       if (error) {
         console.error('[KiesClientDropdown] Database error:', error);
       } else if (data) {
@@ -53,13 +59,20 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
       setLoading(false);
     };
     fetchClients();
-    const subscription = supabase.channel('public:clients')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, payload => {
-        fetchClients();
-      })
+    const subscription = supabase
+      .channel('public:clients')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'clients' },
+        payload => {
+          fetchClients();
+        }
+      )
       .subscribe();
     return () => {
-      if (subscription && subscription.unsubscribe) subscription.unsubscribe();
+      if (subscription && subscription.unsubscribe) {
+        subscription.unsubscribe();
+      }
     };
   }, []);
 
@@ -69,7 +82,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
     if (selectedClient) {
       setSearch(getDisplayName(selectedClient));
     } else if (!value) {
-      setSearch("");
+      setSearch('');
     }
   }, [value, selectedClient]);
 
@@ -94,7 +107,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
 
     // If input is cleared, clear selection
     if (!inputValue) {
-      onSelect("");
+      onSelect('');
     }
   };
 
@@ -129,16 +142,16 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setHighlightedIndex(prev => prev > -1 ? prev - 1 : prev);
+        setHighlightedIndex(prev => (prev > -1 ? prev - 1 : prev));
         break;
       case 'Enter':
         e.preventDefault();
         if (highlightedIndex === -1) {
           // Select "All clients"
-          setSearch("");
-          onSelect("");
+          setSearch('');
+          onSelect('');
           if (onClientSelect) {
-            onClientSelect("", "Alle cliënten");
+            onClientSelect('', 'Alle cliënten');
           }
           setIsOpen(false);
           setHighlightedIndex(-1);
@@ -157,7 +170,10 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setHighlightedIndex(-1);
       }
@@ -169,40 +185,40 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
 
   // Clear selection
   const clearSelection = () => {
-    setSearch("");
-    onSelect("");
+    setSearch('');
+    onSelect('');
     if (onClientSelect) {
-      onClientSelect("", "Alle cliënten");
+      onClientSelect('', 'Alle cliënten');
     }
     setIsOpen(false);
     inputRef.current?.focus();
   };
 
   return (
-    <div className="min-w-[200px] max-w-full w-96 relative" ref={dropdownRef}>
-      <div className="relative">
+    <div className='min-w-[200px] max-w-full w-96 relative' ref={dropdownRef}>
+      <div className='relative'>
         <input
           ref={inputRef}
-          type="text"
-          className="w-full px-3 py-2 pr-16 border border-gray-300 rounded-lg text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Zoek cliënt..."
+          type='text'
+          className='w-full px-3 py-2 pr-16 border border-gray-300 rounded-lg text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+          placeholder='Zoek cliënt...'
           value={search}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsOpen(true)}
           disabled={loading}
-          autoComplete="off"
+          autoComplete='off'
         />
 
         {/* Right side icons */}
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+        <div className='absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1'>
           {selectedClient && (
             <button
               onClick={clearSelection}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
-              type="button"
+              className='p-1 hover:bg-gray-100 rounded transition-colors'
+              type='button'
             >
-              <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+              <X className='w-4 h-4 text-gray-400 hover:text-gray-600' />
             </button>
           )}
           <ChevronDown
@@ -213,9 +229,9 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div className='absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto'>
           {loading ? (
-            <div className="px-3 py-2 text-gray-500">Laden...</div>
+            <div className='px-3 py-2 text-gray-500'>Laden...</div>
           ) : (
             <>
               {/* All clients option */}
@@ -224,58 +240,66 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({ onSelect, onCli
                   highlightedIndex === -1
                     ? 'bg-blue-50 text-blue-700'
                     : 'hover:bg-gray-50'
-                } ${
-                  !value ? 'bg-blue-100 text-blue-800 font-medium' : ''
-                }`}
+                } ${!value ? 'bg-blue-100 text-blue-800 font-medium' : ''}`}
                 onClick={() => {
-                  setSearch("");
-                  onSelect("");
+                  setSearch('');
+                  onSelect('');
                   if (onClientSelect) {
-                    onClientSelect("", "Alle cliënten");
+                    onClientSelect('', 'Alle cliënten');
                   }
                   setIsOpen(false);
                   setHighlightedIndex(-1);
                 }}
                 onMouseEnter={() => setHighlightedIndex(-1)}
               >
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium text-blue-600">Alle cliënten</span>
+                <div className='flex items-center space-x-2'>
+                  <span className='font-medium text-blue-600'>
+                    Alle cliënten
+                  </span>
                 </div>
               </div>
 
               {/* Client list */}
               {filteredClients.length === 0 ? (
-                <div className="px-3 py-2 text-gray-500">
-                  {search ? 'Geen cliënten gevonden' : 'Geen cliënten beschikbaar'}
+                <div className='px-3 py-2 text-gray-500'>
+                  {search
+                    ? 'Geen cliënten gevonden'
+                    : 'Geen cliënten beschikbaar'}
                 </div>
               ) : (
                 filteredClients.map((client, index) => (
-              <div
-                key={client.id}
-                className={`px-3 py-2 cursor-pointer transition-colors ${
-                  index === highlightedIndex
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'hover:bg-gray-50'
-                } ${
-                  client.id === value ? 'bg-blue-100 text-blue-800 font-medium' : ''
-                }`}
-                onClick={() => handleClientSelect(client)}
-                onMouseEnter={() => setHighlightedIndex(index)}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">{getDisplayName(client)}</span>
-                  {client.geboortedatum && (
-                    <span className="text-sm text-gray-500">
-                      {new Date(client.geboortedatum).toLocaleDateString('nl-NL')}
-                    </span>
-                  )}
-                </div>
-                {client.email && (
-                  <div className="text-sm text-gray-500 mt-1">
-                    {client.email}
+                  <div
+                    key={client.id}
+                    className={`px-3 py-2 cursor-pointer transition-colors ${
+                      index === highlightedIndex
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'hover:bg-gray-50'
+                    } ${
+                      client.id === value
+                        ? 'bg-blue-100 text-blue-800 font-medium'
+                        : ''
+                    }`}
+                    onClick={() => handleClientSelect(client)}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                  >
+                    <div className='flex justify-between items-center'>
+                      <span className='font-medium'>
+                        {getDisplayName(client)}
+                      </span>
+                      {client.geboortedatum && (
+                        <span className='text-sm text-gray-500'>
+                          {new Date(client.geboortedatum).toLocaleDateString(
+                            'nl-NL'
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    {client.email && (
+                      <div className='text-sm text-gray-500 mt-1'>
+                        {client.email}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
                 ))
               )}
             </>

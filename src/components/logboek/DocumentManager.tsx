@@ -10,7 +10,7 @@ import {
   Trash2,
   Eye,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,7 +20,7 @@ const ALLOWED_MIME_TYPES = [
   'application/pdf',
   'image/jpeg',
   'image/jpg',
-  'image/png'
+  'image/png',
 ];
 const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'];
 
@@ -49,7 +49,7 @@ const validateFile = (file: File): { isValid: boolean; error?: string } => {
   if (file.size > MAX_FILE_SIZE) {
     return {
       isValid: false,
-      error: `Bestand is te groot. Maximum grootte is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`
+      error: `Bestand is te groot. Maximum grootte is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`,
     };
   }
 
@@ -57,7 +57,7 @@ const validateFile = (file: File): { isValid: boolean; error?: string } => {
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     return {
       isValid: false,
-      error: `Bestandstype niet ondersteund. Toegestane types: PDF, JPG, PNG.`
+      error: 'Bestandstype niet ondersteund. Toegestane types: PDF, JPG, PNG.',
     };
   }
 
@@ -66,7 +66,8 @@ const validateFile = (file: File): { isValid: boolean; error?: string } => {
   if (!ALLOWED_EXTENSIONS.includes(extension)) {
     return {
       isValid: false,
-      error: `Bestandsextensie niet ondersteund. Toegestane extensies: .pdf, .jpg, .jpeg, .png.`
+      error:
+        'Bestandsextensie niet ondersteund. Toegestane extensies: .pdf, .jpg, .jpeg, .png.',
     };
   }
 
@@ -88,7 +89,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   onDocumentDownload,
   onDocumentPreview,
   uploading = false,
-  className = ''
+  className = '',
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [objectUrls, setObjectUrls] = useState<Set<string>>(new Set());
@@ -122,48 +123,54 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     }
   }, []);
 
-  const handleFiles = useCallback(async (files: FileList) => {
-    const validFiles: File[] = [];
-    const errors: string[] = [];
+  const handleFiles = useCallback(
+    async (files: FileList) => {
+      const validFiles: File[] = [];
+      const errors: string[] = [];
 
-    // Validate each file
-    Array.from(files).forEach(file => {
-      const validation = validateFile(file);
-      if (validation.isValid) {
-        validFiles.push(file);
-      } else {
-        errors.push(`${file.name}: ${validation.error}`);
-      }
-    });
-
-    // Show errors if any
-    if (errors.length > 0) {
-      errors.forEach(error => {
-        toast.error(error);
+      // Validate each file
+      Array.from(files).forEach(file => {
+        const validation = validateFile(file);
+        if (validation.isValid) {
+          validFiles.push(file);
+        } else {
+          errors.push(`${file.name}: ${validation.error}`);
+        }
       });
-    }
 
-    // Upload valid files
-    if (validFiles.length > 0) {
-      try {
-        // Create a new FileList-like object
-        const dataTransfer = new DataTransfer();
-        validFiles.forEach(file => dataTransfer.items.add(file));
-
-        await onDocumentUpload(dataTransfer.files);
-        toast.success(`${validFiles.length} bestand(en) succesvol geüpload`);
-      } catch (error) {
-        toast.error('Fout bij uploaden van bestanden');
-        console.error('Upload error:', error);
+      // Show errors if any
+      if (errors.length > 0) {
+        errors.forEach(error => {
+          toast.error(error);
+        });
       }
-    }
-  }, [onDocumentUpload]);
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFiles(e.target.files);
-    }
-  }, [handleFiles]);
+      // Upload valid files
+      if (validFiles.length > 0) {
+        try {
+          // Create a new FileList-like object
+          const dataTransfer = new DataTransfer();
+          validFiles.forEach(file => dataTransfer.items.add(file));
+
+          await onDocumentUpload(dataTransfer.files);
+          toast.success(`${validFiles.length} bestand(en) succesvol geüpload`);
+        } catch (error) {
+          toast.error('Fout bij uploaden van bestanden');
+          console.error('Upload error:', error);
+        }
+      }
+    },
+    [onDocumentUpload]
+  );
+
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFiles(e.target.files);
+      }
+    },
+    [handleFiles]
+  );
 
   const handleDocumentDownload = useCallback((document: Document) => {
     try {
@@ -188,25 +195,30 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     }
   }, []);
 
-  const handleDocumentDelete = useCallback(async (documentId: string) => {
-    try {
-      await onDocumentDelete(documentId);
-      toast.success('Document succesvol verwijderd');
-    } catch (error) {
-      toast.error('Fout bij verwijderen van document');
-      console.error('Delete error:', error);
-    }
-  }, [onDocumentDelete]);
+  const handleDocumentDelete = useCallback(
+    async (documentId: string) => {
+      try {
+        await onDocumentDelete(documentId);
+        toast.success('Document succesvol verwijderd');
+      } catch (error) {
+        toast.error('Fout bij verwijderen van document');
+        console.error('Delete error:', error);
+      }
+    },
+    [onDocumentDelete]
+  );
 
   const getFileIcon = (type: string) => {
     if (type.startsWith('image/')) {
-      return <Image className="h-4 w-4" />;
+      return <Image className='h-4 w-4' />;
     }
-    return <FileText className="h-4 w-4" />;
+    return <FileText className='h-4 w-4' />;
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -217,12 +229,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     <div className={`space-y-4 ${className}`}>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Upload className="h-5 w-5" />
+          <CardTitle className='flex items-center space-x-2'>
+            <Upload className='h-5 w-5' />
             <span>Documenten</span>
             {uploading && (
-              <Badge variant="secondary" className="ml-2">
-                <CheckCircle className="h-3 w-3 mr-1" />
+              <Badge variant='secondary' className='ml-2'>
+                <CheckCircle className='h-3 w-3 mr-1' />
                 Uploaden...
               </Badge>
             )}
@@ -241,24 +253,24 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-sm text-gray-600 mb-2">
+            <Upload className='h-8 w-8 mx-auto mb-2 text-gray-400' />
+            <p className='text-sm text-gray-600 mb-2'>
               Sleep bestanden hierheen of klik om te selecteren
             </p>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className='text-xs text-gray-500 mb-4'>
               Ondersteunde formaten: PDF, JPG, PNG (max 10MB)
             </p>
             <input
-              type="file"
+              type='file'
               multiple
-              accept=".pdf,.jpg,.jpeg,.png"
+              accept='.pdf,.jpg,.jpeg,.png'
               onChange={handleFileInput}
-              className="hidden"
-              id="file-upload"
+              className='hidden'
+              id='file-upload'
             />
             <label
-              htmlFor="file-upload"
-              className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              htmlFor='file-upload'
+              className='cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
             >
               Bestanden selecteren
             </label>
@@ -266,54 +278,56 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
           {/* Document list */}
           {documents.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <h4 className="font-medium text-sm text-gray-700">Geüploade documenten:</h4>
-              {documents.map((doc) => (
+            <div className='mt-4 space-y-2'>
+              <h4 className='font-medium text-sm text-gray-700'>
+                Geüploade documenten:
+              </h4>
+              {documents.map(doc => (
                 <div
                   key={doc.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className='flex items-center space-x-3'>
                     {getFileIcon(doc.type)}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-medium text-gray-900 truncate'>
                         {sanitizeFilename(doc.name)}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className='text-xs text-gray-500'>
                         {formatFileSize(doc.size)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className='flex items-center space-x-2'>
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant='ghost'
+                      size='sm'
                       onClick={() => onDocumentPreview(doc)}
-                      className="h-8 w-8 p-0"
-                      title="Bekijken"
+                      className='h-8 w-8 p-0'
+                      title='Bekijken'
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className='h-4 w-4' />
                     </Button>
 
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant='ghost'
+                      size='sm'
                       onClick={() => handleDocumentDownload(doc)}
-                      className="h-8 w-8 p-0"
-                      title="Downloaden"
+                      className='h-8 w-8 p-0'
+                      title='Downloaden'
                     >
-                      <Download className="h-4 w-4" />
+                      <Download className='h-4 w-4' />
                     </Button>
 
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      variant='ghost'
+                      size='sm'
                       onClick={() => handleDocumentDelete(doc.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                      title="Verwijderen"
+                      className='h-8 w-8 p-0 text-red-600 hover:text-red-700'
+                      title='Verwijderen'
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className='h-4 w-4' />
                     </Button>
                   </div>
                 </div>
@@ -323,9 +337,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
           {/* Empty state */}
           {documents.length === 0 && !uploading && (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">Nog geen documenten geüpload</p>
+            <div className='text-center py-8 text-gray-500'>
+              <FileText className='h-12 w-12 mx-auto mb-2 text-gray-300' />
+              <p className='text-sm'>Nog geen documenten geüpload</p>
             </div>
           )}
         </CardContent>

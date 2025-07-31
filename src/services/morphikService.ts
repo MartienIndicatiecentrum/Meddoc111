@@ -46,19 +46,25 @@ export class MorphikService {
   /**
    * Ensure a folder exists for the client in Morphik
    */
-  async ensureClientFolder(clientId: string, clientName: string): Promise<string> {
+  async ensureClientFolder(
+    clientId: string,
+    clientName: string
+  ): Promise<string> {
     const folderName = this.generateFolderName(clientId, clientName);
 
     try {
       // Check if folder exists
-      const folderInfo = await this.invokeMorphikTool('morphik_get_folder_info', {
-        name: folderName
-      });
+      const folderInfo = await this.invokeMorphikTool(
+        'morphik_get_folder_info',
+        {
+          name: folderName,
+        }
+      );
 
       if (!folderInfo.success) {
         // Create folder if it doesn't exist
         await this.invokeMorphikTool('morphik_create_folder', {
-          name: folderName
+          name: folderName,
         });
       }
 
@@ -113,8 +119,8 @@ export class MorphikService {
           clientId,
           clientName: client.naam,
           sourceSystem: 'meddoc-ai-flow',
-          uploadedAt: new Date().toISOString()
-        }
+          uploadedAt: new Date().toISOString(),
+        },
       });
 
       if (uploadResult.success) {
@@ -124,19 +130,19 @@ export class MorphikService {
           .update({
             morphik_id: uploadResult.documentId,
             morphik_sync_status: 'synced',
-            morphik_synced_at: new Date().toISOString()
+            morphik_synced_at: new Date().toISOString(),
           })
           .eq('id', documentId);
 
         return {
           success: true,
-          morphikId: uploadResult.documentId
+          morphikId: uploadResult.documentId,
         };
       } else {
         await this.updateSyncStatus(documentId, 'failed', uploadResult.error);
         return {
           success: false,
-          error: uploadResult.error
+          error: uploadResult.error,
         };
       }
     } catch (error) {
@@ -144,7 +150,7 @@ export class MorphikService {
       await this.updateSyncStatus(documentId, 'failed', error?.message);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -154,12 +160,13 @@ export class MorphikService {
    */
   async checkServiceStatus(): Promise<MorphikServiceStatus> {
     const startTime = Date.now();
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
 
     try {
       // First check if backend is accessible
       const backendResponse = await fetch(`${backendUrl}/health`, {
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       });
 
       if (!backendResponse.ok) {
@@ -169,16 +176,15 @@ export class MorphikService {
             type: 'network',
             message: 'Backend server niet bereikbaar',
             details: 'De backend server is niet beschikbaar',
-            troubleshooting: 'Controleer of de server draait op ' + backendUrl
-          }
+            troubleshooting: 'Controleer of de server draait op ' + backendUrl,
+          },
         };
       }
 
       // Then check Morphik health through backend
       const morphikResponse = await fetch(`${backendUrl}/api/morphik/health`, {
-        signal: AbortSignal.timeout(10000)
+        signal: AbortSignal.timeout(10000),
       });
-
 
       const responseTime = Date.now() - startTime;
 
@@ -190,28 +196,28 @@ export class MorphikService {
             baseUrlAccessible: true,
             authWorking: true,
             endpointsReachable: true,
-            responseTime
-          }
+            responseTime,
+          },
         };
       } else {
         const errorData = await morphikResponse.json();
         return {
           available: false,
           error: {
-            type: errorData.code === 'MORPHIK_NOT_CONFIGURED' ? 'config' : 'api',
+            type:
+              errorData.code === 'MORPHIK_NOT_CONFIGURED' ? 'config' : 'api',
             message: errorData.message || 'Morphik service niet beschikbaar',
             details: errorData.error,
-            troubleshooting: 'Controleer de Morphik configuratie op de server'
+            troubleshooting: 'Controleer de Morphik configuratie op de server',
           },
           details: {
             baseUrlAccessible: true,
             authWorking: false,
             endpointsReachable: false,
-            responseTime
-          }
+            responseTime,
+          },
         };
       }
-
     } catch (error) {
       const responseTime = Date.now() - startTime;
 
@@ -223,12 +229,12 @@ export class MorphikService {
               type: 'timeout',
               message: 'Verbinding time-out',
               details: 'De verbinding duurde te lang',
-              troubleshooting: 'Controleer uw internetverbinding'
+              troubleshooting: 'Controleer uw internetverbinding',
             },
             details: {
               baseUrlAccessible: false,
-              responseTime
-            }
+              responseTime,
+            },
           };
         }
       }
@@ -239,12 +245,12 @@ export class MorphikService {
           type: 'network',
           message: 'Netwerkverbinding mislukt',
           details: error instanceof Error ? error.message : 'Onbekende fout',
-          troubleshooting: 'Controleer of de backend server draait'
+          troubleshooting: 'Controleer of de backend server draait',
         },
         details: {
           baseUrlAccessible: false,
-          responseTime
-        }
+          responseTime,
+        },
       };
     }
   }
@@ -281,14 +287,14 @@ export class MorphikService {
         query,
         folder,
         chatId,
-        ...options
+        ...options,
       });
 
       if (result.success) {
         return {
           response: result.response,
           chatId: result.chatId,
-          sources: result.sources
+          sources: result.sources,
         };
       } else {
         throw new Error(result.error || 'Vraag verwerking mislukt');
@@ -309,27 +315,49 @@ export class MorphikService {
       }
 
       // Fallback to enhanced error categorization
-      let userMessage = 'Er is een fout opgetreden bij het verwerken van uw vraag.';
+      let userMessage =
+        'Er is een fout opgetreden bij het verwerken van uw vraag.';
 
       if (error instanceof Error) {
         const errorMsg = error.message.toLowerCase();
 
-        if (errorMsg.includes('failed to fetch') || errorMsg.includes('network')) {
-          userMessage = 'Netwerkverbinding mislukt. Controleer uw internetverbinding en probeer het opnieuw.';
-        } else if (errorMsg.includes('401') || errorMsg.includes('unauthorized') || errorMsg.includes('auth')) {
-          userMessage = 'Morphik AI authenticatie mislukt. Controleer uw API-sleutel instellingen.';
+        if (
+          errorMsg.includes('failed to fetch') ||
+          errorMsg.includes('network')
+        ) {
+          userMessage =
+            'Netwerkverbinding mislukt. Controleer uw internetverbinding en probeer het opnieuw.';
+        } else if (
+          errorMsg.includes('401') ||
+          errorMsg.includes('unauthorized') ||
+          errorMsg.includes('auth')
+        ) {
+          userMessage =
+            'Morphik AI authenticatie mislukt. Controleer uw API-sleutel instellingen.';
         } else if (errorMsg.includes('403') || errorMsg.includes('forbidden')) {
-          userMessage = 'Toegang geweigerd. Uw API-sleutel heeft onvoldoende rechten.';
+          userMessage =
+            'Toegang geweigerd. Uw API-sleutel heeft onvoldoende rechten.';
         } else if (errorMsg.includes('404') || errorMsg.includes('not found')) {
-          userMessage = 'Morphik AI endpoint niet gevonden. Controleer de API URL configuratie.';
-        } else if (errorMsg.includes('429') || errorMsg.includes('rate limit')) {
-          userMessage = 'Te veel verzoeken. Wacht een moment en probeer het opnieuw.';
-        } else if (errorMsg.includes('500') || errorMsg.includes('502') || errorMsg.includes('503')) {
-          userMessage = 'Morphik AI server fout. De service is tijdelijk niet beschikbaar.';
+          userMessage =
+            'Morphik AI endpoint niet gevonden. Controleer de API URL configuratie.';
+        } else if (
+          errorMsg.includes('429') ||
+          errorMsg.includes('rate limit')
+        ) {
+          userMessage =
+            'Te veel verzoeken. Wacht een moment en probeer het opnieuw.';
+        } else if (
+          errorMsg.includes('500') ||
+          errorMsg.includes('502') ||
+          errorMsg.includes('503')
+        ) {
+          userMessage =
+            'Morphik AI server fout. De service is tijdelijk niet beschikbaar.';
         } else if (errorMsg.includes('timeout') || errorMsg.includes('abort')) {
           userMessage = 'Verbinding time-out. De aanvraag duurde te lang.';
         } else if (errorMsg.includes('cors')) {
-          userMessage = 'CORS configuratie probleem. Contacteer uw systeembeheerder.';
+          userMessage =
+            'CORS configuratie probleem. Contacteer uw systeembeheerder.';
         }
       }
 
@@ -353,7 +381,7 @@ export class MorphikService {
       }
 
       const result = await this.invokeMorphikTool('morphik_sync_status', {
-        documentId: document.morphik_id
+        documentId: document.morphik_id,
       });
 
       return result.success ? result.status : 'unknown';
@@ -387,11 +415,14 @@ export class MorphikService {
 
       const folder = this.generateFolderName(clientId, client.naam);
 
-      const result = await this.invokeMorphikTool('morphik_retrieve_documents', {
-        query,
-        folder,
-        ...options
-      });
+      const result = await this.invokeMorphikTool(
+        'morphik_retrieve_documents',
+        {
+          query,
+          folder,
+          ...options,
+        }
+      );
 
       return result.success ? result.documents : [];
     } catch (error) {
@@ -414,8 +445,15 @@ export class MorphikService {
 
   private async invokeMorphikTool(toolName: string, args: any): Promise<any> {
     // Check if we're in Claude Desktop with MCP support
-    if (typeof window !== 'undefined' && (window as any).electronAPI?.invokeMCPTool) {
-      return await (window as any).electronAPI.invokeMCPTool('morphik', toolName, args);
+    if (
+      typeof window !== 'undefined' &&
+      (window as any).electronAPI?.invokeMCPTool
+    ) {
+      return await (window as any).electronAPI.invokeMCPTool(
+        'morphik',
+        toolName,
+        args
+      );
     }
 
     // Direct API implementation for web applications
@@ -428,7 +466,8 @@ export class MorphikService {
   }
 
   private async callMorphikAPI(toolName: string, args: any): Promise<any> {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL || 'http://localhost:8081';
 
     try {
       switch (toolName) {
@@ -450,12 +489,16 @@ export class MorphikService {
     } catch (error) {
       // Enhanced error handling for backend connection issues
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Kan geen verbinding maken met de backend server. Controleer of de server draait.');
+        throw new Error(
+          'Kan geen verbinding maken met de backend server. Controleer of de server draait.'
+        );
       }
       // Convert backend error responses to user-friendly messages
       if (error instanceof Error) {
         if (error.message.includes('MORPHIK_NOT_CONFIGURED')) {
-          throw new Error('Morphik service is niet geconfigureerd op de server. Contacteer uw systeembeheerder.');
+          throw new Error(
+            'Morphik service is niet geconfigureerd op de server. Contacteer uw systeembeheerder.'
+          );
         }
         if (error.message.includes('GATEWAY_TIMEOUT')) {
           throw new Error('De aanvraag duurde te lang. Probeer het opnieuw.');
@@ -472,25 +515,28 @@ export class MorphikService {
     const response = await fetch(`${backendUrl}/api/morphik/agent`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         query: args.query,
         folder_name: args.folder,
         chat_id: args.chatId,
         temperature: args.temperature || 0.7,
-        max_tokens: args.maxTokens || 1000
+        max_tokens: args.maxTokens || 1000,
       }),
-      signal: AbortSignal.timeout(60000) // 60 second timeout
+      signal: AbortSignal.timeout(60000), // 60 second timeout
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      const errorMsg = errorData.message || `Morphik API error: ${response.status}`;
+      const errorMsg =
+        errorData.message || `Morphik API error: ${response.status}`;
 
       // Enhanced error messages based on error codes
       if (errorData.code === 'MORPHIK_NOT_CONFIGURED') {
-        throw new Error('Morphik service is niet geconfigureerd. Contacteer uw systeembeheerder.');
+        throw new Error(
+          'Morphik service is niet geconfigureerd. Contacteer uw systeembeheerder.'
+        );
       } else if (errorData.code === 'GATEWAY_TIMEOUT') {
         throw new Error('De aanvraag duurde te lang. Probeer het opnieuw.');
       } else if (errorData.code === 'SERVICE_UNAVAILABLE') {
@@ -505,18 +551,21 @@ export class MorphikService {
       success: true,
       response: data.response || data.text,
       chatId: data.chat_id,
-      sources: data.sources || []
+      sources: data.sources || [],
     };
   }
 
   private async getFolderInfo(args: any, backendUrl: string): Promise<any> {
-    const response = await fetch(`${backendUrl}/api/morphik/folders/${encodeURIComponent(args.name)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      signal: AbortSignal.timeout(60000)
-    });
+    const response = await fetch(
+      `${backendUrl}/api/morphik/folders/${encodeURIComponent(args.name)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(60000),
+      }
+    );
 
     if (response.status === 404) {
       return { success: false, error: 'Folder not found' };
@@ -524,7 +573,9 @@ export class MorphikService {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Morphik API error: ${response.status}`);
+      throw new Error(
+        errorData.message || `Morphik API error: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -535,17 +586,19 @@ export class MorphikService {
     const response = await fetch(`${backendUrl}/api/morphik/folders`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: args.name
+        name: args.name,
       }),
-      signal: AbortSignal.timeout(60000)
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Morphik API error: ${response.status}`);
+      throw new Error(
+        errorData.message || `Morphik API error: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -575,19 +628,24 @@ export class MorphikService {
         method: 'POST',
         // Don't set Content-Type header - browser will set it with boundary
         body: formData,
-        signal: AbortSignal.timeout(60000)
+        signal: AbortSignal.timeout(60000),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Upload failed: ${response.status}`);
+        throw new Error(
+          errorData.message || `Upload failed: ${response.status}`
+        );
       }
 
       const data = await response.json();
       return { success: true, documentId: data.document_id };
     } catch (error) {
       console.error('File upload error:', error);
-      if (error instanceof Error && error.message.includes('MORPHIK_NOT_CONFIGURED')) {
+      if (
+        error instanceof Error &&
+        error.message.includes('MORPHIK_NOT_CONFIGURED')
+      ) {
         throw new Error('Morphik service is niet geconfigureerd op de server');
       }
       throw error;
@@ -595,43 +653,66 @@ export class MorphikService {
   }
 
   private async getSyncStatus(args: any, backendUrl: string): Promise<any> {
-    const response = await fetch(`${backendUrl}/api/morphik/documents/${args.documentId}/status`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      signal: AbortSignal.timeout(60000)
-    });
+    const response = await fetch(
+      `${backendUrl}/api/morphik/documents/${args.documentId}/status`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(60000),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Morphik API error: ${response.status}`);
+      throw new Error(
+        errorData.message || `Morphik API error: ${response.status}`
+      );
     }
 
     const data = await response.json();
     return { success: true, status: data.status };
   }
 
-  private async retrieveDocumentsAPI(args: any, backendUrl: string): Promise<any> {
+  private async retrieveDocumentsAPI(
+    args: any,
+    backendUrl: string
+  ): Promise<any> {
     const queryParams = new URLSearchParams();
 
-    if (args.query) queryParams.append('query', args.query);
-    if (args.folder) queryParams.append('folder_name', args.folder);
-    if (args.limit) queryParams.append('limit', args.limit.toString());
-    if (args.offset) queryParams.append('offset', args.offset.toString());
-    if (args.filters) queryParams.append('filters', JSON.stringify(args.filters));
+    if (args.query) {
+      queryParams.append('query', args.query);
+    }
+    if (args.folder) {
+      queryParams.append('folder_name', args.folder);
+    }
+    if (args.limit) {
+      queryParams.append('limit', args.limit.toString());
+    }
+    if (args.offset) {
+      queryParams.append('offset', args.offset.toString());
+    }
+    if (args.filters) {
+      queryParams.append('filters', JSON.stringify(args.filters));
+    }
 
-    const response = await fetch(`${backendUrl}/api/morphik/retrieve/docs?${queryParams}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      signal: AbortSignal.timeout(60000)
-    });
+    const response = await fetch(
+      `${backendUrl}/api/morphik/retrieve/docs?${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(60000),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Morphik API error: ${response.status}`);
+      throw new Error(
+        errorData.message || `Morphik API error: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -663,7 +744,6 @@ export class MorphikService {
     }
   }
 
-
   private async updateSyncStatus(
     documentId: string,
     status: string,
@@ -674,7 +754,7 @@ export class MorphikService {
       .update({
         morphik_sync_status: status,
         morphik_sync_error: error,
-        morphik_synced_at: new Date().toISOString()
+        morphik_synced_at: new Date().toISOString(),
       })
       .eq('id', documentId);
   }

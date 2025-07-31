@@ -50,15 +50,17 @@ export const TaskSchema = z.object({
     'Indicatie',
     'Vraagstelling',
     'Update',
-    'Notitie'
+    'Notitie',
   ]),
-  status: z.enum([
-    'Niet gestart',
-    'In behandeling',
-    'Wachten op info',
-    'Opvolging',
-    'Afgerond'
-  ]).default('Niet gestart'),
+  status: z
+    .enum([
+      'Niet gestart',
+      'In behandeling',
+      'Wachten op info',
+      'Opvolging',
+      'Afgerond',
+    ])
+    .default('Niet gestart'),
   priority: z.enum(['Laag', 'Medium', 'Hoog', 'Urgent']).default('Medium'),
   progress: z.number().min(0).max(100).default(0),
   deadline: z.string().optional(),
@@ -72,23 +74,23 @@ export type TaskFormData = z.infer<typeof TaskSchema>;
 
 // Document validation schemas
 export const DocumentUploadSchema = z.object({
-  file: z.instanceof(File).refine(
-    (file) => file.size <= 10 * 1024 * 1024, // 10MB limit
-    'Bestand is te groot (max 10MB)'
-  ).refine(
-    (file) => {
+  file: z
+    .instanceof(File)
+    .refine(
+      file => file.size <= 10 * 1024 * 1024, // 10MB limit
+      'Bestand is te groot (max 10MB)'
+    )
+    .refine(file => {
       const allowedTypes = [
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'image/jpeg',
         'image/png',
-        'text/plain'
+        'text/plain',
       ];
       return allowedTypes.includes(file.type);
-    },
-    'Bestandstype niet ondersteund'
-  ),
+    }, 'Bestandstype niet ondersteund'),
   clientId: z.string().uuid('Ongeldige client ID'),
   logEntryId: z.string().uuid('Ongeldige log entry ID').optional(),
 });
@@ -128,44 +130,58 @@ export const validateLogEntryFilter = (data: unknown): LogEntryFilterData => {
 };
 
 // Safe validation functions that return errors instead of throwing
-export const safeValidateClient = (data: unknown): { success: true; data: ClientFormData } | { success: false; errors: string[] } => {
+export const safeValidateClient = (
+  data: unknown
+):
+  | { success: true; data: ClientFormData }
+  | { success: false; errors: string[] } => {
   const result = ClientSchema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };
   } else {
     return {
       success: false,
-      errors: result.error.errors.map(err => err.message)
+      errors: result.error.errors.map(err => err.message),
     };
   }
 };
 
-export const safeValidateLogEntry = (data: unknown): { success: true; data: LogEntryFormData } | { success: false; errors: string[] } => {
+export const safeValidateLogEntry = (
+  data: unknown
+):
+  | { success: true; data: LogEntryFormData }
+  | { success: false; errors: string[] } => {
   const result = LogEntrySchema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };
   } else {
     return {
       success: false,
-      errors: result.error.errors.map(err => err.message)
+      errors: result.error.errors.map(err => err.message),
     };
   }
 };
 
-export const safeValidateTask = (data: unknown): { success: true; data: TaskFormData } | { success: false; errors: string[] } => {
+export const safeValidateTask = (
+  data: unknown
+):
+  | { success: true; data: TaskFormData }
+  | { success: false; errors: string[] } => {
   const result = TaskSchema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };
   } else {
     return {
       success: false,
-      errors: result.error.errors.map(err => err.message)
+      errors: result.error.errors.map(err => err.message),
     };
   }
 };
 
 // File validation utilities
-export const validateFile = (file: File): { valid: boolean; error?: string } => {
+export const validateFile = (
+  file: File
+): { valid: boolean; error?: string } => {
   // Check file size (10MB limit)
   if (file.size > 10 * 1024 * 1024) {
     return { valid: false, error: 'Bestand is te groot (max 10MB)' };
@@ -178,13 +194,14 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'image/jpeg',
     'image/png',
-    'text/plain'
+    'text/plain',
   ];
 
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: 'Bestandstype niet ondersteund. Toegestane types: PDF, Word, JPEG, PNG, TXT'
+      error:
+        'Bestandstype niet ondersteund. Toegestane types: PDF, Word, JPEG, PNG, TXT',
     };
   }
 
@@ -192,7 +209,9 @@ export const validateFile = (file: File): { valid: boolean; error?: string } => 
 };
 
 // Date validation utilities
-export const validateDate = (date: string | Date): { valid: boolean; error?: string } => {
+export const validateDate = (
+  date: string | Date
+): { valid: boolean; error?: string } => {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
 
   if (isNaN(dateObj.getTime())) {
@@ -207,7 +226,9 @@ export const validateDate = (date: string | Date): { valid: boolean; error?: str
 };
 
 // Email validation utility
-export const validateEmail = (email: string): { valid: boolean; error?: string } => {
+export const validateEmail = (
+  email: string
+): { valid: boolean; error?: string } => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!email) {
@@ -222,7 +243,9 @@ export const validateEmail = (email: string): { valid: boolean; error?: string }
 };
 
 // Phone number validation utility
-export const validatePhone = (phone: string): { valid: boolean; error?: string } => {
+export const validatePhone = (
+  phone: string
+): { valid: boolean; error?: string } => {
   if (!phone) {
     return { valid: true }; // Phone is optional
   }

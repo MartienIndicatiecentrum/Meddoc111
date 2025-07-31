@@ -15,9 +15,9 @@ export const logger = winston.createLogger({
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.simple()
-      )
-    })
-  ]
+      ),
+    }),
+  ],
 });
 
 export async function readFileAsBuffer(filePath: string): Promise<Buffer> {
@@ -62,7 +62,7 @@ export function extractMetadataFromPath(filePath: string): Record<string, any> {
     extension: parsed.ext,
     directory: parsed.dir,
     pathParts: parts,
-    uploadedAt: new Date().toISOString()
+    uploadedAt: new Date().toISOString(),
   };
 }
 

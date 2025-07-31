@@ -16,7 +16,7 @@ export const useEmailReminders = () => {
   const [status, setStatus] = useState<EmailReminderStatus>({
     isRunning: false,
     lastProcessed: null,
-    intervalMinutes: 5
+    intervalMinutes: 5,
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -25,7 +25,7 @@ export const useEmailReminders = () => {
     const schedulerStatus = reminderScheduler.getStatus();
     setStatus(prev => ({
       ...prev,
-      isRunning: schedulerStatus.isRunning
+      isRunning: schedulerStatus.isRunning,
     }));
   }, []);
 
@@ -38,9 +38,11 @@ export const useEmailReminders = () => {
       setStatus(prev => ({
         ...prev,
         isRunning: true,
-        intervalMinutes
+        intervalMinutes,
       }));
-      toast.success(`Email reminder scheduler gestart (elke ${intervalMinutes} minuten)`);
+      toast.success(
+        `Email reminder scheduler gestart (elke ${intervalMinutes} minuten)`
+      );
     } catch (error) {
       console.error('Error starting scheduler:', error);
       toast.error('Fout bij starten van email reminder scheduler');
@@ -55,7 +57,7 @@ export const useEmailReminders = () => {
       reminderScheduler.stop();
       setStatus(prev => ({
         ...prev,
-        isRunning: false
+        isRunning: false,
       }));
       toast.success('Email reminder scheduler gestopt');
     } catch (error) {
@@ -68,14 +70,16 @@ export const useEmailReminders = () => {
    * Manually process reminders (for testing)
    */
   const processRemindersManually = async () => {
-    if (isProcessing) return;
+    if (isProcessing) {
+      return;
+    }
 
     setIsProcessing(true);
     try {
       await reminderScheduler.triggerManualRun();
       setStatus(prev => ({
         ...prev,
-        lastProcessed: new Date()
+        lastProcessed: new Date(),
       }));
       toast.success('Email reminders handmatig verwerkt');
     } catch (error) {
@@ -90,7 +94,9 @@ export const useEmailReminders = () => {
    * Send a test reminder email
    */
   const sendTestReminder = async () => {
-    if (isProcessing) return;
+    if (isProcessing) {
+      return;
+    }
 
     setIsProcessing(true);
     try {
@@ -103,7 +109,7 @@ export const useEmailReminders = () => {
         appointmentTime: '14:30',
         appointmentType: 'consultatie',
         location: 'Praktijk',
-        notes: 'Dit is een test herinnering'
+        notes: 'Dit is een test herinnering',
       };
 
       const success = await emailService.sendAppointmentReminder(testData);
@@ -127,6 +133,6 @@ export const useEmailReminders = () => {
     startScheduler,
     stopScheduler,
     processRemindersManually,
-    sendTestReminder
+    sendTestReminder,
   };
 };

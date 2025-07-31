@@ -12,7 +12,7 @@ import type {
   NewEntryForm,
   EditEntryForm,
   UploadedDocument,
-  LoadingState
+  LoadingState,
 } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -33,12 +33,18 @@ interface UseLogboekReturn {
 
   // Operations
   loadEntries: () => Promise<void>;
-  addEntry: (entry: NewEntryForm, documents?: UploadedDocument[]) => Promise<boolean>;
+  addEntry: (
+    entry: NewEntryForm,
+    documents?: UploadedDocument[]
+  ) => Promise<boolean>;
   updateEntry: (id: string, updates: EditEntryForm) => Promise<boolean>;
   deleteEntry: (id: string) => Promise<boolean>;
 
   // Document operations
-  uploadDocument: (file: File, logEntryId?: string) => Promise<UploadedDocument | null>;
+  uploadDocument: (
+    file: File,
+    logEntryId?: string
+  ) => Promise<UploadedDocument | null>;
   deleteDocument: (documentId: string) => Promise<boolean>;
 
   // Utilities
@@ -46,7 +52,9 @@ interface UseLogboekReturn {
   resetFilters: () => void;
 }
 
-export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn => {
+export const useLogboek = (
+  options: UseLogboekOptions = {}
+): UseLogboekReturn => {
   const { clientId, initialFilters = {} } = options;
 
   // State
@@ -60,7 +68,9 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
   // Set up real-time subscription for logboek changes
   useEffect(() => {
-    if (!clientId) return;
+    if (!clientId) {
+      return;
+    }
 
     console.log('Setting up real-time subscription for client:', clientId);
 
@@ -73,9 +83,9 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
           event: '*',
           schema: 'public',
           table: 'logboek',
-          filter: `client_id=eq.${clientId}`
+          filter: `client_id=eq.${clientId}`,
         },
-        (payload) => {
+        payload => {
           console.log('Real-time logboek change received:', payload);
 
           const { eventType, new: newRecord, old: oldRecord } = payload;
@@ -103,7 +113,9 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
                 setEntries(prev => {
                   // Check if entry already exists to avoid duplicates
                   const exists = prev.some(entry => entry.id === newEntry.id);
-                  if (exists) return prev;
+                  if (exists) {
+                    return prev;
+                  }
 
                   // Add new entry at the beginning (most recent first)
                   return [newEntry, ...prev];
@@ -113,49 +125,57 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
 
             case 'UPDATE':
               if (newRecord) {
-                setEntries(prev => prev.map(entry =>
-                  entry.id === newRecord.id
-                    ? {
-                        ...entry,
-                        from: {
-                          name: newRecord.from_name,
-                          type: newRecord.from_type,
-                          color: newRecord.from_color,
-                        },
-                        type: newRecord.type,
-                        action: newRecord.action,
-                        description: newRecord.description,
-                        status: newRecord.status,
-                        isUrgent: newRecord.is_urgent,
-                        needsResponse: newRecord.needs_response,
-                      }
-                    : entry
-                ));
+                setEntries(prev =>
+                  prev.map(entry =>
+                    entry.id === newRecord.id
+                      ? {
+                          ...entry,
+                          from: {
+                            name: newRecord.from_name,
+                            type: newRecord.from_type,
+                            color: newRecord.from_color,
+                          },
+                          type: newRecord.type,
+                          action: newRecord.action,
+                          description: newRecord.description,
+                          status: newRecord.status,
+                          isUrgent: newRecord.is_urgent,
+                          needsResponse: newRecord.needs_response,
+                        }
+                      : entry
+                  )
+                );
               }
               break;
 
             case 'DELETE':
               if (oldRecord) {
                 console.log('Log entry deleted via real-time:', oldRecord.id);
-                setEntries(prev => prev.filter(entry => entry.id !== oldRecord.id));
+                setEntries(prev =>
+                  prev.filter(entry => entry.id !== oldRecord.id)
+                );
 
                 // Show a user-friendly notification when an entry is deleted
                 // This helps users understand why their document upload might fail
                 if (entries.length > 0) {
-                  console.warn('Een logboek bericht is verwijderd. Document uploads naar dit bericht zullen falen.');
+                  console.warn(
+                    'Een logboek bericht is verwijderd. Document uploads naar dit bericht zullen falen.'
+                  );
                 }
               }
               break;
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe(status => {
         console.log('Real-time subscription status:', status);
         if (status === 'SUBSCRIBED') {
           console.log('Successfully subscribed to logboek changes');
         } else if (status === 'CHANNEL_ERROR') {
           console.error('Error with real-time subscription');
-          setError('Real-time synchronisatie fout. Ververs de pagina om de laatste gegevens te zien.');
+          setError(
+            'Real-time synchronisatie fout. Ververs de pagina om de laatste gegevens te zien.'
+          );
         }
       });
 
@@ -220,132 +240,153 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
       setEntries(transformedEntries);
       setLoading('success');
     } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to load log entries';
+      const errorMessage =
+        err instanceof ServiceError
+          ? err.message
+          : 'Failed to load log entries';
       setError(errorMessage);
       setLoading('error');
     }
   }, [clientId]);
 
   // Add new entry
-  const addEntry = useCallback(async (
-    entryData: NewEntryForm,
-    documents?: UploadedDocument[]
-  ): Promise<boolean> => {
-    if (!clientId) {
-      setError('Client ID is required');
-      return false;
-    }
-
-    setLoading('loading');
-    setError(null);
-
-    try {
-      // Prepare entry data
-      const finalType = entryData.type === 'Anders' && entryData.customType
-        ? entryData.customType
-        : entryData.type;
-
-      let finalDescription = entryData.description || 'Geen beschrijving';
-      if (documents && documents.length > 0) {
-        const documentList = documents.map(doc =>
-          `📎 ${doc.name} (${(doc.size / 1024 / 1024).toFixed(1)} MB)`
-        ).join('\n');
-        finalDescription += `\n\n📎 **BIJLAGEN:**\n${documentList}`;
+  const addEntry = useCallback(
+    async (
+      entryData: NewEntryForm,
+      documents?: UploadedDocument[]
+    ): Promise<boolean> => {
+      if (!clientId) {
+        setError('Client ID is required');
+        return false;
       }
 
-      const logEntryData = {
-        client_id: clientId,
-        date: new Date().toISOString(),
-        from_name: entryData.fromName || getDefaultNameForType(entryData.fromType),
-        from_type: entryData.fromType,
-        from_color: getColorForType(entryData.fromType),
-        type: finalType,
-        action: entryData.action || `${finalType} toegevoegd`,
-        description: finalDescription,
-        status: (entryData.isUrgent ? 'Urgent' : entryData.needsResponse ? 'Reactie nodig' : 'Geen urgentie') as any,
-        is_urgent: entryData.isUrgent,
-        needs_response: entryData.needsResponse,
-      };
+      setLoading('loading');
+      setError(null);
 
-      const newEntry = await clientService.createLogEntry(logEntryData);
+      try {
+        // Prepare entry data
+        const finalType =
+          entryData.type === 'Anders' && entryData.customType
+            ? entryData.customType
+            : entryData.type;
 
-      if (newEntry) {
-        // Upload documents if provided
+        let finalDescription = entryData.description || 'Geen beschrijving';
         if (documents && documents.length > 0) {
-          const uploadPromises = documents.map(async (doc) => {
-            if (doc.file) {
-              return await clientService.uploadDocument(doc.file, clientId, newEntry.id);
-            }
-            return null;
-          });
-
-          await Promise.all(uploadPromises);
+          const documentList = documents
+            .map(
+              doc =>
+                `📎 ${doc.name} (${(doc.size / 1024 / 1024).toFixed(1)} MB)`
+            )
+            .join('\n');
+          finalDescription += `\n\n📎 **BIJLAGEN:**\n${documentList}`;
         }
 
-        // Reload entries to get the latest data
-        await loadEntries();
-        setLoading('success');
-        return true;
-      } else {
-        setError('Failed to create log entry');
+        const logEntryData = {
+          client_id: clientId,
+          date: new Date().toISOString(),
+          from_name:
+            entryData.fromName || getDefaultNameForType(entryData.fromType),
+          from_type: entryData.fromType,
+          from_color: getColorForType(entryData.fromType),
+          type: finalType,
+          action: entryData.action || `${finalType} toegevoegd`,
+          description: finalDescription,
+          status: (entryData.isUrgent
+            ? 'Urgent'
+            : entryData.needsResponse
+              ? 'Reactie nodig'
+              : 'Geen urgentie') as any,
+          is_urgent: entryData.isUrgent,
+          needs_response: entryData.needsResponse,
+        };
+
+        const newEntry = await clientService.createLogEntry(logEntryData);
+
+        if (newEntry) {
+          // Upload documents if provided
+          if (documents && documents.length > 0) {
+            const uploadPromises = documents.map(async doc => {
+              if (doc.file) {
+                return await clientService.uploadDocument(
+                  doc.file,
+                  clientId,
+                  newEntry.id
+                );
+              }
+              return null;
+            });
+
+            await Promise.all(uploadPromises);
+          }
+
+          // Reload entries to get the latest data
+          await loadEntries();
+          setLoading('success');
+          return true;
+        } else {
+          setError('Failed to create log entry');
+          setLoading('error');
+          return false;
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof ServiceError
+            ? err.message
+            : 'Failed to create log entry';
+        setError(errorMessage);
         setLoading('error');
         return false;
       }
-    } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to create log entry';
-      setError(errorMessage);
-      setLoading('error');
-      return false;
-    }
-  }, [clientId, loadEntries]);
+    },
+    [clientId, loadEntries]
+  );
 
   // Update entry
-  const updateEntry = useCallback(async (
-    id: string,
-    updates: EditEntryForm
-  ): Promise<boolean> => {
-    setLoading('loading');
-    setError(null);
+  const updateEntry = useCallback(
+    async (id: string, updates: EditEntryForm): Promise<boolean> => {
+      setLoading('loading');
+      setError(null);
 
-    try {
-      const updatedEntry = await clientService.updateLogEntry(id, {
-        action: updates.action,
-        description: updates.description,
-        status: updates.status,
-      });
+      try {
+        const updatedEntry = await clientService.updateLogEntry(id, {
+          action: updates.action,
+          description: updates.description,
+          status: updates.status,
+        });
 
-      if (updatedEntry) {
-        // Update local state
-        setEntries(prev => prev.map(entry =>
-          entry.id === id
-            ? {
-                ...entry,
-                action: updates.action,
-                description: updates.description,
-                status: updates.status,
-              }
-            : entry
-        ));
-        setLoading('success');
-        return true;
-      } else {
-        setError('Failed to update log entry');
+        if (updatedEntry) {
+          // Update local state
+          setEntries(prev =>
+            prev.map(entry =>
+              entry.id === id
+                ? {
+                    ...entry,
+                    action: updates.action,
+                    description: updates.description,
+                    status: updates.status,
+                  }
+                : entry
+            )
+          );
+          setLoading('success');
+          return true;
+        } else {
+          setError('Failed to update log entry');
+          setLoading('error');
+          return false;
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof ServiceError
+            ? err.message
+            : 'Failed to update log entry';
+        setError(errorMessage);
         setLoading('error');
         return false;
       }
-    } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to update log entry';
-      setError(errorMessage);
-      setLoading('error');
-      return false;
-    }
-  }, []);
+    },
+    []
+  );
 
   // Delete entry
   const deleteEntry = useCallback(async (id: string): Promise<boolean> => {
@@ -366,9 +407,10 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
         return false;
       }
     } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to delete log entry';
+      const errorMessage =
+        err instanceof ServiceError
+          ? err.message
+          : 'Failed to delete log entry';
       setError(errorMessage);
       setLoading('error');
       return false;
@@ -376,63 +418,91 @@ export const useLogboek = (options: UseLogboekOptions = {}): UseLogboekReturn =>
   }, []);
 
   // Upload document
-  const uploadDocument = useCallback(async (
-    file: File,
-    logEntryId?: string
-  ): Promise<UploadedDocument | null> => {
-    if (!clientId) {
-      setError('Client ID is required');
-      return null;
-    }
-
-    try {
-      const document = await clientService.uploadDocument(file, clientId, logEntryId);
-
-      if (document) {
-        return {
-          id: document.id,
-          name: document.file_name,
-          type: document.file_type,
-          size: document.file_size,
-          url: document.public_url,
-        };
+  const uploadDocument = useCallback(
+    async (
+      file: File,
+      logEntryId?: string
+    ): Promise<UploadedDocument | null> => {
+      if (!clientId) {
+        setError('Client ID is required');
+        return null;
       }
-      return null;
-    } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to upload document';
-      setError(errorMessage);
-      return null;
-    }
-  }, [clientId]);
+
+      try {
+        const document = await clientService.uploadDocument(
+          file,
+          clientId,
+          logEntryId
+        );
+
+        if (document) {
+          return {
+            id: document.id,
+            name: document.file_name,
+            type: document.file_type,
+            size: document.file_size,
+            url: document.public_url,
+          };
+        }
+        return null;
+      } catch (err) {
+        const errorMessage =
+          err instanceof ServiceError
+            ? err.message
+            : 'Failed to upload document';
+        setError(errorMessage);
+        return null;
+      }
+    },
+    [clientId]
+  );
 
   // Delete document
-  const deleteDocument = useCallback(async (documentId: string): Promise<boolean> => {
-    try {
-      return await clientService.deleteDocument(documentId);
-    } catch (err) {
-      const errorMessage = err instanceof ServiceError
-        ? err.message
-        : 'Failed to delete document';
-      setError(errorMessage);
-      return false;
-    }
-  }, []);
+  const deleteDocument = useCallback(
+    async (documentId: string): Promise<boolean> => {
+      try {
+        return await clientService.deleteDocument(documentId);
+      } catch (err) {
+        const errorMessage =
+          err instanceof ServiceError
+            ? err.message
+            : 'Failed to delete document';
+        setError(errorMessage);
+        return false;
+      }
+    },
+    []
+  );
 
   // Filtered entries
   const filteredEntries = useMemo(() => {
     return entries.filter(entry => {
-      if (filters.from && !entry.from.name.toLowerCase().includes(filters.from.toLowerCase())) {
+      if (
+        filters.from &&
+        !entry.from.name.toLowerCase().includes(filters.from.toLowerCase())
+      ) {
         return false;
       }
-      if (filters.type && filters.type !== 'all' && entry.type !== filters.type) {
+      if (
+        filters.type &&
+        filters.type !== 'all' &&
+        entry.type !== filters.type
+      ) {
         return false;
       }
-      if (filters.status && filters.status !== 'all' && entry.status !== filters.status) {
+      if (
+        filters.status &&
+        filters.status !== 'all' &&
+        entry.status !== filters.status
+      ) {
         return false;
       }
-      if (filters.description && !entry.description.toLowerCase().includes(filters.description.toLowerCase())) {
+      if (
+        filters.description &&
+        !entry.description
+          .toLowerCase()
+          .includes(filters.description.toLowerCase())
+      ) {
         return false;
       }
       return true;

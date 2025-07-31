@@ -16,10 +16,12 @@ export const databaseToolDescriptions = {
 };
 
 const ResponseSchema = z.object({
-  content: z.array(z.object({
-    type: z.literal('text'),
-    text: z.string(),
-  })),
+  content: z.array(
+    z.object({
+      type: z.literal('text'),
+      text: z.string(),
+    })
+  ),
 });
 
 export const CreateRecordSchema = z.object({
@@ -47,25 +49,31 @@ export const DeleteRecordSchema = z.object({
   returning: z.array(z.string()).optional(),
 });
 
-export const runCreateRecordTool = async (supabase: SupabaseClient, args: z.infer<typeof CreateRecordSchema>) => {
+export const runCreateRecordTool = async (
+  supabase: SupabaseClient,
+  args: z.infer<typeof CreateRecordSchema>
+) => {
   const { table, data, returning } = args;
   const { data: result, error } = await supabase
     .from(table)
     .insert(data)
     .select(returning?.join(',') || '*');
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(result || []) }],
   });
 };
 
-export const runReadRecordsTool = async (supabase: SupabaseClient, args: z.infer<typeof ReadRecordsSchema>) => {
+export const runReadRecordsTool = async (
+  supabase: SupabaseClient,
+  args: z.infer<typeof ReadRecordsSchema>
+) => {
   const { table, select, filter } = args;
 
-  let query = supabase
-    .from(table)
-    .select(select?.join(',') || '*');
+  let query = supabase.from(table).select(select?.join(',') || '*');
 
   if (filter) {
     for (const [key, value] of Object.entries(filter)) {
@@ -80,18 +88,21 @@ export const runReadRecordsTool = async (supabase: SupabaseClient, args: z.infer
   }
 
   const { data: result, error } = await query;
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(result || []) }],
   });
 };
 
-export const runUpdateRecordTool = async (supabase: SupabaseClient, args: z.infer<typeof UpdateRecordSchema>) => {
+export const runUpdateRecordTool = async (
+  supabase: SupabaseClient,
+  args: z.infer<typeof UpdateRecordSchema>
+) => {
   const { table, data, filter, returning } = args;
 
-  let query = supabase
-    .from(table)
-    .update(data);
+  let query = supabase.from(table).update(data);
 
   if (filter) {
     for (const [key, value] of Object.entries(filter)) {
@@ -99,19 +110,24 @@ export const runUpdateRecordTool = async (supabase: SupabaseClient, args: z.infe
     }
   }
 
-  const { data: result, error } = await query.select(returning?.join(',') || '*');
-  if (error) throw error;
+  const { data: result, error } = await query.select(
+    returning?.join(',') || '*'
+  );
+  if (error) {
+    throw error;
+  }
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(result || []) }],
   });
 };
 
-export const runDeleteRecordTool = async (supabase: SupabaseClient, args: z.infer<typeof DeleteRecordSchema>) => {
+export const runDeleteRecordTool = async (
+  supabase: SupabaseClient,
+  args: z.infer<typeof DeleteRecordSchema>
+) => {
   const { table, filter, returning } = args;
 
-  let query = supabase
-    .from(table)
-    .delete();
+  let query = supabase.from(table).delete();
 
   if (filter) {
     for (const [key, value] of Object.entries(filter)) {
@@ -119,8 +135,12 @@ export const runDeleteRecordTool = async (supabase: SupabaseClient, args: z.infe
     }
   }
 
-  const { data: result, error } = await query.select(returning?.join(',') || '*');
-  if (error) throw error;
+  const { data: result, error } = await query.select(
+    returning?.join(',') || '*'
+  );
+  if (error) {
+    throw error;
+  }
   return ResponseSchema.parse({
     content: [{ type: 'text', text: JSON.stringify(result || []) }],
   });

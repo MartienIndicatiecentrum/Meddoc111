@@ -12,15 +12,15 @@ export function createManagementTools(client: MorphikClient): Tool[] {
         properties: {
           name: {
             type: 'string',
-            description: 'Name of the folder to create'
+            description: 'Name of the folder to create',
           },
           sanitize: {
             type: 'boolean',
             description: 'Automatically sanitize folder name (default: true)',
-            default: true
-          }
+            default: true,
+          },
         },
-        required: ['name']
+        required: ['name'],
       },
       handler: async (args: any) => {
         try {
@@ -36,7 +36,7 @@ export function createManagementTools(client: MorphikClient): Tool[] {
             return {
               success: true,
               message: `Folder '${folderName}' already exists`,
-              folderInfo: existingFolder
+              folderInfo: existingFolder,
             };
           }
 
@@ -45,16 +45,16 @@ export function createManagementTools(client: MorphikClient): Tool[] {
           return {
             success: true,
             message: `Folder '${folderName}' created successfully`,
-            folderName
+            folderName,
           };
         } catch (error) {
           logger.error('Folder creation failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
+      },
     },
 
     {
@@ -65,15 +65,15 @@ export function createManagementTools(client: MorphikClient): Tool[] {
         properties: {
           name: {
             type: 'string',
-            description: 'Name of the folder to delete'
+            description: 'Name of the folder to delete',
           },
           confirmDelete: {
             type: 'boolean',
             description: 'Confirm deletion (must be true to proceed)',
-            default: false
-          }
+            default: false,
+          },
         },
-        required: ['name', 'confirmDelete']
+        required: ['name', 'confirmDelete'],
       },
       handler: async (args: any) => {
         try {
@@ -82,7 +82,8 @@ export function createManagementTools(client: MorphikClient): Tool[] {
           if (!confirmDelete) {
             return {
               success: false,
-              error: 'Deletion not confirmed. Set confirmDelete to true to proceed.'
+              error:
+                'Deletion not confirmed. Set confirmDelete to true to proceed.',
             };
           }
 
@@ -93,7 +94,7 @@ export function createManagementTools(client: MorphikClient): Tool[] {
           if (!folderInfo) {
             return {
               success: false,
-              error: `Folder '${name}' not found`
+              error: `Folder '${name}' not found`,
             };
           }
 
@@ -102,16 +103,16 @@ export function createManagementTools(client: MorphikClient): Tool[] {
           return {
             success: true,
             message: `Folder '${name}' deleted successfully`,
-            deletedDocumentCount: folderInfo.documentCount
+            deletedDocumentCount: folderInfo.documentCount,
           };
         } catch (error) {
           logger.error('Folder deletion failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
+      },
     },
 
     {
@@ -122,10 +123,10 @@ export function createManagementTools(client: MorphikClient): Tool[] {
         properties: {
           name: {
             type: 'string',
-            description: 'Name of the folder to get info for'
-          }
+            description: 'Name of the folder to get info for',
+          },
         },
-        required: ['name']
+        required: ['name'],
       },
       handler: async (args: any) => {
         try {
@@ -138,7 +139,7 @@ export function createManagementTools(client: MorphikClient): Tool[] {
           if (!folderInfo) {
             return {
               success: false,
-              error: `Folder '${name}' not found`
+              error: `Folder '${name}' not found`,
             };
           }
 
@@ -148,17 +149,17 @@ export function createManagementTools(client: MorphikClient): Tool[] {
               name: folderInfo.name,
               documentCount: folderInfo.documentCount,
               createdAt: folderInfo.createdAt,
-              hasRules: (folderInfo.rules?.length || 0) > 0
-            }
+              hasRules: (folderInfo.rules?.length || 0) > 0,
+            },
           };
         } catch (error) {
           logger.error('Failed to get folder info', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
-    }
+      },
+    },
   ];
 }

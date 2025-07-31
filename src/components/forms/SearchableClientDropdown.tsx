@@ -22,7 +22,7 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
   value,
   onChange,
   error,
-  placeholder = "Zoek en selecteer een cliënt..."
+  placeholder = 'Zoek en selecteer een cliënt...',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -110,7 +110,10 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setHighlightedIndex(-1);
       }
@@ -138,24 +141,24 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
       if (highlightedElement) {
         highlightedElement.scrollIntoView({
           block: 'nearest',
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }
   }, [highlightedIndex]);
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-        <User className="w-4 h-4" />
+    <div className='relative' ref={dropdownRef}>
+      <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+        <User className='w-4 h-4' />
         Cliënt *
       </label>
 
-      <div className="relative">
-        <div className="relative">
+      <div className='relative'>
+        <div className='relative'>
           <input
             ref={inputRef}
-            type="text"
+            type='text'
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
@@ -167,16 +170,16 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
           />
 
           {/* Search icon */}
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400' />
 
           {/* Clear button */}
           {searchTerm && (
             <button
-              type="button"
+              type='button'
               onClick={handleClear}
-              className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className='absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
             >
-              <X className="w-4 h-4" />
+              <X className='w-4 h-4' />
             </button>
           )}
 
@@ -190,15 +193,17 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
 
         {/* Dropdown menu */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <div className='absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto'>
             {filteredClients.length === 0 ? (
-              <div className="px-4 py-3 text-gray-500 text-center">
-                {searchTerm ? 'Geen cliënten gevonden' : 'Geen cliënten beschikbaar'}
+              <div className='px-4 py-3 text-gray-500 text-center'>
+                {searchTerm
+                  ? 'Geen cliënten gevonden'
+                  : 'Geen cliënten beschikbaar'}
               </div>
             ) : (
               <>
                 {searchTerm && filteredClients.length > 0 && (
-                  <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-b">
+                  <div className='px-4 py-2 text-xs text-gray-500 bg-gray-50 border-b'>
                     {filteredClients.length} resultaten gevonden
                   </div>
                 )}
@@ -213,27 +218,32 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
                         ? 'bg-blue-50 text-blue-900'
                         : 'hover:bg-gray-50'
                     } ${
-                      client.id === value ? 'bg-blue-100 text-blue-900 font-medium' : ''
+                      client.id === value
+                        ? 'bg-blue-100 text-blue-900 font-medium'
+                        : ''
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className='flex items-center justify-between'>
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className='font-medium text-gray-900'>
                           {/* Highlight matching text */}
                           {searchTerm ? (
                             <>
-                              {client.naam.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => (
-                                <span
-                                  key={i}
-                                  className={
-                                    part.toLowerCase() === searchTerm.toLowerCase()
-                                      ? 'bg-yellow-200 font-semibold'
-                                      : ''
-                                  }
-                                >
-                                  {part}
-                                </span>
-                              ))}
+                              {client.naam
+                                .split(new RegExp(`(${searchTerm})`, 'gi'))
+                                .map((part, i) => (
+                                  <span
+                                    key={i}
+                                    className={
+                                      part.toLowerCase() ===
+                                      searchTerm.toLowerCase()
+                                        ? 'bg-yellow-200 font-semibold'
+                                        : ''
+                                    }
+                                  >
+                                    {part}
+                                  </span>
+                                ))}
                             </>
                           ) : (
                             client.naam
@@ -242,21 +252,17 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
 
                         {/* Show additional client info if available */}
                         {(client.telefoon || client.email) && (
-                          <div className="text-sm text-gray-500 mt-1">
+                          <div className='text-sm text-gray-500 mt-1'>
                             {client.telefoon && (
-                              <span className="mr-3">📞 {client.telefoon}</span>
+                              <span className='mr-3'>📞 {client.telefoon}</span>
                             )}
-                            {client.email && (
-                              <span>✉️ {client.email}</span>
-                            )}
+                            {client.email && <span>✉️ {client.email}</span>}
                           </div>
                         )}
                       </div>
 
                       {client.id === value && (
-                        <div className="text-blue-600">
-                          ✓
-                        </div>
+                        <div className='text-blue-600'>✓</div>
                       )}
                     </div>
                   </div>
@@ -268,13 +274,11 @@ const SearchableClientDropdown: React.FC<SearchableClientDropdownProps> = ({
       </div>
 
       {/* Error message */}
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
-      )}
+      {error && <p className='text-red-500 text-sm mt-1'>{error}</p>}
 
       {/* Helper text */}
       {!error && (
-        <p className="text-gray-500 text-xs mt-1">
+        <p className='text-gray-500 text-xs mt-1'>
           Type om te zoeken of gebruik pijltjestoetsen om te navigeren
         </p>
       )}

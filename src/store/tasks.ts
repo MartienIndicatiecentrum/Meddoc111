@@ -32,13 +32,37 @@ export const useTaskStore = create<TaskStore>()(
       viewMode: 'list',
       filters: {},
       modals: {},
-      createTask: (task) => set(state => ({ tasks: [...state.tasks, { ...task, id: crypto.randomUUID(), createdAt: new Date(), updatedAt: new Date() } as Task] })),
-      updateTask: (id, updates) => set(state => ({ tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates, updatedAt: new Date() } : t) })),
-      deleteTask: (id) => set(state => ({ tasks: state.tasks.filter(t => t.id !== id) })),
-      bulkUpdateTasks: (ids, updates) => set(state => ({ tasks: state.tasks.map(t => ids.includes(t.id) ? { ...t, ...updates, updatedAt: new Date() } : t) })),
+      createTask: task =>
+        set(state => ({
+          tasks: [
+            ...state.tasks,
+            {
+              ...task,
+              id: crypto.randomUUID(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            } as Task,
+          ],
+        })),
+      updateTask: (id, updates) =>
+        set(state => ({
+          tasks: state.tasks.map(t =>
+            t.id === id ? { ...t, ...updates, updatedAt: new Date() } : t
+          ),
+        })),
+      deleteTask: id =>
+        set(state => ({ tasks: state.tasks.filter(t => t.id !== id) })),
+      bulkUpdateTasks: (ids, updates) =>
+        set(state => ({
+          tasks: state.tasks.map(t =>
+            ids.includes(t.id) ? { ...t, ...updates, updatedAt: new Date() } : t
+          ),
+        })),
       loadTasks: async () => {
         const { data, error } = await supabase.from('tasks').select('*');
-        if (!error && data) set({ tasks: data });
+        if (!error && data) {
+          set({ tasks: data });
+        }
       },
       syncWithSupabase: async () => {
         // Voorbeeld: push lokale taken naar Supabase en haal nieuwe op

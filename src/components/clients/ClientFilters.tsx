@@ -30,7 +30,7 @@ const statusLabels: Record<ClientStatus, string> = {
   active_care: 'Actieve Zorg',
   care_suspended: 'Zorg Onderbroken',
   care_ended: 'Zorg Beëindigd',
-  transferred: 'Overgedragen'
+  transferred: 'Overgedragen',
 };
 
 const careLevelLabels: Record<CareLevel, string> = {
@@ -40,7 +40,7 @@ const careLevelLabels: Record<CareLevel, string> = {
   wlz_4: 'WLZ-4',
   wlz_5: 'WLZ-5',
   wmo: 'WMO',
-  zvw: 'ZVW'
+  zvw: 'ZVW',
 };
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -50,7 +50,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   coordinators,
   clients,
   activeFiltersCount,
-  onClearAll
+  onClearAll,
 }) => {
   const updateFilter = <T extends keyof ClientFilters>(
     filterKey: T,
@@ -58,7 +58,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   ) => {
     onFiltersChange({
       ...filters,
-      [filterKey]: value
+      [filterKey]: value,
     });
   };
 
@@ -82,136 +82,151 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-      <div className="p-4">
+    <div className='absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50'>
+      <div className='p-4'>
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900">Filters</h3>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-2'>
+            <h3 className='font-semibold text-gray-900'>Filters</h3>
             {activeFiltersCount > 0 && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant='secondary' className='text-xs'>
                 {activeFiltersCount}
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             {activeFiltersCount > 0 && (
               <Button
-                variant="ghost"
-                size="sm"
+                variant='ghost'
+                size='sm'
                 onClick={onClearAll}
-                className="text-xs text-gray-600 hover:text-gray-900"
+                className='text-xs text-gray-600 hover:text-gray-900'
               >
                 Wis alles
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="p-1"
-            >
-              <X className="w-4 h-4" />
+            <Button variant='ghost' size='sm' onClick={onClose} className='p-1'>
+              <X className='w-4 h-4' />
             </Button>
           </div>
         </div>
 
         {/* Status Filter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <ClipboardList className="w-4 h-4 text-gray-600" />
-            <h4 className="font-medium text-sm text-gray-900">Status</h4>
+        <div className='mb-6'>
+          <div className='flex items-center gap-2 mb-3'>
+            <ClipboardList className='w-4 h-4 text-gray-600' />
+            <h4 className='font-medium text-sm text-gray-900'>Status</h4>
           </div>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
+          <div className='space-y-2 max-h-32 overflow-y-auto'>
             {Object.entries(statusLabels).map(([status, label]) => (
-              <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={status}
+                className='flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded'
+              >
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={filters.status.includes(status as ClientStatus)}
-                  onChange={() => toggleArrayFilter('status', status as ClientStatus)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  onChange={() =>
+                    toggleArrayFilter('status', status as ClientStatus)
+                  }
+                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
                 />
-                <span className="text-sm text-gray-700">{label}</span>
+                <span className='text-sm text-gray-700'>{label}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className='my-4' />
 
         {/* Care Level Filter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Heart className="w-4 h-4 text-gray-600" />
-            <h4 className="font-medium text-sm text-gray-900">Zorgniveau</h4>
+        <div className='mb-6'>
+          <div className='flex items-center gap-2 mb-3'>
+            <Heart className='w-4 h-4 text-gray-600' />
+            <h4 className='font-medium text-sm text-gray-900'>Zorgniveau</h4>
           </div>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
+          <div className='space-y-2 max-h-32 overflow-y-auto'>
             {Object.entries(careLevelLabels).map(([careLevel, label]) => (
-              <label key={careLevel} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={careLevel}
+                className='flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded'
+              >
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={filters.careLevel.includes(careLevel as CareLevel)}
-                  onChange={() => toggleArrayFilter('careLevel', careLevel as CareLevel)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  onChange={() =>
+                    toggleArrayFilter('careLevel', careLevel as CareLevel)
+                  }
+                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
                 />
-                <span className="text-sm text-gray-700">{label}</span>
+                <span className='text-sm text-gray-700'>{label}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className='my-4' />
 
         {/* Coordinator Filter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="w-4 h-4 text-gray-600" />
-            <h4 className="font-medium text-sm text-gray-900">Zorgcoördinator</h4>
+        <div className='mb-6'>
+          <div className='flex items-center gap-2 mb-3'>
+            <Users className='w-4 h-4 text-gray-600' />
+            <h4 className='font-medium text-sm text-gray-900'>
+              Zorgcoördinator
+            </h4>
           </div>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
-            {coordinators.map((coordinator) => (
-              <label key={coordinator} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+          <div className='space-y-2 max-h-32 overflow-y-auto'>
+            {coordinators.map(coordinator => (
+              <label
+                key={coordinator}
+                className='flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded'
+              >
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={filters.assignedTo.includes(coordinator)}
                   onChange={() => toggleArrayFilter('assignedTo', coordinator)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
                 />
-                <span className="text-sm text-gray-700">{coordinator}</span>
+                <span className='text-sm text-gray-700'>{coordinator}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className='my-4' />
 
         {/* Client Filter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="w-4 h-4 text-gray-600" />
-            <h4 className="font-medium text-sm text-gray-900">Opdrachtgever</h4>
+        <div className='mb-6'>
+          <div className='flex items-center gap-2 mb-3'>
+            <Users className='w-4 h-4 text-gray-600' />
+            <h4 className='font-medium text-sm text-gray-900'>Opdrachtgever</h4>
           </div>
-          <div className="space-y-2 max-h-32 overflow-y-auto">
-            {clients.map((client) => (
-              <label key={client} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+          <div className='space-y-2 max-h-32 overflow-y-auto'>
+            {clients.map(client => (
+              <label
+                key={client}
+                className='flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded'
+              >
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={filters.client.includes(client)}
                   onChange={() => toggleArrayFilter('client', client)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
                 />
-                <span className="text-sm text-gray-700">{client}</span>
+                <span className='text-sm text-gray-700'>{client}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className='my-4' />
 
         {/* Active Tasks Filter */}
-        <div className="mb-4">
-          <h4 className="font-medium text-sm text-gray-900 mb-3">Actieve Taken</h4>
-          <div className="space-y-2">
+        <div className='mb-4'>
+          <h4 className='font-medium text-sm text-gray-900 mb-3'>
+            Actieve Taken
+          </h4>
+          <div className='space-y-2'>
             {[
               { value: 'niet_gestart', label: 'Niet gestart' },
               { value: 'in_behandeling', label: 'In behandeling' },
@@ -220,14 +235,17 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               { value: 'afgerond', label: 'Afgerond' },
               { value: 'urgent', label: 'Urgent' },
             ].map(opt => (
-              <label key={opt.value} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label
+                key={opt.value}
+                className='flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded'
+              >
                 <input
-                  type="checkbox"
+                  type='checkbox'
                   checked={filters.hasActiveTasks?.includes(opt.value)}
                   onChange={() => toggleTasksStatus(opt.value)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  className='w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500'
                 />
-                <span className="text-sm text-gray-700">{opt.label}</span>
+                <span className='text-sm text-gray-700'>{opt.label}</span>
               </label>
             ))}
           </div>

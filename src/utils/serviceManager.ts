@@ -22,7 +22,7 @@ export class ServiceManager {
   async checkServices(): Promise<ServiceStatus> {
     const status: ServiceStatus = {
       backend: false,
-      rag: false
+      rag: false,
     };
 
     try {
@@ -32,7 +32,7 @@ export class ServiceManager {
 
       const backendResponse = await fetch('/health', {
         method: 'GET',
-        signal: controller.signal
+        signal: controller.signal,
       });
       clearTimeout(timeout);
       status.backend = backendResponse.ok;
@@ -47,7 +47,7 @@ export class ServiceManager {
 
       const ragResponse = await fetch('/rag/health', {
         method: 'GET',
-        signal: ragController.signal
+        signal: ragController.signal,
       });
       clearTimeout(ragTimeout);
       status.rag = ragResponse.ok;
@@ -76,12 +76,12 @@ export class ServiceManager {
     if (showToast) {
       this.toastId = toast.loading('Starting backend services...', {
         duration: Infinity,
-        description: 'This may take a few seconds'
+        description: 'This may take a few seconds',
       });
     }
 
     // Retry with exponential backoff
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const attemptConnection = async () => {
         this.retryCount++;
 
@@ -89,11 +89,13 @@ export class ServiceManager {
 
         // Update toast with current status
         if (showToast && this.toastId) {
-          const backendText = status.backend ? '✓ Backend API' : '⏳ Backend API';
+          const backendText = status.backend
+            ? '✓ Backend API'
+            : '⏳ Backend API';
           const ragText = status.rag ? '✓ RAG Server' : '⏳ RAG Server';
           toast.loading(`Starting services...\n${backendText}\n${ragText}`, {
             id: this.toastId,
-            duration: Infinity
+            duration: Infinity,
           });
         }
 
@@ -101,7 +103,7 @@ export class ServiceManager {
           if (showToast && this.toastId) {
             toast.success('All services are now running!', {
               id: this.toastId,
-              duration: 3000
+              duration: 3000,
             });
           }
           this.retryCount = 0;
@@ -111,16 +113,17 @@ export class ServiceManager {
 
         if (this.retryCount >= this.maxRetries) {
           if (showToast && this.toastId) {
-            const message = !status.backend && !status.rag
-              ? 'Failed to start services'
-              : !status.backend
-              ? 'Backend API failed to start'
-              : 'RAG Server failed to start';
+            const message =
+              !status.backend && !status.rag
+                ? 'Failed to start services'
+                : !status.backend
+                  ? 'Backend API failed to start'
+                  : 'RAG Server failed to start';
 
             toast.error(message, {
               id: this.toastId,
               duration: 5000,
-              description: 'Check console for details'
+              description: 'Check console for details',
             });
           }
           this.retryCount = 0;
@@ -146,7 +149,7 @@ export class ServiceManager {
 
       const response = await fetch('/health', {
         method: 'GET',
-        signal: controller.signal
+        signal: controller.signal,
       });
       clearTimeout(timeout);
       return response.ok;
@@ -162,7 +165,7 @@ export class ServiceManager {
 
       const response = await fetch('/rag/health', {
         method: 'GET',
-        signal: controller.signal
+        signal: controller.signal,
       });
       clearTimeout(timeout);
       return response.ok;
@@ -179,7 +182,7 @@ export class ServiceManager {
 
       const response = await fetch('/api/diagnostic', {
         method: 'GET',
-        signal: controller.signal
+        signal: controller.signal,
       });
       clearTimeout(timeout);
 

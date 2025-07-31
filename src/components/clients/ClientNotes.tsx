@@ -4,20 +4,19 @@ import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
-import {
-  Plus,
-  FileText,
-  Clock,
-  User,
-  Trash2,
-  Edit3
-} from 'lucide-react';
+import { Plus, FileText, Clock, User, Trash2, Edit3 } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 
 interface ClientNote {
   id: string;
   client_id: string;
-  note_type: 'general' | 'medical' | 'care' | 'incident' | 'family' | 'administrative';
+  note_type:
+    | 'general'
+    | 'medical'
+    | 'care'
+    | 'incident'
+    | 'family'
+    | 'administrative';
   note_text: string;
   is_confidential: boolean;
   created_at: string;
@@ -36,7 +35,7 @@ const noteTypeLabels: Record<string, string> = {
   care: 'Zorg',
   incident: 'Incident',
   family: 'Familie',
-  administrative: 'Administratief'
+  administrative: 'Administratief',
 };
 
 const noteTypeColors: Record<string, string> = {
@@ -45,14 +44,16 @@ const noteTypeColors: Record<string, string> = {
   care: 'bg-green-100 text-green-800',
   incident: 'bg-orange-100 text-orange-800',
   family: 'bg-purple-100 text-purple-800',
-  administrative: 'bg-gray-100 text-gray-800'
+  administrative: 'bg-gray-100 text-gray-800',
 };
 
 export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
   const [notes, setNotes] = useState<ClientNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [newNote, setNewNote] = useState('');
-  const [noteType, setNoteType] = useState<'general' | 'medical' | 'care' | 'incident' | 'family' | 'administrative'>('general');
+  const [noteType, setNoteType] = useState<
+    'general' | 'medical' | 'care' | 'incident' | 'family' | 'administrative'
+  >('general');
   const [isConfidential, setIsConfidential] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [editingNote, setEditingNote] = useState<string | null>(null);
@@ -83,7 +84,9 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
 
   // Add new note
   const addNote = async () => {
-    if (!newNote.trim()) return;
+    if (!newNote.trim()) {
+      return;
+    }
 
     try {
       setIsAddingNote(true);
@@ -93,7 +96,7 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
           client_id: clientId,
           note_type: noteType,
           note_text: newNote.trim(),
-          is_confidential: isConfidential
+          is_confidential: isConfidential,
         })
         .select()
         .single();
@@ -116,14 +119,16 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
 
   // Update note
   const updateNote = async (noteId: string) => {
-    if (!editText.trim()) return;
+    if (!editText.trim()) {
+      return;
+    }
 
     try {
       const { error } = await supabase
         .from('client_notes')
         .update({
           note_text: editText.trim(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', noteId);
 
@@ -132,11 +137,17 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
         return;
       }
 
-      setNotes(notes.map(note =>
-        note.id === noteId
-          ? { ...note, note_text: editText.trim(), updated_at: new Date().toISOString() }
-          : note
-      ));
+      setNotes(
+        notes.map(note =>
+          note.id === noteId
+            ? {
+                ...note,
+                note_text: editText.trim(),
+                updated_at: new Date().toISOString(),
+              }
+            : note
+        )
+      );
       setEditingNote(null);
       setEditText('');
     } catch (error) {
@@ -185,79 +196,82 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+      <div className='flex items-center justify-center py-8'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500'></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Add New Note Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Plus className="w-5 h-5" />
+          <CardTitle className='flex items-center gap-2 text-lg'>
+            <Plus className='w-5 h-5' />
             Nieuwe Notitie Toevoegen
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className='space-y-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className='block text-sm font-medium text-gray-700 mb-2'>
                 Type Notitie
               </label>
               <select
                 value={noteType}
-                onChange={(e) => setNoteType(e.target.value as any)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                onChange={e => setNoteType(e.target.value as any)}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent'
               >
-                <option value="general">Algemeen</option>
-                <option value="medical">Medisch</option>
-                <option value="care">Zorg</option>
-                <option value="incident">Incident</option>
-                <option value="family">Familie</option>
-                <option value="administrative">Administratief</option>
+                <option value='general'>Algemeen</option>
+                <option value='medical'>Medisch</option>
+                <option value='care'>Zorg</option>
+                <option value='incident'>Incident</option>
+                <option value='family'>Familie</option>
+                <option value='administrative'>Administratief</option>
               </select>
             </div>
-            <div className="flex items-center">
+            <div className='flex items-center'>
               <input
-                type="checkbox"
-                id="confidential"
+                type='checkbox'
+                id='confidential'
                 checked={isConfidential}
-                onChange={(e) => setIsConfidential(e.target.checked)}
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                onChange={e => setIsConfidential(e.target.checked)}
+                className='h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded'
               />
-              <label htmlFor="confidential" className="ml-2 text-sm text-gray-700">
+              <label
+                htmlFor='confidential'
+                className='ml-2 text-sm text-gray-700'
+              >
                 Vertrouwelijke notitie
               </label>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               Notitie
             </label>
             <Textarea
               value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Voer hier je notitie in..."
+              onChange={e => setNewNote(e.target.value)}
+              placeholder='Voer hier je notitie in...'
               rows={4}
-              className="w-full"
+              className='w-full'
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className='flex justify-end'>
             <Button
               onClick={addNote}
               disabled={!newNote.trim() || isAddingNote}
-              className="bg-purple-100 text-purple-600 border border-purple-500 hover:bg-purple-200"
+              className='bg-purple-100 text-purple-600 border border-purple-500 hover:bg-purple-200'
             >
               {isAddingNote ? 'Toevoegen...' : 'Notitie Toevoegen'}
             </Button>
@@ -268,73 +282,76 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
       <Separator />
 
       {/* Notes List */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg flex items-center gap-2">
-          <FileText className="w-5 h-5 text-gray-600" />
+      <div className='space-y-4'>
+        <h3 className='font-semibold text-lg flex items-center gap-2'>
+          <FileText className='w-5 h-5 text-gray-600' />
           Eerdere Notities ({notes.length})
         </h3>
 
         {notes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <div className='text-center py-8 text-gray-500'>
+            <FileText className='w-12 h-12 mx-auto mb-4 text-gray-300' />
             <p>Nog geen notities voor deze cliënt</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {notes.map((note) => (
-              <Card key={note.id} className={`${note.is_confidential ? 'border-orange-200 bg-orange-50' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
+          <div className='space-y-4'>
+            {notes.map(note => (
+              <Card
+                key={note.id}
+                className={`${note.is_confidential ? 'border-orange-200 bg-orange-50' : ''}`}
+              >
+                <CardContent className='p-4'>
+                  <div className='flex items-start justify-between mb-3'>
+                    <div className='flex items-center gap-2'>
                       <Badge className={noteTypeColors[note.note_type]}>
                         {noteTypeLabels[note.note_type]}
                       </Badge>
                       {note.is_confidential && (
-                        <Badge className="bg-orange-100 text-orange-800">
+                        <Badge className='bg-orange-100 text-orange-800'>
                           Vertrouwelijk
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className='flex items-center gap-2'>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                         onClick={() => startEditing(note)}
-                        className="h-8 w-8 p-0"
+                        className='h-8 w-8 p-0'
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className='w-4 h-4' />
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                         onClick={() => deleteNote(note.id)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        className='h-8 w-8 p-0 text-red-600 hover:text-red-700'
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className='w-4 h-4' />
                       </Button>
                     </div>
                   </div>
 
                   {editingNote === note.id ? (
-                    <div className="space-y-3">
+                    <div className='space-y-3'>
                       <Textarea
                         value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
+                        onChange={e => setEditText(e.target.value)}
                         rows={3}
-                        className="w-full"
+                        className='w-full'
                       />
-                      <div className="flex gap-2">
+                      <div className='flex gap-2'>
                         <Button
-                          size="sm"
+                          size='sm'
                           onClick={() => updateNote(note.id)}
                           disabled={!editText.trim()}
-                          className="bg-purple-100 text-purple-600 border border-purple-500 hover:bg-purple-200"
+                          className='bg-purple-100 text-purple-600 border border-purple-500 hover:bg-purple-200'
                         >
                           Opslaan
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant='outline'
+                          size='sm'
                           onClick={cancelEditing}
                         >
                           Annuleren
@@ -343,17 +360,17 @@ export const ClientNotes: React.FC<ClientNotesProps> = ({ clientId }) => {
                     </div>
                   ) : (
                     <div>
-                      <p className="text-gray-900 whitespace-pre-wrap mb-3">
+                      <p className='text-gray-900 whitespace-pre-wrap mb-3'>
                         {note.note_text}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
+                      <div className='flex items-center gap-4 text-xs text-gray-500'>
+                        <div className='flex items-center gap-1'>
+                          <Clock className='w-3 h-3' />
                           {formatDate(note.created_at)}
                         </div>
                         {note.updated_at !== note.created_at && (
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
+                          <div className='flex items-center gap-1'>
+                            <User className='w-3 h-3' />
                             Bijgewerkt: {formatDate(note.updated_at)}
                           </div>
                         )}

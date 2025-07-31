@@ -6,34 +6,35 @@ export function createQueryTools(client: MorphikClient): Tool[] {
   return [
     {
       name: 'morphik_agent_query',
-      description: 'Query documents using Morphik AI agent with conversation context',
+      description:
+        'Query documents using Morphik AI agent with conversation context',
       inputSchema: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
-            description: 'The question or query to ask about the documents'
+            description: 'The question or query to ask about the documents',
           },
           folder: {
             type: 'string',
-            description: 'Optional folder to scope the search'
+            description: 'Optional folder to scope the search',
           },
           chatId: {
             type: 'string',
-            description: 'Optional chat ID to maintain conversation context'
+            description: 'Optional chat ID to maintain conversation context',
           },
           temperature: {
             type: 'number',
             description: 'Temperature for response generation (0-1)',
             minimum: 0,
-            maximum: 1
+            maximum: 1,
           },
           maxTokens: {
             type: 'number',
-            description: 'Maximum tokens in response'
-          }
+            description: 'Maximum tokens in response',
+          },
         },
-        required: ['query']
+        required: ['query'],
       },
       handler: async (args: any) => {
         try {
@@ -45,7 +46,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             folder,
             chatId,
             temperature,
-            maxTokens
+            maxTokens,
           });
 
           return {
@@ -55,18 +56,18 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             sources: response.sources?.map(source => ({
               documentId: source.documentId,
               content: source.content.substring(0, 200) + '...',
-              relevanceScore: source.relevanceScore
+              relevanceScore: source.relevanceScore,
             })),
-            sourceCount: response.sources?.length || 0
+            sourceCount: response.sources?.length || 0,
           };
         } catch (error) {
           logger.error('Agent query failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
+      },
     },
 
     {
@@ -77,33 +78,33 @@ export function createQueryTools(client: MorphikClient): Tool[] {
         properties: {
           query: {
             type: 'string',
-            description: 'Search query to find relevant documents'
+            description: 'Search query to find relevant documents',
           },
           folder: {
             type: 'string',
-            description: 'Folder to search within'
+            description: 'Folder to search within',
           },
           limit: {
             type: 'number',
             description: 'Maximum number of documents to return',
-            default: 10
+            default: 10,
           },
           offset: {
             type: 'number',
             description: 'Number of documents to skip',
-            default: 0
+            default: 0,
           },
           filters: {
             type: 'object',
             description: 'Additional filters for document metadata',
-            additionalProperties: true
+            additionalProperties: true,
           },
           includeContent: {
             type: 'boolean',
             description: 'Include document content in response',
-            default: false
-          }
-        }
+            default: false,
+          },
+        },
       },
       handler: async (args: any) => {
         try {
@@ -113,7 +114,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             limit = 10,
             offset = 0,
             filters,
-            includeContent = false
+            includeContent = false,
           } = args;
 
           logger.info(`Retrieving documents: ${query || 'all'}`);
@@ -124,7 +125,7 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             limit,
             offset,
             filters,
-            includeContent
+            includeContent,
           });
 
           return {
@@ -137,18 +138,18 @@ export function createQueryTools(client: MorphikClient): Tool[] {
               metadata: doc.metadata,
               content: includeContent ? doc.content : undefined,
               createdAt: doc.createdAt,
-              updatedAt: doc.updatedAt
+              updatedAt: doc.updatedAt,
             })),
-            hasMore: documents.length === limit
+            hasMore: documents.length === limit,
           };
         } catch (error) {
           logger.error('Document retrieval failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
+      },
     },
 
     {
@@ -159,10 +160,10 @@ export function createQueryTools(client: MorphikClient): Tool[] {
         properties: {
           documentId: {
             type: 'string',
-            description: 'Document ID to check status for'
-          }
+            description: 'Document ID to check status for',
+          },
         },
-        required: ['documentId']
+        required: ['documentId'],
       },
       handler: async (args: any) => {
         try {
@@ -177,16 +178,16 @@ export function createQueryTools(client: MorphikClient): Tool[] {
             documentId: status.documentId,
             status: status.status,
             progress: status.progress,
-            message: status.message
+            message: status.message,
           };
         } catch (error) {
           logger.error('Status check failed', { error });
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           };
         }
-      }
-    }
+      },
+    },
   ];
 }

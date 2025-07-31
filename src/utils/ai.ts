@@ -1,4 +1,3 @@
-
 // AI utilities voor document verwerking
 import { Document } from '@/types/database';
 
@@ -28,7 +27,7 @@ export class AIDocumentProcessor {
       keywords: ['medisch', 'rapport', 'patiënt', 'diagnose', 'behandeling'],
       sentiment: 'neutral',
       category: this.detectDocumentType(file.name, file.type),
-      confidence: 0.85
+      confidence: 0.85,
     };
 
     // Simuleer API delay
@@ -48,7 +47,10 @@ export class AIDocumentProcessor {
     return embedding;
   }
 
-  static async semanticSearch(query: string, documents: Document[]): Promise<SearchResult[]> {
+  static async semanticSearch(
+    query: string,
+    documents: Document[]
+  ): Promise<SearchResult[]> {
     // Mock semantische zoekfunctionaliteit
     const queryEmbedding = await this.generateEmbedding(query);
 
@@ -56,7 +58,12 @@ export class AIDocumentProcessor {
       document: doc,
       relevance: Math.random() * 100, // Mock relevance score
       summary: `Dit document is relevant voor "${query}" omdat het gerelateerde medische informatie bevat.`,
-      keyPhrases: ['medisch rapport', 'patiënt gegevens', 'behandeling', 'diagnose']
+      keyPhrases: [
+        'medisch rapport',
+        'patiënt gegevens',
+        'behandeling',
+        'diagnose',
+      ],
     }));
 
     // Sorteer op relevance
@@ -74,9 +81,9 @@ export class AIDocumentProcessor {
     }
 
     // Voor tekst bestanden
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string || '');
+      reader.onload = e => resolve((e.target?.result as string) || '');
       reader.readAsText(file);
     });
   }
@@ -84,19 +91,31 @@ export class AIDocumentProcessor {
   static detectDocumentType(filename: string, mimeType: string): string {
     const lowercaseFilename = filename.toLowerCase();
 
-    if (lowercaseFilename.includes('verzekering') || lowercaseFilename.includes('insurance')) {
+    if (
+      lowercaseFilename.includes('verzekering') ||
+      lowercaseFilename.includes('insurance')
+    ) {
       return 'insurance_letter';
     }
 
-    if (lowercaseFilename.includes('lab') || lowercaseFilename.includes('uitslag')) {
+    if (
+      lowercaseFilename.includes('lab') ||
+      lowercaseFilename.includes('uitslag')
+    ) {
       return 'lab_result';
     }
 
-    if (lowercaseFilename.includes('recept') || lowercaseFilename.includes('medicijn')) {
+    if (
+      lowercaseFilename.includes('recept') ||
+      lowercaseFilename.includes('medicijn')
+    ) {
       return 'prescription';
     }
 
-    if (lowercaseFilename.includes('rapport') || lowercaseFilename.includes('medical')) {
+    if (
+      lowercaseFilename.includes('rapport') ||
+      lowercaseFilename.includes('medical')
+    ) {
       return 'medical_report';
     }
 
@@ -113,8 +132,8 @@ export class AIDocumentProcessor {
 
     // Zoek naar datum patronen
     const datePatterns = [
-      /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/g,
-      /(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/gi
+      /(\d{1,2})[/-](\d{1,2})[/-](\d{4})/g,
+      /(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/gi,
     ];
 
     datePatterns.forEach(pattern => {
@@ -140,7 +159,7 @@ export class NotificationManager {
     channels: string[] = ['in_app']
   ): Promise<void> {
     // Mock notificatie verzending
-    console.log(`Notificatie verzonden:`, { type, title, message, channels });
+    console.log('Notificatie verzonden:', { type, title, message, channels });
 
     // In productie zou dit WhatsApp, Email, SMS APIs aanroepen
     if (channels.includes('whatsapp')) {

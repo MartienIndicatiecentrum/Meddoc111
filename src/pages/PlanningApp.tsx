@@ -3,7 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/layout/AppLayout';
 import { toast } from 'sonner';
-import { Calendar, Clock, User, MapPin, Phone, AlertCircle, CheckCircle, Plus, Edit, Eye, Trash2 } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  User,
+  MapPin,
+  Phone,
+  AlertCircle,
+  CheckCircle,
+  Plus,
+  Edit,
+  Eye,
+  Trash2,
+} from 'lucide-react';
 
 // Type definitions for appointments
 interface Appointment {
@@ -59,7 +71,7 @@ const mockCaregivers: Caregiver[] = [
     specialization: 'Wijkverpleging',
     phone: '06-11111111',
     email: 'a.devries@thuiszorg.nl',
-    status: 'available'
+    status: 'available',
   },
   {
     id: '2',
@@ -67,7 +79,7 @@ const mockCaregivers: Caregiver[] = [
     specialization: 'WMO begeleiding',
     phone: '06-22222222',
     email: 't.vandijk@thuiszorg.nl',
-    status: 'busy'
+    status: 'busy',
   },
   {
     id: '3',
@@ -75,8 +87,8 @@ const mockCaregivers: Caregiver[] = [
     specialization: 'Jeugdzorg',
     phone: '06-33333333',
     email: 'l.verhoog@thuiszorg.nl',
-    status: 'available'
-  }
+    status: 'available',
+  },
 ];
 
 // API functions
@@ -117,7 +129,9 @@ const fetchClients = async (): Promise<Client[]> => {
   }
 };
 
-const createAppointment = async (appointmentData: AppointmentFormData): Promise<Appointment> => {
+const createAppointment = async (
+  appointmentData: AppointmentFormData
+): Promise<Appointment> => {
   try {
     const { data, error } = await supabase
       .from('appointments')
@@ -136,13 +150,16 @@ const createAppointment = async (appointmentData: AppointmentFormData): Promise<
   }
 };
 
-const updateAppointment = async (id: string, updates: Partial<AppointmentFormData>): Promise<Appointment> => {
+const updateAppointment = async (
+  id: string,
+  updates: Partial<AppointmentFormData>
+): Promise<Appointment> => {
   try {
     const { data, error } = await supabase
       .from('appointments')
       .update({
         ...updates,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -161,10 +178,7 @@ const updateAppointment = async (id: string, updates: Partial<AppointmentFormDat
 
 const deleteAppointment = async (id: string): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from('appointments')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('appointments').delete().eq('id', id);
 
     if (error) {
       throw new Error(`Failed to delete appointment: ${error.message}`);
@@ -191,7 +205,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   caregivers,
   onSubmit,
   onCancel,
-  isLoading
+  isLoading,
 }) => {
   const [formData, setFormData] = useState<AppointmentFormData>({
     client_id: appointment?.client_id || '',
@@ -205,11 +219,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     location: appointment?.location || '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -219,26 +237,26 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+      <div className='bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <h2 className='text-xl font-bold mb-4'>
           {appointment ? 'Afspraak bewerken' : 'Nieuwe afspraak'}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Cliënt *
               </label>
               <select
-                name="client_id"
+                name='client_id'
                 value={formData.client_id}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value="">Selecteer cliënt</option>
+                <option value=''>Selecteer cliënt</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>
                     {client.naam}
@@ -248,17 +266,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Zorgverlener *
               </label>
               <select
-                name="caregiver_id"
+                name='caregiver_id'
                 value={formData.caregiver_id}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value="">Selecteer zorgverlener</option>
+                <option value=''>Selecteer zorgverlener</option>
                 {caregivers.map(caregiver => (
                   <option key={caregiver.id} value={caregiver.id}>
                     {caregiver.name} - {caregiver.specialization}
@@ -268,130 +286,132 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Datum *
               </label>
               <input
-                type="date"
-                name="date"
+                type='date'
+                name='date'
                 value={formData.date}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Starttijd *
               </label>
               <input
-                type="time"
-                name="start_time"
+                type='time'
+                name='start_time'
                 value={formData.start_time}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Eindtijd *
               </label>
               <input
-                type="time"
-                name="end_time"
+                type='time'
+                name='end_time'
                 value={formData.end_time}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Type afspraak *
               </label>
               <select
-                name="type"
+                name='type'
                 value={formData.type}
                 onChange={handleChange}
                 required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value="consultatie">Consultatie</option>
-                <option value="medicatie_controle">Medicatie controle</option>
-                <option value="persoonlijke_verzorging">Persoonlijke verzorging</option>
-                <option value="begeleiding">Begeleiding</option>
-                <option value="huishoudelijke_hulp">Huishoudelijke hulp</option>
-                <option value="controle">Controle</option>
+                <option value='consultatie'>Consultatie</option>
+                <option value='medicatie_controle'>Medicatie controle</option>
+                <option value='persoonlijke_verzorging'>
+                  Persoonlijke verzorging
+                </option>
+                <option value='begeleiding'>Begeleiding</option>
+                <option value='huishoudelijke_hulp'>Huishoudelijke hulp</option>
+                <option value='controle'>Controle</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Status
               </label>
               <select
-                name="status"
+                name='status'
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               >
-                <option value="scheduled">Gepland</option>
-                <option value="completed">Voltooid</option>
-                <option value="cancelled">Geannuleerd</option>
-                <option value="no_show">Niet verschenen</option>
+                <option value='scheduled'>Gepland</option>
+                <option value='completed'>Voltooid</option>
+                <option value='cancelled'>Geannuleerd</option>
+                <option value='no_show'>Niet verschenen</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
               Locatie
             </label>
             <input
-              type="text"
-              name="location"
+              type='text'
+              name='location'
               value={formData.location}
               onChange={handleChange}
-              placeholder="Bijv. Thuis, Kantoor, Ziekenhuis..."
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder='Bijv. Thuis, Kantoor, Ziekenhuis...'
+              className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className='block text-sm font-medium text-gray-700 mb-1'>
               Notities
             </label>
             <textarea
-              name="notes"
+              name='notes'
               value={formData.notes}
               onChange={handleChange}
               rows={3}
-              placeholder="Aanvullende informatie over de afspraak..."
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder='Aanvullende informatie over de afspraak...'
+              className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className='flex gap-3 pt-4'>
             <button
-              type="submit"
+              type='submit'
               disabled={isLoading}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className='flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              {isLoading ? 'Bezig...' : (appointment ? 'Bijwerken' : 'Aanmaken')}
+              {isLoading ? 'Bezig...' : appointment ? 'Bijwerken' : 'Aanmaken'}
             </button>
             <button
-              type="button"
+              type='button'
               onClick={onCancel}
               disabled={isLoading}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 disabled:opacity-50"
+              className='flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 disabled:opacity-50'
             >
               Annuleren
             </button>
@@ -409,7 +429,10 @@ interface AppointmentCardProps {
   caregiver?: Caregiver;
   onEdit: (appointment: Appointment) => void;
   onDelete: (appointment: Appointment) => void;
-  onStatusChange: (appointment: Appointment, status: Appointment['status']) => void;
+  onStatusChange: (
+    appointment: Appointment,
+    status: Appointment['status']
+  ) => void;
 }
 
 const AppointmentCard: React.FC<AppointmentCardProps> = ({
@@ -418,35 +441,50 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   caregiver,
   onEdit,
   onDelete,
-  onStatusChange
+  onStatusChange,
 }) => {
   const getStatusIcon = (status: Appointment['status']) => {
     switch (status) {
-      case 'scheduled': return <Clock className="w-4 h-4 text-blue-600" />;
-      case 'completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'cancelled': return <AlertCircle className="w-4 h-4 text-red-600" />;
-      case 'no_show': return <AlertCircle className="w-4 h-4 text-orange-600" />;
-      default: return <Clock className="w-4 h-4 text-gray-600" />;
+      case 'scheduled':
+        return <Clock className='w-4 h-4 text-blue-600' />;
+      case 'completed':
+        return <CheckCircle className='w-4 h-4 text-green-600' />;
+      case 'cancelled':
+        return <AlertCircle className='w-4 h-4 text-red-600' />;
+      case 'no_show':
+        return <AlertCircle className='w-4 h-4 text-orange-600' />;
+      default:
+        return <Clock className='w-4 h-4 text-gray-600' />;
     }
   };
 
   const getStatusText = (status: Appointment['status']) => {
     switch (status) {
-      case 'scheduled': return 'Gepland';
-      case 'completed': return 'Voltooid';
-      case 'cancelled': return 'Geannuleerd';
-      case 'no_show': return 'Niet verschenen';
-      default: return 'Onbekend';
+      case 'scheduled':
+        return 'Gepland';
+      case 'completed':
+        return 'Voltooid';
+      case 'cancelled':
+        return 'Geannuleerd';
+      case 'no_show':
+        return 'Niet verschenen';
+      default:
+        return 'Onbekend';
     }
   };
 
   const getStatusColor = (status: Appointment['status']) => {
     switch (status) {
-      case 'scheduled': return 'bg-blue-50 border-blue-200';
-      case 'completed': return 'bg-green-50 border-green-200';
-      case 'cancelled': return 'bg-red-50 border-red-200';
-      case 'no_show': return 'bg-orange-50 border-orange-200';
-      default: return 'bg-gray-50 border-gray-200';
+      case 'scheduled':
+        return 'bg-blue-50 border-blue-200';
+      case 'completed':
+        return 'bg-green-50 border-green-200';
+      case 'cancelled':
+        return 'bg-red-50 border-red-200';
+      case 'no_show':
+        return 'bg-orange-50 border-orange-200';
+      default:
+        return 'bg-gray-50 border-gray-200';
     }
   };
 
@@ -459,95 +497,104 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border-2 p-4 hover:shadow-md transition-shadow ${getStatusColor(appointment.status)}`}>
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-2">
+    <div
+      className={`bg-white rounded-lg shadow-sm border-2 p-4 hover:shadow-md transition-shadow ${getStatusColor(appointment.status)}`}
+    >
+      <div className='flex justify-between items-start mb-3'>
+        <div className='flex items-center gap-2'>
           {getStatusIcon(appointment.status)}
-          <span className="font-semibold text-gray-900">{client?.naam || 'Onbekende cliënt'}</span>
+          <span className='font-semibold text-gray-900'>
+            {client?.naam || 'Onbekende cliënt'}
+          </span>
         </div>
-        <div className="flex gap-2">
+        <div className='flex gap-2'>
           <button
             onClick={() => onEdit(appointment)}
-            className="text-blue-600 hover:text-blue-800 text-sm"
-            title="Bewerken"
+            className='text-blue-600 hover:text-blue-800 text-sm'
+            title='Bewerken'
           >
-            <Edit className="w-4 h-4" />
+            <Edit className='w-4 h-4' />
           </button>
           <button
             onClick={() => onDelete(appointment)}
-            className="text-red-600 hover:text-red-800 text-sm"
-            title="Verwijderen"
+            className='text-red-600 hover:text-red-800 text-sm'
+            title='Verwijderen'
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className='w-4 h-4' />
           </button>
         </div>
       </div>
 
-      <div className="space-y-2 text-sm text-gray-600">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
+      <div className='space-y-2 text-sm text-gray-600'>
+        <div className='flex items-center gap-2'>
+          <Calendar className='w-4 h-4' />
           <span>{formatDate(appointment.date)}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4" />
-          <span>{formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}</span>
+        <div className='flex items-center gap-2'>
+          <Clock className='w-4 h-4' />
+          <span>
+            {formatTime(appointment.start_time)} -{' '}
+            {formatTime(appointment.end_time)}
+          </span>
         </div>
 
         {caregiver && (
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4" />
+          <div className='flex items-center gap-2'>
+            <User className='w-4 h-4' />
             <span>{caregiver.name}</span>
           </div>
         )}
 
         {appointment.location && (
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
+          <div className='flex items-center gap-2'>
+            <MapPin className='w-4 h-4' />
             <span>{appointment.location}</span>
           </div>
         )}
 
         {client?.telefoon && (
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4" />
+          <div className='flex items-center gap-2'>
+            <Phone className='w-4 h-4' />
             <span>{client.telefoon}</span>
           </div>
         )}
       </div>
 
-      <div className="mt-3 pt-3 border-t border-gray-100">
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700">{appointment.type}</span>
-          <span className="text-xs px-2 py-1 rounded-full bg-white border">
+      <div className='mt-3 pt-3 border-t border-gray-100'>
+        <div className='flex justify-between items-center'>
+          <span className='text-sm font-medium text-gray-700'>
+            {appointment.type}
+          </span>
+          <span className='text-xs px-2 py-1 rounded-full bg-white border'>
             {getStatusText(appointment.status)}
           </span>
         </div>
 
         {appointment.notes && (
-          <p className="text-sm text-gray-600 mt-2 italic">
+          <p className='text-sm text-gray-600 mt-2 italic'>
             "{appointment.notes}"
           </p>
         )}
       </div>
 
       {appointment.status === 'scheduled' && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="flex gap-2">
+        <div className='mt-3 pt-3 border-t border-gray-100'>
+          <div className='flex gap-2'>
             <button
               onClick={() => onStatusChange(appointment, 'completed')}
-              className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100"
+              className='text-xs bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100'
             >
               ✓ Voltooid
             </button>
             <button
               onClick={() => onStatusChange(appointment, 'cancelled')}
-              className="text-xs bg-red-50 text-red-700 px-2 py-1 rounded hover:bg-red-100"
+              className='text-xs bg-red-50 text-red-700 px-2 py-1 rounded hover:bg-red-100'
             >
               ✗ Annuleren
             </button>
@@ -561,16 +608,19 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
 // Main Planning Component
 const Planning: React.FC = () => {
   const queryClient = useQueryClient();
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState<'today' | 'week' | 'month'>('today');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
 
   // Fetch data
   const {
     data: appointments = [],
     isLoading: loadingAppointments,
-    error: appointmentsError
+    error: appointmentsError,
   } = useQuery<Appointment[]>({
     queryKey: ['appointments'],
     queryFn: fetchAppointments,
@@ -581,7 +631,7 @@ const Planning: React.FC = () => {
   const {
     data: clients = [],
     isLoading: loadingClients,
-    error: clientsError
+    error: clientsError,
   } = useQuery<Client[]>({
     queryKey: ['clients'],
     queryFn: fetchClients,
@@ -598,21 +648,26 @@ const Planning: React.FC = () => {
       setSelectedAppointment(null);
       toast.success('Afspraak succesvol aangemaakt');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Fout bij aanmaken: ${error.message}`);
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<AppointmentFormData> }) =>
-      updateAppointment(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<AppointmentFormData>;
+    }) => updateAppointment(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       setShowForm(false);
       setSelectedAppointment(null);
       toast.success('Afspraak succesvol bijgewerkt');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Fout bij bijwerken: ${error.message}`);
     },
   });
@@ -623,7 +678,7 @@ const Planning: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast.success('Afspraak succesvol verwijderd');
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Fout bij verwijderen: ${error.message}`);
     },
   });
@@ -646,8 +701,10 @@ const Planning: React.FC = () => {
           weekEnd.setDate(weekStart.getDate() + 6);
           return appointmentDate >= weekStart && appointmentDate <= weekEnd;
         case 'month':
-          return appointmentDate.getMonth() === selected.getMonth() &&
-                 appointmentDate.getFullYear() === selected.getFullYear();
+          return (
+            appointmentDate.getMonth() === selected.getMonth() &&
+            appointmentDate.getFullYear() === selected.getFullYear()
+          );
         default:
           return true;
       }
@@ -673,16 +730,19 @@ const Planning: React.FC = () => {
 
   // Statistics
   const stats = useMemo(() => {
-    const today = filteredAppointments.filter(apt =>
-      new Date(apt.date).toDateString() === new Date().toDateString()
+    const today = filteredAppointments.filter(
+      apt => new Date(apt.date).toDateString() === new Date().toDateString()
     );
 
     return {
       total: filteredAppointments.length,
       today: today.length,
-      scheduled: filteredAppointments.filter(apt => apt.status === 'scheduled').length,
-      completed: filteredAppointments.filter(apt => apt.status === 'completed').length,
-      cancelled: filteredAppointments.filter(apt => apt.status === 'cancelled').length,
+      scheduled: filteredAppointments.filter(apt => apt.status === 'scheduled')
+        .length,
+      completed: filteredAppointments.filter(apt => apt.status === 'completed')
+        .length,
+      cancelled: filteredAppointments.filter(apt => apt.status === 'cancelled')
+        .length,
     };
   }, [filteredAppointments]);
 
@@ -698,15 +758,22 @@ const Planning: React.FC = () => {
   };
 
   const handleDeleteAppointment = (appointment: Appointment) => {
-    if (window.confirm(`Weet je zeker dat je de afspraak met ${clientMap[appointment.client_id]?.naam} wilt verwijderen?`)) {
+    if (
+      window.confirm(
+        `Weet je zeker dat je de afspraak met ${clientMap[appointment.client_id]?.naam} wilt verwijderen?`
+      )
+    ) {
       deleteMutation.mutate(appointment.id);
     }
   };
 
-  const handleStatusChange = (appointment: Appointment, status: Appointment['status']) => {
+  const handleStatusChange = (
+    appointment: Appointment,
+    status: Appointment['status']
+  ) => {
     updateMutation.mutate({
       id: appointment.id,
-      data: { status }
+      data: { status },
     });
   };
 
@@ -727,13 +794,17 @@ const Planning: React.FC = () => {
   useEffect(() => {
     const subscription = supabase
       .channel('appointments-realtime')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'appointments',
-      }, () => {
-        queryClient.invalidateQueries({ queryKey: ['appointments'] });
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['appointments'] });
+        }
+      )
       .subscribe();
 
     return () => {
@@ -745,16 +816,18 @@ const Planning: React.FC = () => {
   if (appointmentsError || clientsError) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto py-8 px-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">
+        <div className='max-w-7xl mx-auto py-8 px-4'>
+          <div className='bg-red-50 border border-red-200 rounded-lg p-6'>
+            <h2 className='text-lg font-semibold text-red-800 mb-2'>
               Er is een fout opgetreden
             </h2>
-            <p className="text-red-600 mb-4">
-              {appointmentsError?.message || clientsError?.message || 'Onbekende fout'}
+            <p className='text-red-600 mb-4'>
+              {appointmentsError?.message ||
+                clientsError?.message ||
+                'Onbekende fout'}
             </p>
             <button
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              className='bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700'
               onClick={() => window.location.reload()}
             >
               Pagina vernieuwen
@@ -769,10 +842,10 @@ const Planning: React.FC = () => {
   if (loadingAppointments || loadingClients) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto py-8 px-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Planning laden...</p>
+        <div className='max-w-7xl mx-auto py-8 px-4'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+            <p className='text-gray-600'>Planning laden...</p>
           </div>
         </div>
       </AppLayout>
@@ -781,25 +854,25 @@ const Planning: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className='max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8'>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Planning</h1>
-            <p className="text-gray-600">Beheer afspraken en planning</p>
+            <h1 className='text-3xl font-bold text-gray-900 mb-2'>Planning</h1>
+            <p className='text-gray-600'>Beheer afspraken en planning</p>
           </div>
           <button
             onClick={handleAddAppointment}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2'
           >
-            <Plus className="w-4 h-4" />
+            <Plus className='w-4 h-4' />
             Nieuwe afspraak
           </button>
         </div>
 
         {/* View Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex gap-2">
+        <div className='flex flex-col sm:flex-row gap-4 mb-6'>
+          <div className='flex gap-2'>
             <button
               onClick={() => setViewMode('today')}
               className={`px-3 py-2 rounded text-sm ${
@@ -834,23 +907,28 @@ const Planning: React.FC = () => {
         </div>
 
         {/* Calendar View */}
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-6">
+        <div className='grid grid-cols-1 md:grid-cols-7 gap-4 mb-6'>
           {Array.from({ length: 7 }).map((_, i) => {
             const day = new Date(selectedDate);
             day.setDate(day.getDate() + i);
             return (
-              <div key={i} className="bg-gray-100 p-3 rounded-lg text-center text-sm font-semibold text-gray-800">
-                <p className="text-xs">{day.toLocaleDateString('nl-NL', { weekday: 'short' })}</p>
-                <p className="text-lg">{day.getDate()}</p>
+              <div
+                key={i}
+                className='bg-gray-100 p-3 rounded-lg text-center text-sm font-semibold text-gray-800'
+              >
+                <p className='text-xs'>
+                  {day.toLocaleDateString('nl-NL', { weekday: 'short' })}
+                </p>
+                <p className='text-lg'>{day.getDate()}</p>
               </div>
             );
           })}
         </div>
 
         {/* Appointment List */}
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {filteredAppointments.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center text-gray-600">
+            <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center text-gray-600'>
               Geen afspraken gevonden voor deze periode.
             </div>
           ) : (

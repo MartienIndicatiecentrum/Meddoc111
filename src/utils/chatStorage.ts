@@ -22,7 +22,11 @@ const MAX_CHAT_AGE_DAYS = 30;
 /**
  * Generate a unique chat ID
  */
-export function generateChatId(documentSource: string, clientId?: string, documentId?: string): string {
+export function generateChatId(
+  documentSource: string,
+  clientId?: string,
+  documentId?: string
+): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 8);
   const prefix = documentSource.substring(0, 3);
@@ -50,7 +54,7 @@ export function saveChatToStorage(
       selectedClient,
       selectedDocument,
       lastUpdated: new Date(),
-      created: new Date() // Will be overwritten if chat already exists
+      created: new Date(), // Will be overwritten if chat already exists
     };
 
     // Check if chat already exists to preserve creation date
@@ -78,7 +82,9 @@ export function saveChatToStorage(
 export function loadChatFromStorage(chatId: string): ChatSession | null {
   try {
     const stored = localStorage.getItem(CHAT_KEY_PREFIX + chatId);
-    if (!stored) return null;
+    if (!stored) {
+      return null;
+    }
 
     const chatSession: ChatSession = JSON.parse(stored);
 
@@ -139,7 +145,9 @@ export function getRecentChatSessions(limit: number = 5): ChatSession[] {
     }
 
     // Sort by last updated (most recent first)
-    chatSessions.sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime());
+    chatSessions.sort(
+      (a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()
+    );
 
     return chatSessions.slice(0, limit);
   } catch (error) {
@@ -177,7 +185,9 @@ export function getChatSummary(chatSession: ChatSession): string {
   }
 
   // Find first user message
-  const firstUserMessage = chatSession.messages.find(msg => msg.sender === 'user');
+  const firstUserMessage = chatSession.messages.find(
+    msg => msg.sender === 'user'
+  );
   if (firstUserMessage && firstUserMessage.content) {
     // Truncate to 50 characters
     return firstUserMessage.content.length > 50
@@ -309,7 +319,7 @@ export function getChatStorageStats(): {
       totalChats: activeChats.length,
       totalSize,
       oldestChat,
-      newestChat
+      newestChat,
     };
   } catch (error) {
     console.error('Error getting storage stats:', error);

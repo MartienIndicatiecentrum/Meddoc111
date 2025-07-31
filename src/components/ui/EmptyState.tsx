@@ -7,7 +7,7 @@ import {
   Search,
   Filter,
   FileText,
-  Inbox
+  Inbox,
 } from 'lucide-react';
 
 interface EmptyStateProps {
@@ -33,18 +33,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   action,
   secondaryAction,
-  variant = 'default'
+  variant = 'default',
 }) => {
   const getDefaultIcon = () => {
     switch (variant) {
       case 'search':
-        return <Search className="h-12 w-12 text-gray-400" />;
+        return <Search className='h-12 w-12 text-gray-400' />;
       case 'filter':
-        return <Filter className="h-12 w-12 text-gray-400" />;
+        return <Filter className='h-12 w-12 text-gray-400' />;
       case 'upload':
-        return <FileText className="h-12 w-12 text-gray-400" />;
+        return <FileText className='h-12 w-12 text-gray-400' />;
       default:
-        return <MessageSquare className="h-12 w-12 text-gray-400" />;
+        return <MessageSquare className='h-12 w-12 text-gray-400' />;
     }
   };
 
@@ -53,22 +53,22 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       case 'search':
         return {
           label: 'Zoeken',
-          icon: <Search className="h-4 w-4" />
+          icon: <Search className='h-4 w-4' />,
         };
       case 'filter':
         return {
           label: 'Filters wissen',
-          icon: <Filter className="h-4 w-4" />
+          icon: <Filter className='h-4 w-4' />,
         };
       case 'upload':
         return {
           label: 'Document uploaden',
-          icon: <Plus className="h-4 w-4" />
+          icon: <Plus className='h-4 w-4' />,
         };
       default:
         return {
           label: 'Nieuw bericht',
-          icon: <Plus className="h-4 w-4" />
+          icon: <Plus className='h-4 w-4' />,
         };
     }
   };
@@ -77,26 +77,24 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const defaultAction = action || getDefaultAction();
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+    <Card className='w-full max-w-md mx-auto'>
+      <CardHeader className='text-center'>
+        <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
           {defaultIcon}
         </div>
-        <CardTitle className="text-lg font-medium text-gray-900">
+        <CardTitle className='text-lg font-medium text-gray-900'>
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <p className="text-sm text-gray-600">
-          {description}
-        </p>
+      <CardContent className='text-center space-y-4'>
+        <p className='text-sm text-gray-600'>{description}</p>
 
         {(action || secondaryAction) && (
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          <div className='flex flex-col sm:flex-row gap-2 justify-center'>
             {action && (
               <Button
                 onClick={action.onClick}
-                className="flex items-center space-x-2"
+                className='flex items-center space-x-2'
               >
                 {action.icon || defaultAction.icon}
                 <span>{action.label}</span>
@@ -105,9 +103,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
             {secondaryAction && (
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={secondaryAction.onClick}
-                className="flex items-center space-x-2"
+                className='flex items-center space-x-2'
               >
                 {secondaryAction.icon}
                 <span>{secondaryAction.label}</span>
@@ -129,32 +127,44 @@ export const LogboekEmptyState: React.FC<{
   if (hasFilters) {
     return (
       <EmptyState
-        title="Geen resultaten gevonden"
-        description="Er zijn geen logboek berichten die voldoen aan de huidige filters. Probeer andere zoekcriteria of wis de filters."
-        variant="filter"
-        action={onClearFilters ? {
-          label: 'Filters wissen',
-          onClick: onClearFilters,
-          icon: <Filter className="h-4 w-4" />
-        } : undefined}
-        secondaryAction={onAddNew ? {
-          label: 'Nieuw bericht',
-          onClick: onAddNew,
-          icon: <Plus className="h-4 w-4" />
-        } : undefined}
+        title='Geen resultaten gevonden'
+        description='Er zijn geen logboek berichten die voldoen aan de huidige filters. Probeer andere zoekcriteria of wis de filters.'
+        variant='filter'
+        action={
+          onClearFilters
+            ? {
+                label: 'Filters wissen',
+                onClick: onClearFilters,
+                icon: <Filter className='h-4 w-4' />,
+              }
+            : undefined
+        }
+        secondaryAction={
+          onAddNew
+            ? {
+                label: 'Nieuw bericht',
+                onClick: onAddNew,
+                icon: <Plus className='h-4 w-4' />,
+              }
+            : undefined
+        }
       />
     );
   }
 
   return (
     <EmptyState
-      title="Nog geen logboek berichten"
-      description="Begin met het toevoegen van je eerste logboek bericht om de communicatie met cliënten bij te houden."
-      action={onAddNew ? {
-        label: 'Nieuw bericht',
-        onClick: onAddNew,
-        icon: <Plus className="h-4 w-4" />
-      } : undefined}
+      title='Nog geen logboek berichten'
+      description='Begin met het toevoegen van je eerste logboek bericht om de communicatie met cliënten bij te houden.'
+      action={
+        onAddNew
+          ? {
+              label: 'Nieuw bericht',
+              onClick: onAddNew,
+              icon: <Plus className='h-4 w-4' />,
+            }
+          : undefined
+      }
     />
   );
 };
@@ -164,14 +174,18 @@ export const DocumentEmptyState: React.FC<{
 }> = ({ onUpload }) => {
   return (
     <EmptyState
-      title="Nog geen documenten"
-      description="Upload documenten om ze bij te voegen aan dit logboek bericht."
-      variant="upload"
-      action={onUpload ? {
-        label: 'Document uploaden',
-        onClick: onUpload,
-        icon: <Plus className="h-4 w-4" />
-      } : undefined}
+      title='Nog geen documenten'
+      description='Upload documenten om ze bij te voegen aan dit logboek bericht.'
+      variant='upload'
+      action={
+        onUpload
+          ? {
+              label: 'Document uploaden',
+              onClick: onUpload,
+              icon: <Plus className='h-4 w-4' />,
+            }
+          : undefined
+      }
     />
   );
 };
@@ -183,13 +197,17 @@ export const SearchEmptyState: React.FC<{
   return (
     <EmptyState
       title={`Geen resultaten voor "${searchTerm}"`}
-      description="Probeer andere zoektermen of bekijk alle berichten."
-      variant="search"
-      action={onClearSearch ? {
-        label: 'Zoekopdracht wissen',
-        onClick: onClearSearch,
-        icon: <Search className="h-4 w-4" />
-      } : undefined}
+      description='Probeer andere zoektermen of bekijk alle berichten.'
+      variant='search'
+      action={
+        onClearSearch
+          ? {
+              label: 'Zoekopdracht wissen',
+              onClick: onClearSearch,
+              icon: <Search className='h-4 w-4' />,
+            }
+          : undefined
+      }
     />
   );
 };

@@ -79,7 +79,7 @@ export const useClientStore = create<ClientStore>()(
         try {
           const updatedClient = await clientService.updateClient(id, updates);
           set(state => ({
-            clients: state.clients.map(c => c.id === id ? updatedClient : c)
+            clients: state.clients.map(c => (c.id === id ? updatedClient : c)),
           }));
         } catch (error) {
           console.error('Error updating client:', error);
@@ -93,7 +93,9 @@ export const useClientStore = create<ClientStore>()(
           // After successful deletion from Supabase, update local state
           set(state => ({
             clients: state.clients.filter(client => client.id !== id),
-            selectedClients: state.selectedClients.filter(clientId => clientId !== id)
+            selectedClients: state.selectedClients.filter(
+              clientId => clientId !== id
+            ),
           }));
         } catch (error) {
           console.error('Error deleting client:', error);
@@ -104,10 +106,14 @@ export const useClientStore = create<ClientStore>()(
         // TODO: Supabase bulk update
       },
       setSearchFilters(filters) {
-        set(state => ({ searchFilters: { ...state.searchFilters, ...filters } }));
+        set(state => ({
+          searchFilters: { ...state.searchFilters, ...filters },
+        }));
       },
       searchClients(term) {
-        set(state => ({ searchFilters: { ...state.searchFilters, searchTerm: term } }));
+        set(state => ({
+          searchFilters: { ...state.searchFilters, searchTerm: term },
+        }));
       },
       selectClient(id) {
         set(state => ({

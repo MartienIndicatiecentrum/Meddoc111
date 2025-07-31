@@ -5,7 +5,9 @@ import { useEffect } from 'react';
  */
 export function useAriaAnnounce(message: string) {
   useEffect(() => {
-    if (!message) return;
+    if (!message) {
+      return;
+    }
     const region = document.getElementById('aria-live-region');
     if (region) {
       region.textContent = '';

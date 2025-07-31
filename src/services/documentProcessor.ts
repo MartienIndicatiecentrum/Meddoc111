@@ -40,11 +40,14 @@ export class DocumentProcessor {
     }
   }
 
-  async processNewDocument(file: File, metadata: {
-    title: string;
-    clientId?: string;
-    documentType?: string;
-  }) {
+  async processNewDocument(
+    file: File,
+    metadata: {
+      title: string;
+      clientId?: string;
+      documentType?: string;
+    }
+  ) {
     console.log('Processing new document:', metadata.title);
 
     try {
@@ -56,7 +59,7 @@ export class DocumentProcessor {
         .from('documents')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
         });
 
       if (uploadError) {
@@ -74,7 +77,7 @@ export class DocumentProcessor {
           mime_type: file.type,
           document_type: metadata.documentType || 'general',
           client_id: metadata.clientId,
-          status: 'nieuw'
+          status: 'nieuw',
         })
         .select()
         .single();
@@ -119,26 +122,32 @@ export class DocumentProcessor {
       }
 
       // Sync to Morphik asynchronously
-      morphikService.syncDocument(
-        document.id,
-        publicUrlData.publicUrl,
-        document.client_id || '',
-        {
-          title: document.title,
-          documentType: document.document_type,
-          mimeType: document.mime_type,
-          fileSize: document.file_size,
-          uploadedAt: new Date().toISOString()
-        }
-      ).then(result => {
-        if (result.success) {
-          console.log('Document synced to Morphik successfully:', result.morphikId);
-        } else {
-          console.error('Failed to sync document to Morphik:', result.error);
-        }
-      }).catch(error => {
-        console.error('Morphik sync error:', error);
-      });
+      morphikService
+        .syncDocument(
+          document.id,
+          publicUrlData.publicUrl,
+          document.client_id || '',
+          {
+            title: document.title,
+            documentType: document.document_type,
+            mimeType: document.mime_type,
+            fileSize: document.file_size,
+            uploadedAt: new Date().toISOString(),
+          }
+        )
+        .then(result => {
+          if (result.success) {
+            console.log(
+              'Document synced to Morphik successfully:',
+              result.morphikId
+            );
+          } else {
+            console.error('Failed to sync document to Morphik:', result.error);
+          }
+        })
+        .catch(error => {
+          console.error('Morphik sync error:', error);
+        });
     } catch (error) {
       console.error('Error initiating Morphik sync:', error);
     }
@@ -146,12 +155,15 @@ export class DocumentProcessor {
 }
 
 // Fetch recent documents with client information
-export const getRecentDocumentsWithClients = async (limit: number = 10): Promise<DocumentWithClient[]> => {
+export const getRecentDocumentsWithClients = async (
+  limit: number = 10
+): Promise<DocumentWithClient[]> => {
   try {
     // First try to get documents with client info using left join
     const { data, error } = await supabase
       .from('documents')
-      .select(`
+      .select(
+        `
         id,
         title,
         date,
@@ -164,28 +176,34 @@ export const getRecentDocumentsWithClients = async (limit: number = 10): Promise
           naam,
           profile_photo
         )
-      `)
+      `
+      )
       .not('type', 'eq', 'folder')
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) {
-      console.warn('Error fetching documents with client join, falling back to basic query:', error);
+      console.warn(
+        'Error fetching documents with client join, falling back to basic query:',
+        error
+      );
       // Fallback to basic document query
       return await getRecentDocuments(limit);
     }
 
-    return data?.map(doc => ({
-      id: doc.id,
-      title: doc.title,
-      date: doc.date || new Date(doc.created_at).toLocaleDateString('nl-NL'),
-      created_at: doc.created_at,
-      type: doc.type,
-      category: doc.category,
-      client_id: doc.client_id,
-      client_name: doc.clients?.naam,
-      client_avatar: doc.clients?.profile_photo
-    })) || [];
+    return (
+      data?.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        date: doc.date || new Date(doc.created_at).toLocaleDateString('nl-NL'),
+        created_at: doc.created_at,
+        type: doc.type,
+        category: doc.category,
+        client_id: doc.client_id,
+        client_name: doc.clients?.naam,
+        client_avatar: doc.clients?.profile_photo,
+      })) || []
+    );
   } catch (error) {
     console.error('Error in getRecentDocumentsWithClients:', error);
     // Fallback to basic document query if join fails
@@ -194,7 +212,9 @@ export const getRecentDocumentsWithClients = async (limit: number = 10): Promise
 };
 
 // Fallback function for documents without client info
-export const getRecentDocuments = async (limit: number = 10): Promise<DocumentWithClient[]> => {
+export const getRecentDocuments = async (
+  limit: number = 10
+): Promise<DocumentWithClient[]> => {
   try {
     const { data, error } = await supabase
       .from('documents')
@@ -208,15 +228,17 @@ export const getRecentDocuments = async (limit: number = 10): Promise<DocumentWi
       return [];
     }
 
-    return data?.map(doc => ({
-      id: doc.id,
-      title: doc.title,
-      date: doc.date || new Date(doc.created_at).toLocaleDateString('nl-NL'),
-      created_at: doc.created_at,
-      type: doc.type,
-      category: doc.category,
-      client_id: doc.client_id
-    })) || [];
+    return (
+      data?.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        date: doc.date || new Date(doc.created_at).toLocaleDateString('nl-NL'),
+        created_at: doc.created_at,
+        type: doc.type,
+        category: doc.category,
+        client_id: doc.client_id,
+      })) || []
+    );
   } catch (error) {
     console.error('Error in getRecentDocuments:', error);
     return [];

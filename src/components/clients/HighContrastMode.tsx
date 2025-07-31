@@ -14,8 +14,11 @@ export const disableHighContrast = () => {
 export const HighContrastToggle: React.FC = () => {
   const [enabled, setEnabled] = React.useState(false);
   React.useEffect(() => {
-    if (enabled) enableHighContrast();
-    else disableHighContrast();
+    if (enabled) {
+      enableHighContrast();
+    } else {
+      disableHighContrast();
+    }
     return () => disableHighContrast();
   }, [enabled]);
   return (
@@ -23,7 +26,7 @@ export const HighContrastToggle: React.FC = () => {
       className={`btn btn-xs ${enabled ? 'btn-primary' : 'btn-outline'}`}
       onClick={() => setEnabled(e => !e)}
       aria-pressed={enabled}
-      aria-label="Schakel hoog contrast in/uit"
+      aria-label='Schakel hoog contrast in/uit'
     >
       Hoog contrast
     </button>

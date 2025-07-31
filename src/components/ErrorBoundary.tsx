@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
   }
 
@@ -61,46 +61,47 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <Card className="w-full max-w-md">
+        <div className='min-h-screen flex items-center justify-center bg-gray-50'>
+          <Card className='w-full max-w-md'>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-red-600">
-                <AlertTriangle className="h-5 w-5" />
+              <CardTitle className='flex items-center space-x-2 text-red-600'>
+                <AlertTriangle className='h-5 w-5' />
                 <span>Er is iets misgegaan</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">
-                Er is een onverwachte fout opgetreden. Probeer de pagina te verversen of ga terug naar het hoofdmenu.
+            <CardContent className='space-y-4'>
+              <p className='text-gray-600'>
+                Er is een onverwachte fout opgetreden. Probeer de pagina te
+                verversen of ga terug naar het hoofdmenu.
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="bg-gray-100 p-3 rounded text-xs">
-                  <summary className="cursor-pointer font-medium mb-2">
+                <details className='bg-gray-100 p-3 rounded text-xs'>
+                  <summary className='cursor-pointer font-medium mb-2'>
                     Technische details (alleen in ontwikkeling)
                   </summary>
-                  <pre className="whitespace-pre-wrap text-red-600">
+                  <pre className='whitespace-pre-wrap text-red-600'>
                     {this.state.error.toString()}
                     {this.state.errorInfo?.componentStack}
                   </pre>
                 </details>
               )}
 
-              <div className="flex space-x-2">
+              <div className='flex space-x-2'>
                 <Button
                   onClick={this.handleRetry}
-                  className="flex items-center space-x-2"
+                  className='flex items-center space-x-2'
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className='h-4 w-4' />
                   <span>Opnieuw proberen</span>
                 </Button>
 
                 <Button
-                  variant="outline"
+                  variant='outline'
                   onClick={this.handleGoHome}
-                  className="flex items-center space-x-2"
+                  className='flex items-center space-x-2'
                 >
-                  <Home className="h-4 w-4" />
+                  <Home className='h-4 w-4' />
                   <span>Naar home</span>
                 </Button>
               </div>

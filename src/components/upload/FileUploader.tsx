@@ -7,7 +7,7 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  X
+  X,
 } from 'lucide-react';
 
 interface FileUploadResult {
@@ -29,7 +29,11 @@ interface FileUploaderProps {
   taskId?: string;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, taskId }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({
+  onUploadSuccess,
+  clientId,
+  taskId,
+}) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -42,7 +46,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/msword',
-    'text/plain'
+    'text/plain',
   ];
 
   const acceptedExtensions = ['.pdf', '.docx', '.doc', '.txt'];
@@ -50,14 +54,16 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
   const validateFile = (file: File): boolean => {
     // Check file type
     if (!acceptedTypes.includes(file.type)) {
-      toast.error(`Bestandstype niet ondersteund. Alleen PDF, DOCX en TXT bestanden zijn toegestaan.`);
+      toast.error(
+        'Bestandstype niet ondersteund. Alleen PDF, DOCX en TXT bestanden zijn toegestaan.'
+      );
       return false;
     }
 
     // Check file size (max 50MB)
     const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      toast.error(`Bestand is te groot. Maximum bestandsgrootte is 50MB.`);
+      toast.error('Bestand is te groot. Maximum bestandsgrootte is 50MB.');
       return false;
     }
 
@@ -78,7 +84,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
         fileName: file.name,
         size: file.size,
         type: file.type,
-        uploadPath
+        uploadPath,
       });
 
       // Upload file to Supabase Storage
@@ -86,7 +92,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
         .from('documents')
         .upload(uploadPath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
         });
 
       if (uploadError) {
@@ -96,9 +102,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       console.log('Upload successful:', uploadData);
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('documents')
-        .getPublicUrl(uploadPath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('documents').getPublicUrl(uploadPath);
 
       console.log('Public URL obtained:', publicUrl);
 
@@ -111,7 +117,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
         category: 'Upload',
         url: publicUrl,
         size: file.size,
-        mime_type: file.type
+        mime_type: file.type,
       };
 
       // Add client_id if provided
@@ -128,7 +134,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       if (dbError) {
         console.error('Database insert error:', dbError);
         // Don't fail the upload if database insert fails, just warn
-        console.warn('File uploaded successfully but database record creation failed:', dbError.message);
+        console.warn(
+          'File uploaded successfully but database record creation failed:',
+          dbError.message
+        );
       } else {
         console.log('Document metadata saved:', documentData);
       }
@@ -136,19 +145,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       return {
         success: true,
         publicUrl,
-        fileName: file.name
+        fileName: file.name,
       };
-
     } catch (error) {
       console.error('Upload to Supabase failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Onbekende upload fout'
+        error: error instanceof Error ? error.message : 'Onbekende upload fout',
       };
     }
   };
 
-  const sendToLangChain = async (fileUrl: string): Promise<LangChainResponse> => {
+  const sendToLangChain = async (
+    fileUrl: string
+  ): Promise<LangChainResponse> => {
     try {
       setUploadProgress('Bestand verwerken met LangChain RAG server...');
 
@@ -160,13 +170,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          file_url: fileUrl
-        })
+          file_url: fileUrl,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`LangChain server error: ${response.status} - ${errorText}`);
+        throw new Error(
+          `LangChain server error: ${response.status} - ${errorText}`
+        );
       }
 
       const result = await response.json();
@@ -174,21 +186,25 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
       return {
         success: true,
-        message: result.message || 'Bestand succesvol verwerkt door RAG server'
+        message: result.message || 'Bestand succesvol verwerkt door RAG server',
       };
-
     } catch (error) {
       console.error('LangChain processing failed:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'LangChain verwerking mislukt'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'LangChain verwerking mislukt',
       };
     }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) {
+      return;
+    }
 
     const validFiles: File[] = [];
     const fileArray = Array.from(files);
@@ -204,7 +220,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       setSelectedFiles(validFiles);
       setUploadResults([]);
       setCurrentUploadIndex(0);
-      toast.success(`${validFiles.length} bestand(en) geselecteerd voor upload`);
+      toast.success(
+        `${validFiles.length} bestand(en) geselecteerd voor upload`
+      );
     }
   };
 
@@ -226,44 +244,56 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
         setCurrentUploadIndex(i);
-        setUploadProgress(`Bestand ${i + 1} van ${selectedFiles.length} uploaden: ${file.name}`);
+        setUploadProgress(
+          `Bestand ${i + 1} van ${selectedFiles.length} uploaden: ${file.name}`
+        );
 
         try {
           // Step 1: Upload to Supabase
           const uploadResult = await uploadToSupabase(file);
 
           if (!uploadResult.success) {
-            throw new Error(uploadResult.error || 'Upload naar Supabase mislukt');
+            throw new Error(
+              uploadResult.error || 'Upload naar Supabase mislukt'
+            );
           }
 
           // Step 2: Send to LangChain RAG server
-          const langChainResult = await sendToLangChain(uploadResult.publicUrl!);
+          const langChainResult = await sendToLangChain(
+            uploadResult.publicUrl!
+          );
 
           if (!langChainResult.success) {
-            console.warn(`LangChain processing failed for ${file.name}, but file was uploaded successfully`);
-            toast.warning(`Bestand ${file.name} geüpload, maar RAG verwerking mislukt`);
+            console.warn(
+              `LangChain processing failed for ${file.name}, but file was uploaded successfully`
+            );
+            toast.warning(
+              `Bestand ${file.name} geüpload, maar RAG verwerking mislukt`
+            );
           }
 
           // Success for this file
           const result: FileUploadResult = {
             success: true,
             publicUrl: uploadResult.publicUrl,
-            fileName: uploadResult.fileName
+            fileName: uploadResult.fileName,
           };
 
           results.push(result);
           successfulUploads.push(file.name);
 
-          toast.success(`Bestand "${file.name}" succesvol geüpload en verwerkt!`);
-
+          toast.success(
+            `Bestand "${file.name}" succesvol geüpload en verwerkt!`
+          );
         } catch (fileError) {
           console.error(`Upload failed for ${file.name}:`, fileError);
-          const errorMessage = fileError instanceof Error ? fileError.message : 'Upload mislukt';
+          const errorMessage =
+            fileError instanceof Error ? fileError.message : 'Upload mislukt';
 
           const result: FileUploadResult = {
             success: false,
             fileName: file.name,
-            error: errorMessage
+            error: errorMessage,
           };
 
           results.push(result);
@@ -286,7 +316,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       if (successCount === results.length) {
         toast.success(`Alle ${successCount} bestanden succesvol geüpload!`);
       } else if (successCount > 0) {
-        toast.warning(`${successCount} bestanden succesvol, ${failCount} mislukt`);
+        toast.warning(
+          `${successCount} bestanden succesvol, ${failCount} mislukt`
+        );
       } else {
         toast.error(`Alle ${failCount} uploads mislukt`);
       }
@@ -296,7 +328,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-
     } catch (error) {
       console.error('Upload process failed:', error);
       toast.error('Upload proces volledig mislukt');
@@ -317,7 +348,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -325,65 +358,72 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className='w-full max-w-2xl mx-auto p-6'>
       {/* Card Container */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-        <div className="p-6">
+      <div className='bg-white rounded-lg border border-gray-200 shadow-sm'>
+        <div className='p-6'>
           {/* Header */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          <div className='mb-6'>
+            <h2 className='text-2xl font-semibold text-gray-900 mb-2'>
               Document Uploader
             </h2>
-            <p className="text-gray-600">
-              Upload PDF, DOCX of TXT bestanden naar Supabase en verwerk ze met LangChain RAG
+            <p className='text-gray-600'>
+              Upload PDF, DOCX of TXT bestanden naar Supabase en verwerk ze met
+              LangChain RAG
             </p>
           </div>
 
           {/* File Input */}
-          <div className="mb-6">
+          <div className='mb-6'>
             <label
-              htmlFor="file-upload"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              htmlFor='file-upload'
+              className='block text-sm font-medium text-gray-700 mb-2'
             >
               Selecteer bestanden
             </label>
             <input
               ref={fileInputRef}
-              id="file-upload"
-              type="file"
+              id='file-upload'
+              type='file'
               multiple
               accept={acceptedExtensions.join(',')}
               onChange={handleFileSelect}
               disabled={isUploading}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className='block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed'
             />
-            <p className="mt-2 text-xs text-gray-500">
+            <p className='mt-2 text-xs text-gray-500'>
               Ondersteunde formaten: PDF, DOCX, TXT (max 50MB)
             </p>
           </div>
 
           {/* Selected Files Display */}
           {selectedFiles.length > 0 && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-gray-900">
-                  {selectedFiles.length} bestand{selectedFiles.length > 1 ? 'en' : ''} geselecteerd
+            <div className='mb-6 p-4 bg-gray-50 rounded-lg border'>
+              <div className='flex items-center justify-between mb-3'>
+                <h3 className='font-medium text-gray-900'>
+                  {selectedFiles.length} bestand
+                  {selectedFiles.length > 1 ? 'en' : ''} geselecteerd
                 </h3>
                 <button
                   onClick={clearSelection}
                   disabled={isUploading}
-                  className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                  className='p-1 text-gray-400 hover:text-gray-600 disabled:opacity-50'
                 >
-                  <X className="w-5 h-5" />
+                  <X className='w-5 h-5' />
                 </button>
               </div>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
+              <div className='space-y-2 max-h-32 overflow-y-auto'>
                 {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 bg-white rounded border">
-                    <FileText className="w-6 h-6 text-blue-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{file.name}</p>
-                      <p className="text-sm text-gray-500">
+                  <div
+                    key={index}
+                    className='flex items-center space-x-3 p-2 bg-white rounded border'
+                  >
+                    <FileText className='w-6 h-6 text-blue-600 flex-shrink-0' />
+                    <div className='flex-1 min-w-0'>
+                      <p className='font-medium text-gray-900 truncate'>
+                        {file.name}
+                      </p>
+                      <p className='text-sm text-gray-500'>
                         {formatFileSize(file.size)} • {file.type}
                       </p>
                     </div>
@@ -395,12 +435,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
           {/* Upload Progress */}
           {isUploading && (
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center space-x-3">
-                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            <div className='mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200'>
+              <div className='flex items-center space-x-3'>
+                <Loader2 className='w-5 h-5 text-blue-600 animate-spin' />
                 <div>
-                  <p className="font-medium text-blue-900">Upload in uitvoering...</p>
-                  <p className="text-sm text-blue-700">{uploadProgress}</p>
+                  <p className='font-medium text-blue-900'>
+                    Upload in uitvoering...
+                  </p>
+                  <p className='text-sm text-blue-700'>{uploadProgress}</p>
                 </div>
               </div>
             </div>
@@ -408,36 +450,43 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
 
           {/* Upload Results */}
           {uploadResults.length > 0 && (
-            <div className="mb-6 space-y-3">
-              <h3 className="font-medium text-gray-900">Upload Resultaten</h3>
+            <div className='mb-6 space-y-3'>
+              <h3 className='font-medium text-gray-900'>Upload Resultaten</h3>
               {uploadResults.map((result, index) => (
-                <div key={index} className={`p-4 rounded-lg border ${
-                  result.success
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-red-50 border-red-200'
-                }`}>
-                  <div className="flex items-start space-x-3">
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg border ${
+                    result.success
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  <div className='flex items-start space-x-3'>
                     {result.success ? (
-                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                      <CheckCircle className='w-5 h-5 text-green-600 mt-0.5' />
                     ) : (
-                      <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                      <AlertCircle className='w-5 h-5 text-red-600 mt-0.5' />
                     )}
-                    <div className="flex-1">
-                      <p className={`font-medium ${
-                        result.success ? 'text-green-900' : 'text-red-900'
-                      }`}>
-                        {result.success ? 'Upload succesvol!' : 'Upload mislukt'}
+                    <div className='flex-1'>
+                      <p
+                        className={`font-medium ${
+                          result.success ? 'text-green-900' : 'text-red-900'
+                        }`}
+                      >
+                        {result.success
+                          ? 'Upload succesvol!'
+                          : 'Upload mislukt'}
                       </p>
-                      <p className="text-sm text-gray-700 mt-1">
+                      <p className='text-sm text-gray-700 mt-1'>
                         Bestand: {result.fileName}
                       </p>
                       {result.success && result.publicUrl && (
-                        <p className="text-xs text-green-600 break-all mt-1">
+                        <p className='text-xs text-green-600 break-all mt-1'>
                           URL: {result.publicUrl}
                         </p>
                       )}
                       {!result.success && result.error && (
-                        <p className="text-sm text-red-700 mt-1">
+                        <p className='text-sm text-red-700 mt-1'>
                           Fout: {result.error}
                         </p>
                       )}
@@ -449,20 +498,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
           )}
 
           {/* Upload Button */}
-          <div className="flex justify-end">
+          <div className='flex justify-end'>
             <button
               onClick={handleUpload}
               disabled={selectedFiles.length === 0 || isUploading}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className='inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <Loader2 className='w-5 h-5 mr-2 animate-spin' />
                   Uploaden...
                 </>
               ) : (
                 <>
-                  <Upload className="w-5 h-5 mr-2" />
+                  <Upload className='w-5 h-5 mr-2' />
                   Upload & Verwerk
                 </>
               )}
@@ -472,14 +521,21 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onUploadSuccess, clientId, 
       </div>
 
       {/* Info Card */}
-      <div className="mt-6 bg-blue-50 rounded-lg border border-blue-200 p-4">
-        <h3 className="font-medium text-blue-900 mb-2">Hoe het werkt:</h3>
-        <ol className="text-sm text-blue-800 space-y-1">
+      <div className='mt-6 bg-blue-50 rounded-lg border border-blue-200 p-4'>
+        <h3 className='font-medium text-blue-900 mb-2'>Hoe het werkt:</h3>
+        <ol className='text-sm text-blue-800 space-y-1'>
           <li>1. Selecteer een PDF, DOCX of TXT bestand (max 50MB)</li>
-          <li>2. Bestand wordt geüpload naar Supabase Storage bucket 'documents'</li>
+          <li>
+            2. Bestand wordt geüpload naar Supabase Storage bucket 'documents'
+          </li>
           <li>3. Public URL wordt gegenereerd voor het geüploade bestand</li>
-          <li>4. URL wordt verzonden naar LangChain RAG server (localhost:5001/ingest)</li>
-          <li>5. RAG server verwerkt het document voor AI-gestuurde zoekopdrachten</li>
+          <li>
+            4. URL wordt verzonden naar LangChain RAG server
+            (localhost:5001/ingest)
+          </li>
+          <li>
+            5. RAG server verwerkt het document voor AI-gestuurde zoekopdrachten
+          </li>
         </ol>
       </div>
     </div>

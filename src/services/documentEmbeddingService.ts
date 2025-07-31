@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || 'your-openai-api-key';
+const OPENAI_API_KEY =
+  import.meta.env.VITE_OPENAI_API_KEY || 'your-openai-api-key';
 
 export interface DocumentEmbeddingResult {
   success: boolean;
@@ -17,7 +18,7 @@ export class DocumentEmbeddingService {
       const response = await fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -71,7 +72,10 @@ export class DocumentEmbeddingService {
             .eq('id', documentId);
 
           if (updateError) {
-            return { success: false, error: 'Failed to update document content' };
+            return {
+              success: false,
+              error: 'Failed to update document content',
+            };
           }
 
           document.content = content;
@@ -153,15 +157,19 @@ export class DocumentEmbeddingService {
     try {
       const { error } = await supabase
         .from('document_processing_status')
-        .upsert({
-          document_id: documentId,
-          status,
-          error_message: errorMessage,
-          processed_at: status === 'completed' ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'document_id'
-        });
+        .upsert(
+          {
+            document_id: documentId,
+            status,
+            error_message: errorMessage,
+            processed_at:
+              status === 'completed' ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'document_id',
+          }
+        );
 
       if (error) {
         console.error('Failed to update processing status:', error);
@@ -228,7 +236,7 @@ export class DocumentEmbeddingService {
         query_embedding: queryEmbedding,
         match_threshold: threshold,
         match_count: limit,
-        client_id_filter: clientId || null
+        client_id_filter: clientId || null,
       });
 
       if (error) {

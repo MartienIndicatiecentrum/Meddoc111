@@ -27,15 +27,20 @@ export class ReminderScheduler {
       return;
     }
 
-    console.log(`Starting reminder scheduler with ${intervalMinutes} minute intervals`);
+    console.log(
+      `Starting reminder scheduler with ${intervalMinutes} minute intervals`
+    );
 
     // Run immediately on start
     this.processReminders();
 
     // Set up recurring interval
-    this.intervalId = setInterval(() => {
-      this.processReminders();
-    }, intervalMinutes * 60 * 1000);
+    this.intervalId = setInterval(
+      () => {
+        this.processReminders();
+      },
+      intervalMinutes * 60 * 1000
+    );
 
     this.isRunning = true;
   }
@@ -55,10 +60,13 @@ export class ReminderScheduler {
   /**
    * Check if the scheduler is running
    */
-  public getStatus(): { isRunning: boolean; intervalId: NodeJS.Timeout | null } {
+  public getStatus(): {
+    isRunning: boolean;
+    intervalId: NodeJS.Timeout | null;
+  } {
     return {
       isRunning: this.isRunning,
-      intervalId: this.intervalId
+      intervalId: this.intervalId,
     };
   }
 

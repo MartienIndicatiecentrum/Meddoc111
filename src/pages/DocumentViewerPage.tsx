@@ -29,21 +29,28 @@ const DocumentViewerPage: React.FC = () => {
       }
       setLoading(false);
     };
-    if (id) fetchDocument();
+    if (id) {
+      fetchDocument();
+    }
   }, [id]);
 
   return (
     <>
-      <Button style={{ position: 'fixed', top: 16, left: 16, zIndex: 1000 }} onClick={() => navigate('/', { state: { openDropdown: true } })}>
+      <Button
+        style={{ position: 'fixed', top: 16, left: 16, zIndex: 1000 }}
+        onClick={() => navigate('/', { state: { openDropdown: true } })}
+      >
         &larr; Terug naar dashboard
       </Button>
-      <div className="w-full">
+      <div className='w-full'>
         {loading ? (
           <div style={{ width: '100vw', height: '100vh' }}>Laden...</div>
         ) : document ? (
           <DocumentViewer document={document} />
         ) : (
-          <div style={{ width: '100vw', height: '100vh' }}>Document niet gevonden</div>
+          <div style={{ width: '100vw', height: '100vh' }}>
+            Document niet gevonden
+          </div>
         )}
       </div>
     </>

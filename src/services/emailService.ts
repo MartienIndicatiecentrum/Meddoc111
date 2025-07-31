@@ -38,16 +38,18 @@ export class EmailService {
    * Generate email template for appointment reminder
    */
   private generateReminderTemplate(data: EmailReminderData): EmailTemplate {
-    const appointmentDateTime = new Date(`${data.appointmentDate}T${data.appointmentTime}`);
+    const appointmentDateTime = new Date(
+      `${data.appointmentDate}T${data.appointmentTime}`
+    );
     const formattedDate = appointmentDateTime.toLocaleDateString('nl-NL', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
     const formattedTime = appointmentDateTime.toLocaleTimeString('nl-NL', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
 
     const subject = `Herinnering: Afspraak ${formattedDate} om ${formattedTime}`;
@@ -93,24 +95,36 @@ export class EmailService {
                 <span class="label">📋 Type:</span>
                 <span class="value">${data.appointmentType}</span>
               </div>
-              ${data.caregiverName ? `
+              ${
+                data.caregiverName
+                  ? `
               <div class="detail-row">
                 <span class="label">👨‍⚕️ Medewerker:</span>
                 <span class="value">${data.caregiverName}</span>
               </div>
-              ` : ''}
-              ${data.location ? `
+              `
+                  : ''
+              }
+              ${
+                data.location
+                  ? `
               <div class="detail-row">
                 <span class="label">📍 Locatie:</span>
                 <span class="value">${data.location}</span>
               </div>
-              ` : ''}
-              ${data.notes ? `
+              `
+                  : ''
+              }
+              ${
+                data.notes
+                  ? `
               <div class="detail-row">
                 <span class="label">📝 Opmerkingen:</span>
                 <span class="value">${data.notes}</span>
               </div>
-              ` : ''}
+              `
+                  : ''
+              }
             </div>
 
             <p>Mocht u vragen hebben of wijzigingen nodig zijn, neem dan contact met ons op.</p>
@@ -153,7 +167,9 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
   /**
    * Send appointment reminder email
    */
-  public async sendAppointmentReminder(data: EmailReminderData): Promise<boolean> {
+  public async sendAppointmentReminder(
+    data: EmailReminderData
+  ): Promise<boolean> {
     try {
       const template = this.generateReminderTemplate(data);
       const recipientEmail = data.reminderEmail || data.clientEmail;
@@ -164,16 +180,19 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
       }
 
       // Call Supabase Edge Function to send email
-      const { data: result, error } = await supabase.functions.invoke('send-email', {
-        body: {
-          type: 'appointment_reminder',
-          to: recipientEmail,
-          subject: template.subject,
-          html: template.htmlBody,
-          text: template.textBody,
-          appointmentId: data.appointmentId
+      const { data: result, error } = await supabase.functions.invoke(
+        'send-email',
+        {
+          body: {
+            type: 'appointment_reminder',
+            to: recipientEmail,
+            subject: template.subject,
+            html: template.htmlBody,
+            text: template.textBody,
+            appointmentId: data.appointmentId,
+          },
         }
-      });
+      );
 
       if (error) {
         console.error('Error sending email reminder:', error);
@@ -196,9 +215,10 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
       const now = new Date();
 
       // Query appointments that have reminders enabled and haven't been sent yet
-      const { data: appointments, error } = await supabase
+      const { data: appointments, error } = (await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           id,
           client_id,
           caregiver_id,
@@ -214,10 +234,11 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
           reminder_sent,
           clients!inner(naam, email),
           caregivers(naam)
-        `)
+        `
+        )
         .eq('reminder_enabled', true)
         .eq('status', 'scheduled')
-        .is('reminder_sent', null) as { data: any[] | null; error: any };
+        .is('reminder_sent', null)) as { data: any[] | null; error: any };
 
       if (error) {
         console.error('Error fetching appointments for reminders:', error);
@@ -230,19 +251,27 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
       }
 
       for (const appointment of appointments) {
-        const appointmentDateTime = new Date(`${appointment.date}T${appointment.start_time}`);
+        const appointmentDateTime = new Date(
+          `${appointment.date}T${appointment.start_time}`
+        );
 
         // Calculate when to send reminder
-        let reminderTime = new Date(appointmentDateTime);
+        const reminderTime = new Date(appointmentDateTime);
         switch (appointment.reminder_unit) {
           case 'minutes':
-            reminderTime.setMinutes(reminderTime.getMinutes() - appointment.reminder_value);
+            reminderTime.setMinutes(
+              reminderTime.getMinutes() - appointment.reminder_value
+            );
             break;
           case 'hours':
-            reminderTime.setHours(reminderTime.getHours() - appointment.reminder_value);
+            reminderTime.setHours(
+              reminderTime.getHours() - appointment.reminder_value
+            );
             break;
           case 'days':
-            reminderTime.setDate(reminderTime.getDate() - appointment.reminder_value);
+            reminderTime.setDate(
+              reminderTime.getDate() - appointment.reminder_value
+            );
             break;
         }
 
@@ -258,7 +287,7 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
             appointmentType: appointment.type,
             location: appointment.location,
             notes: appointment.notes,
-            reminderEmail: appointment.reminder_email
+            reminderEmail: appointment.reminder_email,
           };
 
           const emailSent = await this.sendAppointmentReminder(emailData);
@@ -269,7 +298,7 @@ Deze email is automatisch gegenereerd door het MedDoc afspraaksysteem.
               .from('appointments')
               .update({
                 reminder_sent: now.toISOString(),
-                updated_at: now.toISOString()
+                updated_at: now.toISOString(),
               })
               .eq('id', appointment.id);
 

@@ -6,6 +6,6 @@ export class AIQuestionAnswering {
 
   async askQuestion(question: string, documentId?: string): Promise<string> {
     console.log('Question asked:', question);
-    return \Test response to: "\"\;
+    return `Test response to: "${question}"`;
   }
 }

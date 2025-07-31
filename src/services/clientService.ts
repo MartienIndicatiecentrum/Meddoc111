@@ -11,7 +11,7 @@ import type {
   LogEntryDocument,
   ApiResponse,
   LogEntryFilters,
-  PaginationParams
+  PaginationParams,
 } from '@/types/database';
 
 /**
@@ -65,10 +65,7 @@ export const clientService = {
    */
   async getClients(params?: PaginationParams): Promise<Client[]> {
     try {
-      let query = supabase
-        .from('clients')
-        .select('*')
-        .order('naam');
+      let query = supabase.from('clients').select('*').order('naam');
 
       if (params) {
         query = query.range(params.offset, params.offset + params.limit - 1);
@@ -82,7 +79,9 @@ export const clientService = {
 
       return (data || []).map(transformClient);
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch clients');
     }
   },
@@ -107,7 +106,9 @@ export const clientService = {
 
       return data ? transformClient(data) : null;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch client');
     }
   },
@@ -129,7 +130,9 @@ export const clientService = {
 
       return data || [];
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch client tasks');
     }
   },
@@ -150,7 +153,9 @@ export const clientService = {
 
       return data || [];
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch all tasks');
     }
   },
@@ -162,13 +167,15 @@ export const clientService = {
     try {
       const { data, error } = await supabase
         .from('logboek')
-        .select(`
+        .select(
+          `
           *,
           clients!logboek_client_id_fkey (
             id,
             naam
           )
-        `)
+        `
+        )
         .eq('client_id', clientId)
         .order('date', { ascending: false });
 
@@ -178,10 +185,12 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt'
+        client_name: entry.clients?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch client log entries');
     }
   },
@@ -193,13 +202,15 @@ export const clientService = {
     try {
       let query = supabase
         .from('logboek')
-        .select(`
+        .select(
+          `
           *,
           clients!logboek_client_id_fkey (
             id,
             naam
           )
-        `)
+        `
+        )
         .order('date', { ascending: false });
 
       if (filters) {
@@ -225,10 +236,12 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt'
+        client_name: entry.clients?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch all log entries');
     }
   },
@@ -240,13 +253,15 @@ export const clientService = {
     try {
       const { data, error } = await supabase
         .from('logboek')
-        .select(`
+        .select(
+          `
           *,
           clients!logboek_client_id_fkey (
             id,
             naam
           )
-        `)
+        `
+        )
         .order('date', { ascending: false })
         .limit(limit);
 
@@ -256,10 +271,12 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt'
+        client_name: entry.clients?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch recent log entries');
     }
   },
@@ -267,7 +284,9 @@ export const clientService = {
   /**
    * Create a new task
    */
-  async createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task | null> {
+  async createTask(
+    task: Omit<Task, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Task | null> {
     try {
       const { data, error } = await supabase
         .from('taken')
@@ -281,7 +300,9 @@ export const clientService = {
 
       return data;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'create task');
     }
   },
@@ -289,7 +310,9 @@ export const clientService = {
   /**
    * Create a new log entry
    */
-  async createLogEntry(entry: Omit<LogEntry, 'id' | 'created_at' | 'updated_at'>): Promise<LogEntry | null> {
+  async createLogEntry(
+    entry: Omit<LogEntry, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<LogEntry | null> {
     try {
       console.log('Creating log entry with data:', entry);
 
@@ -308,7 +331,9 @@ export const clientService = {
       return data ? transformLogEntry(data) : null;
     } catch (error) {
       console.error('Error in createLogEntry:', error);
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'create log entry');
     }
   },
@@ -331,7 +356,9 @@ export const clientService = {
 
       return data;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'update task');
     }
   },
@@ -339,7 +366,10 @@ export const clientService = {
   /**
    * Update an existing log entry
    */
-  async updateLogEntry(id: string, updates: Partial<LogEntry>): Promise<LogEntry | null> {
+  async updateLogEntry(
+    id: string,
+    updates: Partial<LogEntry>
+  ): Promise<LogEntry | null> {
     try {
       const { data, error } = await supabase
         .from('logboek')
@@ -354,7 +384,9 @@ export const clientService = {
 
       return data ? transformLogEntry(data) : null;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'update log entry');
     }
   },
@@ -364,10 +396,7 @@ export const clientService = {
    */
   async deleteTask(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('taken')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('taken').delete().eq('id', id);
 
       if (error) {
         handleSupabaseError(error, 'delete task');
@@ -375,7 +404,9 @@ export const clientService = {
 
       return true;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'delete task');
     }
   },
@@ -385,10 +416,7 @@ export const clientService = {
    */
   async deleteLogEntry(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('logboek')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('logboek').delete().eq('id', id);
 
       if (error) {
         handleSupabaseError(error, 'delete log entry');
@@ -396,7 +424,9 @@ export const clientService = {
 
       return true;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'delete log entry');
     }
   },
@@ -404,17 +434,34 @@ export const clientService = {
   /**
    * Upload document to Supabase Storage and save to database
    */
-  async uploadDocument(file: File, clientId: string, logEntryId?: string): Promise<LogEntryDocument | null> {
+  async uploadDocument(
+    file: File,
+    clientId: string,
+    logEntryId?: string
+  ): Promise<LogEntryDocument | null> {
     try {
-      console.log('Uploading document:', file.name, 'for client:', clientId, 'logEntryId:', logEntryId);
+      console.log(
+        'Uploading document:',
+        file.name,
+        'for client:',
+        clientId,
+        'logEntryId:',
+        logEntryId
+      );
 
       // Validate inputs
       if (!clientId) {
-        throw new ServiceError('Client ID is vereist voor document upload', 'MISSING_CLIENT_ID');
+        throw new ServiceError(
+          'Client ID is vereist voor document upload',
+          'MISSING_CLIENT_ID'
+        );
       }
 
       if (!file) {
-        throw new ServiceError('Bestand is vereist voor upload', 'MISSING_FILE');
+        throw new ServiceError(
+          'Bestand is vereist voor upload',
+          'MISSING_FILE'
+        );
       }
 
       // Verify client exists first
@@ -425,7 +472,10 @@ export const clientService = {
         .single();
 
       if (clientError || !client) {
-        throw new ServiceError(`Cliënt met ID ${clientId} bestaat niet`, 'CLIENT_NOT_FOUND');
+        throw new ServiceError(
+          `Cliënt met ID ${clientId} bestaat niet`,
+          'CLIENT_NOT_FOUND'
+        );
       }
 
       // If logEntryId is provided, verify it exists with double-check
@@ -442,18 +492,30 @@ export const clientService = {
         if (logEntryError) {
           console.error('Log entry verification error:', logEntryError);
           if (logEntryError.code === 'PGRST116') {
-            throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+            throw new ServiceError(
+              'Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.',
+              'LOG_ENTRY_NOT_FOUND'
+            );
           }
-          throw new ServiceError(`Fout bij het controleren van logboek bericht: ${logEntryError.message}`, 'LOG_ENTRY_VERIFICATION_ERROR');
+          throw new ServiceError(
+            `Fout bij het controleren van logboek bericht: ${logEntryError.message}`,
+            'LOG_ENTRY_VERIFICATION_ERROR'
+          );
         }
 
         if (!logEntry) {
-          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+          throw new ServiceError(
+            'Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.',
+            'LOG_ENTRY_NOT_FOUND'
+          );
         }
 
         // Verify the log entry belongs to the correct client
         if (logEntry.client_id !== clientId) {
-          throw new ServiceError('Het logboek bericht hoort niet bij deze cliënt', 'LOG_ENTRY_CLIENT_MISMATCH');
+          throw new ServiceError(
+            'Het logboek bericht hoort niet bij deze cliënt',
+            'LOG_ENTRY_CLIENT_MISMATCH'
+          );
         }
 
         console.log('Log entry verified successfully');
@@ -471,7 +533,10 @@ export const clientService = {
 
       if (uploadError) {
         console.error('Storage upload error:', uploadError);
-        throw new ServiceError(`Fout bij het uploaden naar opslag: ${uploadError.message}`, 'STORAGE_UPLOAD_ERROR');
+        throw new ServiceError(
+          `Fout bij het uploaden naar opslag: ${uploadError.message}`,
+          'STORAGE_UPLOAD_ERROR'
+        );
       }
 
       console.log('File uploaded to storage successfully');
@@ -490,15 +555,18 @@ export const clientService = {
         console.log('Using safe_insert_log_entry_document function');
 
         // Use the safe function for better error handling
-        const { data, error } = await supabase.rpc('safe_insert_log_entry_document', {
-          p_log_entry_id: logEntryId,
-          p_client_id: clientId,
-          p_file_name: file.name,
-          p_file_path: filePath,
-          p_file_size: file.size,
-          p_file_type: file.type,
-          p_public_url: urlData.publicUrl
-        });
+        const { data, error } = await supabase.rpc(
+          'safe_insert_log_entry_document',
+          {
+            p_log_entry_id: logEntryId,
+            p_client_id: clientId,
+            p_file_name: file.name,
+            p_file_path: filePath,
+            p_file_size: file.size,
+            p_file_type: file.type,
+            p_public_url: urlData.publicUrl,
+          }
+        );
 
         if (error) {
           console.error('Safe insert function error:', error);
@@ -522,7 +590,9 @@ export const clientService = {
           }
         } else {
           console.error('Safe insert returned no data');
-          dbError = { message: 'Geen document ID geretourneerd van database functie' };
+          dbError = {
+            message: 'Geen document ID geretourneerd van database functie',
+          };
         }
       } else {
         console.log('Using direct insert for standalone document');
@@ -537,7 +607,7 @@ export const clientService = {
             file_path: filePath,
             file_size: file.size,
             file_type: file.type,
-            public_url: urlData.publicUrl
+            public_url: urlData.publicUrl,
           })
           .select()
           .single();
@@ -558,14 +628,32 @@ export const clientService = {
         }
 
         // Handle specific database errors with Dutch messages
-        if (dbError.message && dbError.message.includes('logboek bericht bestaat niet meer')) {
-          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'LOG_ENTRY_NOT_FOUND');
+        if (
+          dbError.message &&
+          dbError.message.includes('logboek bericht bestaat niet meer')
+        ) {
+          throw new ServiceError(
+            'Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.',
+            'LOG_ENTRY_NOT_FOUND'
+          );
         } else if (dbError.code === '23503') {
-          throw new ServiceError('Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.', 'FOREIGN_KEY_VIOLATION');
-        } else if (dbError.message && dbError.message.includes('foreign key constraint')) {
-          throw new ServiceError('Database probleem: Het logboek bericht is niet meer beschikbaar. Probeer het bericht opnieuw op te slaan.', 'FOREIGN_KEY_CONSTRAINT');
+          throw new ServiceError(
+            'Het logboek bericht bestaat niet meer. Probeer het bericht opnieuw op te slaan.',
+            'FOREIGN_KEY_VIOLATION'
+          );
+        } else if (
+          dbError.message &&
+          dbError.message.includes('foreign key constraint')
+        ) {
+          throw new ServiceError(
+            'Database probleem: Het logboek bericht is niet meer beschikbaar. Probeer het bericht opnieuw op te slaan.',
+            'FOREIGN_KEY_CONSTRAINT'
+          );
         } else {
-          throw new ServiceError(`Fout bij het opslaan in database: ${dbError.message || 'Onbekende fout'}`, 'DATABASE_SAVE_ERROR');
+          throw new ServiceError(
+            `Fout bij het opslaan in database: ${dbError.message || 'Onbekende fout'}`,
+            'DATABASE_SAVE_ERROR'
+          );
         }
       }
 
@@ -573,11 +661,17 @@ export const clientService = {
       return dbData;
     } catch (error) {
       console.error('Error in uploadDocument:', error);
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
 
       // Handle any unexpected errors with Dutch message
-      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
-      throw new ServiceError(`Fout bij document upload: ${errorMessage}`, 'UPLOAD_ERROR');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Onbekende fout';
+      throw new ServiceError(
+        `Fout bij document upload: ${errorMessage}`,
+        'UPLOAD_ERROR'
+      );
     }
   },
 
@@ -598,7 +692,9 @@ export const clientService = {
 
       return data || [];
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'fetch documents');
     }
   },
@@ -645,7 +741,9 @@ export const clientService = {
 
       return true;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'delete document');
     }
   },
@@ -666,7 +764,9 @@ export const clientService = {
 
       return count || 0;
     } catch (error) {
-      if (error instanceof ServiceError) throw error;
+      if (error instanceof ServiceError) {
+        throw error;
+      }
       handleSupabaseError(error, 'count documents');
     }
   },
@@ -685,5 +785,5 @@ export const clientService = {
       console.error('Error getting document URL:', error);
       return null;
     }
-  }
+  },
 };

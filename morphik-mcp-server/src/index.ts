@@ -25,7 +25,7 @@ for (const envVar of requiredEnvVars) {
 const morphikClient = new MorphikClient({
   apiKey: process.env.MORPHIK_API_KEY!,
   apiUrl: process.env.MORPHIK_API_URL!,
-  defaultFolder: process.env.MORPHIK_DEFAULT_FOLDER
+  defaultFolder: process.env.MORPHIK_DEFAULT_FOLDER,
 });
 
 // Create MCP server
@@ -34,8 +34,8 @@ const server = new Server(
     name: 'morphik-mcp-server',
     version: '1.0.0',
     capabilities: {
-      tools: {}
-    }
+      tools: {},
+    },
   },
   {}
 );
@@ -44,7 +44,7 @@ const server = new Server(
 const allTools = [
   ...createUploadTools(morphikClient),
   ...createQueryTools(morphikClient),
-  ...createManagementTools(morphikClient)
+  ...createManagementTools(morphikClient),
 ];
 
 // Handler for listing tools
@@ -53,8 +53,8 @@ server.setRequestHandler('tools/list' as any, async () => {
     tools: allTools.map(tool => ({
       name: tool.name,
       description: tool.description,
-      inputSchema: tool.inputSchema
-    }))
+      inputSchema: tool.inputSchema,
+    })),
   };
 });
 
@@ -76,9 +76,9 @@ server.setRequestHandler('tools/call' as any, async (request: any) => {
       content: [
         {
           type: 'text',
-          text: JSON.stringify(result, null, 2)
-        }
-      ]
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
     };
   } catch (error) {
     logger.error(`Tool execution failed: ${name}`, { error });
@@ -87,13 +87,17 @@ server.setRequestHandler('tools/call' as any, async (request: any) => {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
-          }, null, 2)
-        }
+          text: JSON.stringify(
+            {
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error',
+            },
+            null,
+            2
+          ),
+        },
       ],
-      isError: true
+      isError: true,
     };
   }
 });
@@ -110,7 +114,7 @@ async function main() {
 }
 
 // Handle errors
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.error('Uncaught exception:', error);
   process.exit(1);
 });
@@ -121,7 +125,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-main().catch((error) => {
+main().catch(error => {
   logger.error('Failed to start server:', error);
   process.exit(1);
 });

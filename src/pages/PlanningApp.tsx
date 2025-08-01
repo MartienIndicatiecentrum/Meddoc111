@@ -114,7 +114,7 @@ const fetchAppointments = async (): Promise<Appointment[]> => {
 const fetchClients = async (): Promise<Client[]> => {
   try {
     const { data, error } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .select('id, naam, telefoon, adres, gebruikersnaam_email')
       .order('naam');
 
@@ -313,6 +313,47 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 required
                 className='w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
               />
+              {/* Time increment dropdown */}
+              <label className='block text-xs font-medium text-gray-600 mt-2 mb-1'>
+                Duur toevoegen
+              </label>
+              <select
+                name='duration_increment'
+                className='w-full p-2 border border-gray-200 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm'
+                onChange={e => {
+                  const increments: Record<string, number> = {
+                    '15': 15,
+                    '30': 30,
+                    '45': 45,
+                    '60': 60,
+                    '120': 120,
+                  };
+                  const value = e.target.value;
+                  if (!(value in increments)) return;
+                  const increment = increments[value];
+                  // Parse start_time (HH:mm)
+                  const [h, m] = formData.start_time.split(':').map(Number);
+                  if (isNaN(h) || isNaN(m)) return;
+                  const startDate = new Date();
+                  startDate.setHours(h, m, 0, 0);
+                  startDate.setMinutes(startDate.getMinutes() + increment);
+                  const endH = String(startDate.getHours()).padStart(2, '0');
+                  const endM = String(startDate.getMinutes()).padStart(2, '0');
+                  setFormData(prev => ({
+                    ...prev,
+                    end_time: `${endH}:${endM}`,
+                  }));
+                }}
+                defaultValue=''
+                aria-label='Kies duur om eindtijd automatisch te berekenen'
+              >
+                <option value=''>Kies duur…</option>
+                <option value='15'>+ 15 minuten</option>
+                <option value='30'>+ 30 minuten</option>
+                <option value='45'>+ 45 minuten</option>
+                <option value='60'>+ 1 uur</option>
+                <option value='120'>+ 2 uur</option>
+              </select>
             </div>
 
             <div>

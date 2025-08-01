@@ -157,7 +157,7 @@ const Factuur: React.FC = () => {
       try {
         // Fetch clients
         const { data: clientsData, error: clientsError } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .select('id, naam, telefoon, email, adres')
           .order('naam');
 

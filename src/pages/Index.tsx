@@ -143,7 +143,7 @@ const Index = () => {
   useEffect(() => {
     const fetchClients = async () => {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('id, naam')
         .order('naam');
       if (!error && data) {

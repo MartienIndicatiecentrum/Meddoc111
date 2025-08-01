@@ -162,7 +162,7 @@ export default function PGBProcessFlow({ clientId }) {
     }
     async function fetchClientData() {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select(
           'naam, geboortedatum, clientnummer, bsn, adres, postcode, woonplaats, verzekeraar, polisnummer, machtigingsnummer'
         )

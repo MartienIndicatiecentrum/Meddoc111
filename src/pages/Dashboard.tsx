@@ -121,7 +121,9 @@ const Home: React.FC = () => {
   const fetchClients = async (): Promise<void> => {
     try {
       setLoadingClients(true);
-      const { data, error } = await supabase.from('clients').select('id, naam');
+      const { data, error } = await supabase
+        .from('clients_mockdata')
+        .select('id, naam');
 
       if (error) {
         console.error('Error fetching clients:', error);

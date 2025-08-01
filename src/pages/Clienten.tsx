@@ -172,14 +172,30 @@ const Clienten = () => {
   let subscription: RealtimeChannel | null = null;
   useEffect(() => {
     const fetchClients = async () => {
+      console.log(
+        '🔍 [Clienten] Fetching clients from clients_mockdata table...'
+      );
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .order('created_at', { ascending: false });
+      console.log('📊 [Clienten] Supabase response:', {
+        data: data?.length || 0,
+        error,
+      });
       if (!error && Array.isArray(data)) {
         const transformedClients = data.map(transformDbClientToClient);
+        console.log(
+          '✅ [Clienten] Transformed clients:',
+          transformedClients.length
+        );
         setClients(transformedClients);
+      } else {
+        console.error('❌ [Clienten] Error or invalid data:', {
+          error,
+          dataType: typeof data,
+        });
       }
       setIsLoading(false);
     };
@@ -209,7 +225,7 @@ const Clienten = () => {
   useEffect(() => {
     const fetchDeletedClients = async () => {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .or('verwijderd.eq.true,deleted_at.not.is.null');
       if (!error && Array.isArray(data)) {
@@ -344,7 +360,7 @@ const Clienten = () => {
       };
 
       const { error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .update(updateData)
         .eq('id', updatedClient.id);
 
@@ -415,7 +431,7 @@ const Clienten = () => {
   const handleDeleteClient = async (clientId: string) => {
     try {
       const { error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .delete()
         .eq('id', clientId);
 
@@ -441,7 +457,7 @@ const Clienten = () => {
   // Herstel functie
   const handleRestoreClient = async (clientId: string) => {
     await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .update({ verwijderd: false, deleted_at: null })
       .eq('id', clientId);
     setDeletedClients(prev => prev.filter(c => c.id !== clientId));
@@ -449,7 +465,7 @@ const Clienten = () => {
 
   // Definitief verwijderen functie
   const handlePermanentDelete = async (clientId: string) => {
-    await supabase.from('clients').delete().eq('id', clientId);
+    await supabase.from('clients_mockdata').delete().eq('id', clientId);
     setDeletedClients(prev => prev.filter(c => c.id !== clientId));
     setShowConfirmDelete(null);
   };

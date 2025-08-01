@@ -170,7 +170,7 @@ export default function FactuurGeneratorPage() {
   useEffect(() => {
     const fetchClients = async () => {
       const { data } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('id, naam, verzekeraar')
         .order('naam');
       setClients(data || []);
@@ -187,7 +187,7 @@ export default function FactuurGeneratorPage() {
 
     const fetchClientData = async () => {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .eq('id', selectedClient.id)
         .single();
@@ -259,7 +259,7 @@ export default function FactuurGeneratorPage() {
       // Update verzekeraar in database
       try {
         const { error } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .update({
             verzekeraar: selectedVerzekeraar,
             verzekeraar_adres: verzekeraarAdres.adres,
@@ -328,7 +328,7 @@ export default function FactuurGeneratorPage() {
     if (clientData) {
       try {
         const { error } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .update({ [field]: value })
           .eq('id', clientData.id);
 

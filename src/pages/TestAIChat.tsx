@@ -20,7 +20,7 @@ export default function TestAIChat() {
   React.useEffect(() => {
     if (clientId) {
       supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .eq('id', clientId)
         .single()

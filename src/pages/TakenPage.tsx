@@ -179,7 +179,7 @@ const fetchTasks = async (): Promise<Task[]> => {
 const fetchClients = async (): Promise<Client[]> => {
   try {
     const { data, error } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .select('id, naam')
       .order('naam');
 

@@ -105,7 +105,7 @@ export const NewClientForm: React.FC<NewClientFormProps> = ({
       console.log('Attempting to insert client with data:', insertData);
 
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .insert([insertData])
         .select()
         .single();

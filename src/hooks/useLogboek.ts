@@ -66,7 +66,7 @@ export const useLogboek = (
   // Realtime subscription ref
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Set up real-time subscription for logboek changes
+  // Set up real-time subscription for logboek_mockdata changes
   useEffect(() => {
     if (!clientId) {
       return;
@@ -74,7 +74,7 @@ export const useLogboek = (
 
     console.log('Setting up real-time subscription for client:', clientId);
 
-    // Create channel for logboek changes
+    // Create channel for logboek_mockdata changes
     const channel = supabase
       .channel(`logboek-changes-${clientId}`)
       .on(
@@ -82,7 +82,7 @@ export const useLogboek = (
         {
           event: '*',
           schema: 'public',
-          table: 'logboek',
+          table: 'logboek_mockdata',
           filter: `client_id=eq.${clientId}`,
         },
         payload => {

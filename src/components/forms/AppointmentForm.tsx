@@ -398,7 +398,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     // Voor nu gebruiken we nog de directe Supabase call als implementatie
                     // maar met MCP-gestructureerde query en logging
                     const { data: client, error } = await supabase
-                      .from('clients')
+                      .from('clients_mockdata')
                       .select(
                         `
                         id, naam, geboortedatum, email, adres, telefoon, bsn, verzekeraar, polisnummer, algemene_informatie, clientnummer, machtigingsnummer, postcode, woonplaats, relatienummer, huisarts, notities
@@ -645,6 +645,43 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               {errors.start_time && (
                 <p className='text-red-500 text-sm mt-1'>{errors.start_time}</p>
               )}
+
+              {/* Duur Dropdown */}
+              {formData.start_time &&
+                /^\d{2}:\d{2}$/.test(formData.start_time) && (
+                  <select
+                    className='w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm'
+                    defaultValue=''
+                    aria-label='Kies duur om eindtijd automatisch te berekenen'
+                    onChange={e => {
+                      const increments = {
+                        '15': 15,
+                        '30': 30,
+                        '45': 45,
+                        '60': 60,
+                        '120': 120,
+                      };
+                      const value = e.target.value;
+                      if (!(value in increments)) return;
+                      const increment = increments[value];
+                      // Parse start_time (HH:mm)
+                      const [h, m] = formData.start_time.split(':').map(Number);
+                      if (isNaN(h) || isNaN(m)) return;
+                      const start = new Date(0, 0, 0, h, m);
+                      start.setMinutes(start.getMinutes() + increment);
+                      const endH = String(start.getHours()).padStart(2, '0');
+                      const endM = String(start.getMinutes()).padStart(2, '0');
+                      handleInputChange('end_time', `${endH}:${endM}`);
+                    }}
+                  >
+                    <option value=''>Kies duur…</option>
+                    <option value='15'>+ 15 minuten</option>
+                    <option value='30'>+ 30 minuten</option>
+                    <option value='45'>+ 45 minuten</option>
+                    <option value='60'>+ 1 uur</option>
+                    <option value='120'>+ 2 uur</option>
+                  </select>
+                )}
             </div>
 
             <div>
@@ -722,7 +759,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                       onClick={async () => {
                         if (formData.client_id) {
                           const { error } = await supabase
-                            .from('clients')
+                            .from('clients_mockdata')
                             .update({
                               adres: 'Teststraat 123, 1234 AB Teststad',
                             })
@@ -815,7 +852,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           </div>
 
           {/* Email Reminder Settings */}
-          <div className='bg-gray-50 p-4 rounded-lg border'>
+          <div className='bg-gray-50 p-4 rounded-lg border relative'>
+            {formData.reminder_enabled && (
+              <span className='absolute right-4 top-3 text-base text-gray-500 font-medium'>
+                Deze functie is nog niet actief.
+              </span>
+            )}
             <div className='flex items-center gap-2 mb-4'>
               <Bell className='w-5 h-5 text-blue-600' />
               <h3 className='text-lg font-medium text-gray-900'>
@@ -844,6 +886,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 Email herinnering versturen
               </label>
             </div>
+            {formData.reminder_enabled && (
+              <p className='text-xs text-gray-500 ml-7 mt-1'>
+                Deze functie is nog niet actief.
+              </p>
+            )}
 
             {/* Reminder Settings - Only show if enabled */}
             {formData.reminder_enabled && (

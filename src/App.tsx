@@ -256,7 +256,7 @@ const App: React.FC = () => {
             <RouterProvider router={router} />
 
             {/* Global Components */}
-            <ChatWindow />
+            {/* <ChatWindow /> removed to disable AI chat hover */}
 
             {/* Stagewise Toolbar - Only in development */}
             {import.meta.env.DEV && (

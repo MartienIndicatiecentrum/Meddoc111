@@ -87,7 +87,7 @@ export class MorphikService {
     try {
       // Get client info for folder organization
       const { data: client } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('naam')
         .eq('id', clientId)
         .single();
@@ -273,7 +273,7 @@ export class MorphikService {
       if (clientId) {
         // Get client info for folder name
         const { data: client } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .select('naam')
           .eq('id', clientId)
           .single();
@@ -404,7 +404,7 @@ export class MorphikService {
   ) {
     try {
       const { data: client } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('naam')
         .eq('id', clientId)
         .single();

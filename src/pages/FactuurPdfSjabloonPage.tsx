@@ -194,7 +194,7 @@ export default function FactuurPdfSjabloonPage() {
 
     const fetchClientData = async () => {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .eq('id', clientId)
         .single();
@@ -298,7 +298,7 @@ export default function FactuurPdfSjabloonPage() {
     if (clientId) {
       try {
         const { error } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .update({
             verzekeraar: selectedVerzekeraar,
             verzekeraar_adres: verzekeraarAdres.adres,

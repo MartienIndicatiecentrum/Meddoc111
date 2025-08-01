@@ -193,7 +193,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   // Haal bestaande cliënten op
   const fetchClients = async () => {
     const { data, error } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .select('id,naam,geboortedatum,email')
       .order('naam');
     if (!error && data) {
@@ -208,7 +208,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
     e.preventDefault();
     setAddingClient(true);
     const { data, error } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .insert([
         {
           naam: newClient.naam,

@@ -26,6 +26,7 @@ import type {
   FromType,
 } from '@/types/database';
 import {
+  Filter,
   X,
   Calendar as CalendarIcon,
   Search,
@@ -1355,33 +1356,8 @@ const Logboek: React.FC = () => {
               Home
             </Button>
 
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => {
-                if (!selectedClient) {
-                  alert(
-                    'Selecteer eerst een cliënt om een nieuw bericht toe te voegen'
-                  );
-                } else {
-                  setShowAddForm(!showAddForm);
-                }
-              }}
-              className='flex items-center gap-2 bg-green-50 border-green-300 text-green-700 hover:bg-green-100'
-            >
-              <Send className='h-4 w-4' />
-              Nieuw bericht
-            </Button>
-
             <User className='h-5 w-5 text-gray-500' />
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={debugLocalStorage}
-              className='text-xs'
-            >
-              Debug localStorage
-            </Button>
+
             {clients.length > 0 ? (
               <Popover
                 open={clientPopoverOpen}
@@ -1495,148 +1471,192 @@ const Logboek: React.FC = () => {
                 {loading ? 'Cliënten laden...' : 'Geen cliënten gevonden'}
               </div>
             )}
+
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => {
+                if (!selectedClient) {
+                  alert(
+                    'Selecteer eerst een cliënt om een nieuw bericht toe te voegen'
+                  );
+                } else {
+                  setShowAddForm(!showAddForm);
+                }
+              }}
+              className='flex items-center gap-2 bg-green-50 border-green-300 text-green-700 hover:bg-green-100'
+            >
+              <Send className='h-4 w-4' />
+              Nieuw bericht
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Filters */}
+      {/* Tweede (kopie) Client Selection */}
       <Card className='mb-4 w-full'>
-        <CardHeader>
-          <CardTitle className='text-lg'>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className='grid grid-cols-1 md:grid-cols-5 gap-3 mb-3'>
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-2 block'>
-                Gewijzigd door
-              </label>
-              <Input
-                placeholder='Zoek op naam'
-                value={filterFrom}
-                onChange={handleFilterFromChange}
-              />
-            </div>
-
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-2 block'>
-                Type
-              </label>
-              <Select value={filterType} onValueChange={handleFilterTypeChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Alle types' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>Alle types</SelectItem>
-                  <SelectItem value='Notitie'>Notitie</SelectItem>
-                  <SelectItem value='Vraag Verzekeraar'>
-                    Vraag Verzekeraar
-                  </SelectItem>
-                  <SelectItem value='Vraag Client'>Vraag Client</SelectItem>
-                  <SelectItem value='Indicatie'>Indicatie</SelectItem>
-                  <SelectItem value='Taak'>Taak</SelectItem>
-                  <SelectItem value='Documenten afronden en opsturen'>
-                    Documenten afronden en opsturen
-                  </SelectItem>
-                  <SelectItem value='Reactie client'>Reactie client</SelectItem>
-                  <SelectItem value='Reactie verzekeraar'>
-                    Reactie verzekeraar
-                  </SelectItem>
-                  <SelectItem value='Reactie Opdrachtgever'>
-                    Reactie Opdrachtgever
-                  </SelectItem>
-                  <SelectItem value='Mijn reactie'>Mijn reactie</SelectItem>
-                  <SelectItem value='Vervolgreactie client'>
-                    Vervolgreactie client
-                  </SelectItem>
-                  <SelectItem value='Vervolgreactie verzekeraar'>
-                    Vervolgreactie verzekeraar
-                  </SelectItem>
-                  <SelectItem value='Vervolgreactie Opdrachtgever'>
-                    Vervolgreactie Opdrachtgever
-                  </SelectItem>
-                  <SelectItem value='Algemene response'>
-                    Algemene response
-                  </SelectItem>
-                  <SelectItem value='Anders'>Anders</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-2 block'>
-                Status
-              </label>
-              <Select
-                value={filterStatus}
-                onValueChange={handleFilterStatusChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Alle statussen' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>Alle statussen</SelectItem>
-                  <SelectItem value='Geen urgentie'>Geen urgentie</SelectItem>
-                  <SelectItem value='Licht urgent'>Licht urgent</SelectItem>
-                  <SelectItem value='Urgent'>Urgent</SelectItem>
-                  <SelectItem value='Reactie nodig'>Reactie nodig</SelectItem>
-                  <SelectItem value='Afgehandeld'>Afgehandeld</SelectItem>
-                  <SelectItem value='In behandeling'>In behandeling</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-2 block'>
-                Datum
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
+        <CardContent className='p-4'>
+          <div className='flex items-center gap-4'>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='flex items-center gap-2'
+                >
+                  <Filter className='h-4 w-4' />
+                  Filters
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className='w-[400px] p-4' align='end'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-3 mb-3'>
+                  <div>
+                    <label className='text-sm font-medium text-gray-700 mb-2 block'>
+                      Gewijzigd door
+                    </label>
+                    <Input
+                      placeholder='Zoek op naam'
+                      value={filterFrom}
+                      onChange={handleFilterFromChange}
+                    />
+                  </div>
+                  <div>
+                    <label className='text-sm font-medium text-gray-700 mb-2 block'>
+                      Type
+                    </label>
+                    <Select
+                      value={filterType}
+                      onValueChange={handleFilterTypeChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Alle types' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='all'>Alle types</SelectItem>
+                        <SelectItem value='Notitie'>Notitie</SelectItem>
+                        <SelectItem value='Vraag Verzekeraar'>
+                          Vraag Verzekeraar
+                        </SelectItem>
+                        <SelectItem value='Vraag Client'>
+                          Vraag Client
+                        </SelectItem>
+                        <SelectItem value='Indicatie'>Indicatie</SelectItem>
+                        <SelectItem value='Taak'>Taak</SelectItem>
+                        <SelectItem value='Documenten afronden en opsturen'>
+                          Documenten afronden en opsturen
+                        </SelectItem>
+                        <SelectItem value='Reactie client'>
+                          Reactie client
+                        </SelectItem>
+                        <SelectItem value='Reactie verzekeraar'>
+                          Reactie verzekeraar
+                        </SelectItem>
+                        <SelectItem value='Reactie Opdrachtgever'>
+                          Reactie Opdrachtgever
+                        </SelectItem>
+                        <SelectItem value='Mijn reactie'>
+                          Mijn reactie
+                        </SelectItem>
+                        <SelectItem value='Vervolgreactie client'>
+                          Vervolgreactie client
+                        </SelectItem>
+                        <SelectItem value='Vervolgreactie verzekeraar'>
+                          Vervolgreactie verzekeraar
+                        </SelectItem>
+                        <SelectItem value='Vervolgreactie Opdrachtgever'>
+                          Vervolgreactie Opdrachtgever
+                        </SelectItem>
+                        <SelectItem value='Algemene response'>
+                          Algemene response
+                        </SelectItem>
+                        <SelectItem value='Anders'>Anders</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className='text-sm font-medium text-gray-700 mb-2 block'>
+                      Status
+                    </label>
+                    <Select
+                      value={filterStatus}
+                      onValueChange={handleFilterStatusChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Alle statussen' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value='all'>Alle statussen</SelectItem>
+                        <SelectItem value='Geen urgentie'>
+                          Geen urgentie
+                        </SelectItem>
+                        <SelectItem value='Licht urgent'>
+                          Licht urgent
+                        </SelectItem>
+                        <SelectItem value='Urgent'>Urgent</SelectItem>
+                        <SelectItem value='Reactie nodig'>
+                          Reactie nodig
+                        </SelectItem>
+                        <SelectItem value='Afgehandeld'>Afgehandeld</SelectItem>
+                        <SelectItem value='In behandeling'>
+                          In behandeling
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className='text-sm font-medium text-gray-700 mb-2 block'>
+                      Datum
+                    </label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant='outline'
+                          className='w-full justify-start text-left font-normal'
+                        >
+                          {filterDate ? (
+                            format(filterDate, 'dd-MM-yyyy', { locale: nl })
+                          ) : (
+                            <span className='text-gray-500'>
+                              Selecteer datum
+                            </span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className='w-auto p-0' align='start'>
+                        <Calendar
+                          mode='single'
+                          selected={filterDate}
+                          onSelect={handleFilterDateChange}
+                          initialFocus
+                          locale={nl}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className='md:col-span-2'>
+                    <label className='text-sm font-medium text-gray-700 mb-2 block'>
+                      Beschrijving
+                    </label>
+                    <Input
+                      placeholder='Zoek in berichten'
+                      value={filterDescription}
+                      onChange={handleFilterDescriptionChange}
+                    />
+                  </div>
+                </div>
+                <div className='flex justify-end'>
                   <Button
                     variant='outline'
-                    className='w-full justify-start text-left font-normal'
+                    size='sm'
+                    onClick={clearFilters}
+                    className='text-gray-600'
                   >
-                    {filterDate ? (
-                      format(filterDate, 'dd-MM-yyyy', { locale: nl })
-                    ) : (
-                      <span className='text-gray-500'>Selecteer datum</span>
-                    )}
+                    <X className='h-4 w-4 mr-2' />
+                    Filters wissen
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent className='w-auto p-0' align='start'>
-                  <Calendar
-                    mode='single'
-                    selected={filterDate}
-                    onSelect={handleFilterDateChange}
-                    initialFocus
-                    locale={nl}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-2 block'>
-                Beschrijving
-              </label>
-              <Input
-                placeholder='Zoek in berichten'
-                value={filterDescription}
-                onChange={handleFilterDescriptionChange}
-              />
-            </div>
-          </div>
-
-          {/* Clear filters button */}
-          <div className='flex justify-end'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={clearFilters}
-              className='text-gray-600'
-            >
-              <X className='h-4 w-4 mr-2' />
-              Filters wissen
-            </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardContent>
       </Card>

@@ -13,7 +13,7 @@ export default function PGBProcesFlowPage() {
   React.useEffect(() => {
     const fetchClients = async () => {
       const { data } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('id, naam')
         .order('naam');
       setClients(data || []);

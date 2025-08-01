@@ -53,7 +53,7 @@ const NieuwDocumentGekozenClientPage: React.FC = () => {
     const fetchClientName = async () => {
       if (selectedClient) {
         const { data, error } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .select('naam')
           .eq('id', selectedClient)
           .single();

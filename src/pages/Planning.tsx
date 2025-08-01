@@ -85,7 +85,7 @@ const fetchClients = async (): Promise<Client[]> => {
   try {
     // First, let's fetch all fields to see what's available
     const { data: allFieldsData, error: allFieldsError } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .select('*')
       .limit(1);
 
@@ -95,7 +95,7 @@ const fetchClients = async (): Promise<Client[]> => {
     }
 
     const { data, error } = await supabase
-      .from('clients')
+      .from('clients_mockdata')
       .select('id, naam, telefoon, adres, email')
       .order('naam');
 

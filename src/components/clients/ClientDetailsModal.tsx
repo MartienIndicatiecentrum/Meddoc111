@@ -58,6 +58,20 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   onEdit,
   onQuickAction,
 }) => {
+  const [maxTabHeight, setMaxTabHeight] = React.useState<number | undefined>(
+    undefined
+  );
+  const tabRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    setTimeout(() => {
+      const heights = tabRefs.current.map(ref => ref?.offsetHeight || 0);
+      const max = Math.max(...heights);
+      setMaxTabHeight(max > 0 ? max : undefined);
+    }, 50);
+  }, [isOpen, client]);
+
   if (!client) {
     return null;
   }
@@ -139,9 +153,18 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </TabsTrigger>
           </TabsList>
 
-          <div className='overflow-y-auto max-h-[60vh] pr-4'>
+          <div
+            className='overflow-y-auto max-h-[60vh] pr-4'
+            style={{
+              minHeight: maxTabHeight ? `${maxTabHeight}px` : undefined,
+            }}
+          >
             {/* General Information Tab */}
-            <TabsContent value='general' className='space-y-6'>
+            <TabsContent
+              ref={el => (tabRefs.current[0] = el)}
+              value='general'
+              className='space-y-6'
+            >
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 {/* Personal Info */}
                 <div className='space-y-4'>
@@ -354,7 +377,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </TabsContent>
 
             {/* Care Information Tab */}
-            <TabsContent value='care' className='space-y-6'>
+            <TabsContent
+              ref={el => (tabRefs.current[1] = el)}
+              value='care'
+              className='space-y-6'
+            >
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 {/* Care Status */}
                 <div className='space-y-4'>
@@ -488,7 +515,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </TabsContent>
 
             {/* Workflow Tab */}
-            <TabsContent value='workflow' className='space-y-6'>
+            <TabsContent
+              ref={el => (tabRefs.current[2] = el)}
+              value='workflow'
+              className='space-y-6'
+            >
               <h3 className='font-semibold text-lg flex items-center gap-2'>
                 <ClipboardList className='w-5 h-5 text-blue-600' />
                 Proces Status
@@ -579,7 +610,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </TabsContent>
 
             {/* Services Tab */}
-            <TabsContent value='services' className='space-y-6'>
+            <TabsContent
+              ref={el => (tabRefs.current[3] = el)}
+              value='services'
+              className='space-y-6'
+            >
               <h3 className='font-semibold text-lg flex items-center gap-2'>
                 <Users className='w-5 h-5 text-green-600' />
                 Actieve Zorgdiensten
@@ -629,7 +664,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </TabsContent>
 
             {/* Notes Tab */}
-            <TabsContent value='notes' className='space-y-6'>
+            <TabsContent
+              ref={el => (tabRefs.current[4] = el)}
+              value='notes'
+              className='space-y-6'
+            >
               <ClientNotes clientId={client.id} />
             </TabsContent>
           </div>

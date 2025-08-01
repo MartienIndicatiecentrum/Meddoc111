@@ -164,7 +164,7 @@ const ChatWindow = () => {
 
       try {
         const { data, error } = await supabase
-          .from('clients')
+          .from('clients_mockdata')
           .select(`${field}, naam`)
           .eq('id', clientId)
           .single();

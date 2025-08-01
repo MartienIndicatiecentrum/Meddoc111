@@ -64,7 +64,7 @@ const DocumentPreview: React.FC = () => {
         setDocument(data);
         if (data.client_id) {
           const { data: clientData, error: clientError } = await supabase
-            .from('clients')
+            .from('clients_mockdata')
             .select('naam, geboortedatum')
             .eq('id', data.client_id)
             .single();

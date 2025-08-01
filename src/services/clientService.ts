@@ -65,19 +65,24 @@ export const clientService = {
    */
   async getClients(params?: PaginationParams): Promise<Client[]> {
     try {
-      let query = supabase.from('clients').select('*').order('naam');
+      console.log('🔍 Fetching clients from clients_mockdata table...');
+      let query = supabase.from('clients_mockdata').select('*').order('naam');
 
       if (params) {
         query = query.range(params.offset, params.offset + params.limit - 1);
       }
 
       const { data, error } = await query;
+      console.log('📊 Supabase response:', { data: data?.length || 0, error });
 
       if (error) {
+        console.error('❌ Error fetching clients:', error);
         handleSupabaseError(error, 'fetch clients');
       }
 
-      return (data || []).map(transformClient);
+      const transformedData = (data || []).map(transformClient);
+      console.log('✅ Transformed clients:', transformedData.length);
+      return transformedData;
     } catch (error) {
       if (error instanceof ServiceError) {
         throw error;
@@ -92,7 +97,7 @@ export const clientService = {
   async getClient(id: string): Promise<Client | null> {
     try {
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('*')
         .eq('id', id)
         .single();
@@ -166,11 +171,11 @@ export const clientService = {
   async getClientLogEntries(clientId: string): Promise<LogEntry[]> {
     try {
       const { data, error } = await supabase
-        .from('logboek')
+        .from('logboek_mockdata')
         .select(
           `
           *,
-          clients!logboek_client_id_fkey (
+          clients_mockdata!logboek_client_id_fkey (
             id,
             naam
           )
@@ -185,7 +190,7 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt',
+        client_name: entry.clients_mockdata?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
       if (error instanceof ServiceError) {
@@ -201,11 +206,11 @@ export const clientService = {
   async getAllLogEntries(filters?: LogEntryFilters): Promise<LogEntry[]> {
     try {
       let query = supabase
-        .from('logboek')
+        .from('logboek_mockdata')
         .select(
           `
           *,
-          clients!logboek_client_id_fkey (
+          clients_mockdata!logboek_client_id_fkey (
             id,
             naam
           )
@@ -236,7 +241,7 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt',
+        client_name: entry.clients_mockdata?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
       if (error instanceof ServiceError) {
@@ -252,11 +257,11 @@ export const clientService = {
   async getRecentLogEntries(limit: number = 5): Promise<LogEntry[]> {
     try {
       const { data, error } = await supabase
-        .from('logboek')
+        .from('logboek_mockdata')
         .select(
           `
           *,
-          clients!logboek_client_id_fkey (
+          clients_mockdata!logboek_client_id_fkey (
             id,
             naam
           )
@@ -271,7 +276,7 @@ export const clientService = {
 
       return (data || []).map(entry => ({
         ...transformLogEntry(entry),
-        client_name: entry.clients?.naam || 'Onbekende cliënt',
+        client_name: entry.clients_mockdata?.naam || 'Onbekende cliënt',
       }));
     } catch (error) {
       if (error instanceof ServiceError) {
@@ -317,7 +322,7 @@ export const clientService = {
       console.log('Creating log entry with data:', entry);
 
       const { data, error } = await supabase
-        .from('logboek')
+        .from('logboek_mockdata')
         .insert(entry)
         .select()
         .single();
@@ -372,7 +377,7 @@ export const clientService = {
   ): Promise<LogEntry | null> {
     try {
       const { data, error } = await supabase
-        .from('logboek')
+        .from('logboek_mockdata')
         .update(updates)
         .eq('id', id)
         .select()
@@ -416,7 +421,10 @@ export const clientService = {
    */
   async deleteLogEntry(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase.from('logboek').delete().eq('id', id);
+      const { error } = await supabase
+        .from('logboek_mockdata')
+        .delete()
+        .eq('id', id);
 
       if (error) {
         handleSupabaseError(error, 'delete log entry');
@@ -466,8 +474,8 @@ export const clientService = {
 
       // Verify client exists first
       const { data: client, error: clientError } = await supabase
-        .from('clients')
-        .select('id')
+        .from('clients_mockdata')
+        .select('naam')
         .eq('id', clientId)
         .single();
 
@@ -484,7 +492,7 @@ export const clientService = {
 
         // First check
         const { data: logEntry, error: logEntryError } = await supabase
-          .from('logboek')
+          .from('logboek_mockdata')
           .select('id, client_id')
           .eq('id', logEntryId)
           .single();

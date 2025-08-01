@@ -42,17 +42,19 @@ const TaskSummary: React.FC<TaskSummaryProps> = ({ tasks, max = 3 }) => {
   };
 
   return (
-    <div className='bg-white rounded shadow p-4 mb-4'>
-      <div className='heading-sm mb-2'>Takenoverzicht</div>
+    <div className='bg-white rounded shadow p-2 mb-2'>
+      <div className='heading-sm mb-1 text-base'>Takenoverzicht</div>
       {tasks.length === 0 ? (
         <p className='text-sm text-gray-500 italic'>Geen taken gevonden</p>
       ) : (
-        <ul className='text-sm text-gray-700 list-disc ml-6'>
+        <ul className='text-xs text-gray-700 list-disc ml-4'>
           {tasks.slice(0, max).map(task => (
-            <li key={task.id} className='mb-1'>
+            <li key={task.id} className='mb-0.5'>
               <span className='font-medium'>{task.task}</span>
               <span className='text-gray-600'> - {task.client}</span>
-              <span className={`text-xs ${getPriorityColor(task.deadline)}`}>
+              <span
+                className={`text-[10px] ${getPriorityColor(task.deadline)}`}
+              >
                 (t/m {formatDeadline(task.deadline)})
               </span>
             </li>

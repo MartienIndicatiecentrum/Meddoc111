@@ -182,7 +182,7 @@ const NewTaskPage: React.FC = () => {
       setSelectedClient(clientIdFromUrl);
       // Haal naam op
       supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select('naam, geboortedatum')
         .eq('id', clientIdFromUrl)
         .single()

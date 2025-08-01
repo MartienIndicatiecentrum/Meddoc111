@@ -45,7 +45,7 @@ const KiesClientDropdown: React.FC<KiesClientDropdownProps> = ({
     const fetchClients = async () => {
       setLoading(true);
       const { data, error } = await supabase
-        .from('clients')
+        .from('clients_mockdata')
         .select(
           'id,naam,geboortedatum,email,adres,telefoon,woonplaats,postcode,verzekeraar,polisnummer,bsn,notities'
         )
